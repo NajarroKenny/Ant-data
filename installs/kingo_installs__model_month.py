@@ -1,4 +1,4 @@
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from elasticsearch_dsl import Search, Q
 from ant_data import elastic
 
