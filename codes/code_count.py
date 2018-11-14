@@ -25,7 +25,7 @@ def df():
                 for plan in sale.plans.buckets:
                     data.append({ 'cat': cat.key, 'doctype': doctype.key, 'sale': sale.key, 'plan': plan.key, 'count': plan.doc_count })
 
-    df = DataFrame(json_normalize(data), dtype='int64')
+    df = DataFrame(json_normalize(data))
     df = df.set_index(['cat', 'doctype', 'sale', 'plan'])
 
     # If typecasting is necessary
