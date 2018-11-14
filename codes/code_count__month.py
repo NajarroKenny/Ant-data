@@ -4,9 +4,13 @@ from pandas import DataFrame, Series
 from pandas.io.json import json_normalize
 import pandas as pd
 
-def search():
+def search(q = None):
     s = Search(using=elastic, index='codes') \
         .query()
+
+    if q is not None:
+        s.query(q)
+
     s.aggs.bucket('cats', 'terms', field='cat', size=1000) \
         .bucket('doctypes', 'terms', field='doctype', size=1000) \
         .bucket('sales', 'terms', field='sale', size=1000) \
@@ -16,8 +20,8 @@ def search():
     s = s[:0]
     return s.execute()
 
-def df():
-    response = search()
+def df(q = None):
+    response = search(q)
 
     data = []
     for cat in response.aggregations.cats.buckets:
