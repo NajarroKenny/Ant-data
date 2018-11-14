@@ -20,11 +20,8 @@ def df():
 
     data = []
     for cat in response.aggregations.cats.buckets:
-        obj[cat.key] = { 'count': cat.doc_count }
         for doctype in cat.doctypes.buckets:
-            obj[cat.key][doctype.key] = { 'count': doctype.doc_count }
             for sale in doctype.sales.buckets:
-                obj[cat.key][doctype.key][sale.key] = { 'count': sale.doc_count }
                 for plan in sale.plans.buckets:
                     data.append({ 'cat': cat.key, 'doctype': doctype.key, 'sale': sale.key, 'plan': plan.key, 'count': plan.doc_count })
 
