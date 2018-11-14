@@ -1,0 +1,44 @@
+from ant_data import elastic
+from elasticsearch_dsl import Search, Q
+from pandas import DataFrame, Series
+from pandas.io.json import json_normalize
+import pandas as pd
+
+def search():
+    s = Search(using=elastic, index='codes') \
+        .query()
+    s.aggs.bucket('cats', 'terms', field='cat', size=1000) \
+        .bucket('doctypes', 'terms', field='doctype', size=1000) \
+        .bucket('sales', 'terms', field='sale', size=1000) \
+        .bucket('plans', 'terms', field='plan', size=1000)
+
+    s = s[:0]
+    return s.execute()
+
+def df():
+    response = search()
+
+    data = []
+    for cat in response.aggregations.cats.buckets:
+        obj[cat.key] = { 'count': cat.doc_count }
+        for doctype in cat.doctypes.buckets:
+            obj[cat.key][doctype.key] = { 'count': doctype.doc_count }
+            for sale in doctype.sales.buckets:
+                obj[cat.key][doctype.key][sale.key] = { 'count': sale.doc_count }
+                for plan in sale.plans.buckets:
+                    data.append({ 'cat': cat.key, 'doctype': doctype.key, 'sale': sale.key, 'plan': plan.key, 'count': plan.doc_count })
+
+    df = DataFrame(json_normalize(data), dtype='int64')
+    index = pd.MultiIndex.from_arrays([df['cat'], df['doctype'], df['sale'], df['plan']], names=['cat', 'doctype', 'sale', 'plan'])
+    df.reindex(index)
+
+    # If typecasting is necessary
+    df = df.fillna(0).astype('int64')
+    # If no typecasting is necessary
+    # df.fillna(0, inplace=True)
+
+    return df
+
+if __name__ == '__main__':
+    print('Kingo Installs by Model and Month')
+    print(df())
