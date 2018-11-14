@@ -17,8 +17,7 @@ def search(q = None):
         .bucket('plans', 'terms', field='plan', size=1000) \
         .bucket('months', 'date_histogram', field='datetime', interval='month')
 
-    s = s[:0]
-    return s.execute()
+    return s[:0].execute()
 
 def df(q = None):
     response = search(q)

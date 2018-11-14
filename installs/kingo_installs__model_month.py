@@ -14,7 +14,7 @@ def search(q = None):
     s.aggs.bucket('models', 'terms', field='model') \
         .bucket('by_months', 'date_histogram', field='opened', interval='month')
 
-    return s[0].execute()
+    return s[:0].execute()
 
 def df(q = None):
     response = search(q)

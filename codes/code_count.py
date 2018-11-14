@@ -16,8 +16,7 @@ def search(q = None):
         .bucket('sales', 'terms', field='sale', size=1000) \
         .bucket('plans', 'terms', field='plan', size=1000)
 
-    s = s[:0]
-    return s.execute()
+    return s[:0].execute()
 
 def df(q = None):
     response = search(q)

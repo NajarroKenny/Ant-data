@@ -5,8 +5,8 @@ from pandas import DataFrame, Series
 SNAME = 'Count'
 SINDEX = 'Date'
 
-def search(1 = None):
-    s = Search(using=elastic, index='people')
+def search(q = None):
+    s = Search(using=elastic, index='people') \
         .query('term', doctype='client')
 
     if q is not None:
@@ -14,7 +14,7 @@ def search(1 = None):
 
     s.aggs.bucket('by_months', 'date_histogram', field='opened', interval='month')
 
-    return s[0].execute()
+    return s[:0].execute()
 
 def series(q = None):
     response = search(q)
