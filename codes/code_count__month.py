@@ -31,7 +31,7 @@ def df():
     df = df.set_index(['cat', 'doctype', 'sale', 'plan', 'month'])
 
     # If typecasting is necessary
-    df = df.fillna(0).astype('int64')
+    # df = df.fillna(0).astype('int64')
     # If no typecasting is necessary
     # df.fillna(0, inplace=True)
 
