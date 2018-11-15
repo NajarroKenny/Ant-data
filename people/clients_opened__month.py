@@ -22,7 +22,7 @@ def series(q = None):
     obj = {month.key_as_string: month.doc_count for month in
            response.aggregations.by_months.buckets}
     series = Series(obj, dtype='int64')
-    series = series.reindex(series.index.astype('datetime64'))
+    series = series.reindex(series.index.astype('datetime64')).sort_index()
     if series.hasnans:
         series.fillna(0, inplace=True)
     series.name = SNAME

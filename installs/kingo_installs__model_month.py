@@ -24,7 +24,7 @@ def df(q = None):
         obj[model.key] = {month.key_as_string: month.doc_count for month in
                           model.by_months.buckets}
     df = DataFrame(obj, dtype='int64')
-    df = df.reindex(df.index.astype('datetime64'))
+    df = df.reindex(df.index.astype('datetime64')).sort_index()
     # If typecasting is necessary
     df = df.fillna(0).astype('int64')
     # If no typecasting is necessary

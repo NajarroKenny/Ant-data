@@ -29,7 +29,7 @@ def df(q = None):
                     data.append({ 'cat': cat.key, 'doctype': doctype.key, 'sale': sale.key, 'plan': plan.key, 'count': plan.doc_count })
 
     df = DataFrame(json_normalize(data))
-    df = df.set_index(['cat', 'doctype', 'sale', 'plan'])
+    df = df.set_index(['cat', 'doctype', 'sale', 'plan']).sort_index()
 
     # If typecasting is necessary
     # df = df.fillna(0).astype('int64')
@@ -39,5 +39,5 @@ def df(q = None):
     return df
 
 if __name__ == '__main__':
-    print('Kingo Installs by Model and Month')
+    print('Code count')
     print(df())

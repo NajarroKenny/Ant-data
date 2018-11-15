@@ -15,7 +15,8 @@ def search(q = None):
         .bucket('doctypes', 'terms', field='doctype', size=1000) \
         .bucket('sales', 'terms', field='sale', size=1000) \
         .bucket('plans', 'terms', field='plan', size=1000) \
-        .bucket('months', 'date_histogram', field='datetime', interval='month')
+        .bucket('months', 'date_histogram', field='datetime', interval='month') \
+        .metric('value', 'sum', field='value', missing=0)
 
     return s[:0].execute()
 
@@ -28,7 +29,7 @@ def df(q = None):
             for sale in doctype.sales.buckets:
                 for plan in sale.plans.buckets:
                     for month in plan.months.buckets:
-                        data.append({ 'cat': cat.key, 'doctype': doctype.key, 'sale': sale.key, 'plan': plan.key, 'month': month.key_as_string, 'count': month.doc_count })
+                        data.append({ 'cat': cat.key, 'doctype': doctype.key, 'sale': sale.key, 'plan': plan.key, 'month': month.key_as_string, 'value': month.value.value })
 
     df = DataFrame(json_normalize(data))
     df['month'] = df['month'].astype('datetime64')
