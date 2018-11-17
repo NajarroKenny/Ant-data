@@ -2,8 +2,8 @@ from ant_data import elastic
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
-SNAME = 'Count'
-SINDEX = 'Date'
+SNAME = 'count'
+SINDEX = 'date'
 
 def search(q = None):
     s = Search(using=elastic, index='people') \
