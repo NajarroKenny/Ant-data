@@ -10,7 +10,7 @@ def search(q = None):
         .query('term', doctype='client')
 
     if q is not None:
-        s.query(q)
+        s = s.query(q)
 
     s.aggs.bucket('by_months', 'date_histogram', field='opened', interval='month')
 

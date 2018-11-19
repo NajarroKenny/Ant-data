@@ -2,22 +2,15 @@ from ant_data import elastic
 from elasticsearch_dsl import Search, Q
 from elasticsearch_dsl.aggs import Terms, Nested
 from pandas import DataFrame, Series
-
-def search(q = None):
-    s = Search(using=elastic, index='people') \
-        .query('has_parent', parent_type='person', query=Q('term', doctype='client')) \
-        .query('term', doctype='stat')
-
-    if q is not None:
-        s = s.query(q)
-
-    s.aggs.bucket('models', 'terms', field='model') \
-        .bucket('months', 'date_histogram', field='date', interval='month')
-
-    return s[:0].execute()
+from .days_installed__model_month import search
 
 def df(q = None):
-    response = search(q)
+    if q is not None:
+        activeQ = Q('bool', must=[Q('term', active=True), q])
+    else:
+        activeQ = Q('term', active=True)
+
+    response = search(activeQ)
     obj = {}
     for model in response.aggregations.models.buckets:
         obj[model.key] = {month.key_as_string: month.doc_count for month in model.months.buckets}

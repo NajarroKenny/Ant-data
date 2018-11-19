@@ -9,7 +9,7 @@ def search(q = None):
         .query()
 
     if q is not None:
-        s.query(q)
+        s = s.query(q)
 
     s.aggs.bucket('cats', 'terms', field='cat', size=1000) \
         .bucket('doctypes', 'terms', field='doctype', size=1000) \
