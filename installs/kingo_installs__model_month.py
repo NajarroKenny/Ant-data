@@ -27,6 +27,7 @@ def df(q = None):
     df = df.reindex(df.index.astype('datetime64')).sort_index()
     # If typecasting is necessary
     df = df.fillna(0).astype('int64')
+    df['total'] = df.sum(axis=1)
     # If no typecasting is necessary
     # df.fillna(0, inplace=True)
     df.index.name = DFINDEX

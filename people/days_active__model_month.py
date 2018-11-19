@@ -18,6 +18,7 @@ def df(q = None):
     df = df.reindex(df.index.astype('datetime64')).sort_index()
     df = df.fillna(0).astype('int64')
     df.index.name = 'date'
+    df['total'] = df.sum(axis=1)
     df['days_in_month'] = df.index.daysinmonth
 
     return df
