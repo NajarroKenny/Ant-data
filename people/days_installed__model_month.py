@@ -4,6 +4,12 @@ from elasticsearch_dsl.aggs import Terms, Nested
 from pandas import DataFrame, Series
 
 def search(q = None):
+    """Count of days open, by Kingo Model and Month.
+
+    Input: elasticsearch-dsl Q object (optional)
+    Ouput: elasticsearch-dsl Search response
+    Description: Query days open, by Kingo Model and Month, from the People index."""
+
     s = Search(using=elastic, index='people') \
         .query('has_parent', parent_type='person', query=Q('term', doctype='client')) \
         .query('term', doctype='stat')
@@ -17,6 +23,12 @@ def search(q = None):
     return s[:0].execute()
 
 def df(q = None):
+    """Count of days open, by Kingo Model and Month.
+
+    Input: elasticsearch-dsl Q object (optional)
+    Ouput: pandas DataFrame
+    Description: Count of days open, by Kingo Model and Month, from the People index."""
+
     response = search(q)
     obj = {}
     for model in response.aggregations.models.buckets:
