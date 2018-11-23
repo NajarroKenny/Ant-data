@@ -10,7 +10,10 @@ sys.path.append(CWD)
 config = configparser.ConfigParser()
 config.read(sys.path[-1]+'/config.ini')
 
-if config['ES']['HOST'] is not None and config['ES']['PORT'] is not None:
+if config['ES']['HOST'] != '' and config['ES']['PORT'] != '':
+    print(f"Elasticsearch host is {config['ES']['HOST']}")
+    print(f"Elastcisearch port is {config['ES']['PORT']}")
+
     elastic = Elasticsearch(
         config['ES']['HOST'],
         port= config['ES']['PORT']
