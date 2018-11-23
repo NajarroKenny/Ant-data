@@ -1,11 +1,30 @@
-from ant_data import elastic
+"""
+Clients Opened per Month
+========================
+Provides functions to fetch and parse data from Kingo's ElasticSearch Data
+Warehouse to generate a report on new clients opened every month
+"""
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
+from ant_data import elastic
+
+# GLOBAL VARIABLES
 SNAME = 'count'
 SINDEX = 'date'
 
-def search(q = None):
+def search(q=None):
+    """Instantiates and builds a search object to perform the respective query.
+
+    The query is a simple date histogram by month with a single bucket 
+    aggregation executed on the 'people' index.
+
+    Args:
+        q (elasticsearch-dsl Q object, optional): Additional queries to chain.
+        
+    Returns:
+        elasticsearch-dsl search object response.
+    """
     s = Search(using=elastic, index='people') \
         .query('term', doctype='client')
 
@@ -16,7 +35,16 @@ def search(q = None):
 
     return s[:0].execute()
 
-def series(q = None):
+def series(q=None):
+    """Returns a series object with clients opened per month.
+
+    Args:
+        q (elasticsearch-dsl Q object, optional): Additional queries to chain.
+        
+    Returns:
+        Pandas Series with a datetime index named 'date' corresponding to months 
+        of the year and series name = 'count'
+    """
     response = search(q)
 
     obj = {month.key_as_string: month.doc_count for month in

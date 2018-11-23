@@ -1,10 +1,30 @@
-from ant_data import elastic
+"""
+Kingo installs by model and month
+========================
+Provides functions to fetch and parse data from Kingo's ElasticSearch Data
+Warehouse to generate a report on kingo installations every month by model
+"""
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
+from ant_data import elastic
+
+
+# GLOBAL VARIABLES
 DFINDEX = 'date'
 
 def search(q = None):
+    """Instantiates and builds a search object to perform the respective query.
+
+    The query is a terms aggregation on the 'model' field chained with a month
+    date histogram aggregation on the 'opened' field. The index is 'installs'
+
+    Args:
+        q (elasticsearch-dsl Q object, optional): Additional queries to chain.
+        
+    Returns:
+        elasticsearch-dsl search object response.
+    """
     s = Search(using=elastic, index='installs') \
         .query(Q('term', doctype='install') & ~Q('term', model='Kingo Shopkeeper'))
 
@@ -17,6 +37,17 @@ def search(q = None):
     return s[:0].execute()
 
 def df(q = None):
+    """Returns a dataframe object with kingos installed per model per month.
+
+    Args:
+        q (elasticsearch-dsl Q object, optional): Additional queries to chain.
+        
+    Returns:
+        Pandas DataFrame with a datetime index named 'date' corresponding to 
+        months of the year and columns = ['Kingo 15', 'Kingo - Basico', 
+        'Kingo TV', 'Kingo - Luz', 'Kingo Basico', 'Kingo 10', 'Kingo 100', 
+        'Kingo - TV', 'Kingo Hogar', 'no_model', 'total']
+    """
     response = search(q)
 
     obj = {}
