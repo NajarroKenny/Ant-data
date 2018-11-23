@@ -7,5 +7,5 @@ setup(name='ant_data',
       author='Roberto Hernandez',
       author_email='roberto.hernandez@kingoenergy.com',
       license='Private',
-      packages=['ant_data','ant_data.codes'],
+      packages=['ant_data'],
       zip_safe=False)
