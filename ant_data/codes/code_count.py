@@ -29,7 +29,7 @@ def search(q=None, group_level=4):
     Args:
         q (elasticsearch-dsl Q object, optional): Additional queries to chain.
         group_level (int, optional): Grouping level to which perform the search.
-        
+
     Returns:
         elasticsearch-dsl search object response.
     """
@@ -53,7 +53,7 @@ def search(q=None, group_level=4):
     }
     switcher.get(group_level, s)()
     return s[:0].execute()
-    
+
 def df(q=None, group_level=4):
     """Returns dataframe with code count at different grouping levels.
 
@@ -66,15 +66,15 @@ def df(q=None, group_level=4):
     Args:
         q (elasticsearch-dsl Q object, optional): Additional queries to chain.
         group_level (int, optional): Level to which group the data.
-        
+
     Returns:
-        Pandas DataFrame with a multi-level index that will depend on the 
-        group_level parameter and a single column named 'count'. The index 
+        Pandas DataFrame with a multi-level index that will depend on the
+        group_level parameter and a single column named 'count'. The index
         levels are:
         - Level 1: 'cat'
         - Level 2: 'doctype'
         - Level 3: 'sale'
-        - Level 4: 'plan' 
+        - Level 4: 'plan'
     """
     response = search(q, group_level)
 
@@ -82,46 +82,41 @@ def df(q=None, group_level=4):
 
     for cat in response.aggregations.cats.buckets:
         if group_level < 2:
-            data.append({ 
-                'cat': cat.key, 'count': cat.doc_count 
+            data.append({
+                'cat': cat.key, 'count': cat.doc_count
             })
-        
+
         else:
             for doctype in cat.doctypes.buckets:
                 if group_level < 3:
-                    data.append({ 
-                        'cat': cat.key, 'doctype': doctype.key, 
-                        'count': doctype.doc_count 
+                    data.append({
+                        'cat': cat.key, 'doctype': doctype.key,
+                        'count': doctype.doc_count
                     })
-                
+
                 else:
                     for sale in doctype.sales.buckets:
                         if group_level < 4:
-                            data.append({ 
-                                'cat': cat.key, 'doctype': doctype.key, 
-                                'sale': sale.key, 'count': sale.doc_count 
+                            data.append({
+                                'cat': cat.key, 'doctype': doctype.key,
+                                'sale': sale.key, 'count': sale.doc_count
                             })
-                        
+
                         else:
                             for plan in sale.plans.buckets:
-                                data.append({ 
-                                    'cat': cat.key, 'doctype': doctype.key, 
-                                    'sale': sale.key, 'plan': plan.key, 
-                                    'count': plan.doc_count 
+                                data.append({
+                                    'cat': cat.key, 'doctype': doctype.key,
+                                    'sale': sale.key, 'plan': plan.key,
+                                    'count': plan.doc_count
                                 })
-                            
+
     df = DataFrame(json_normalize(data))
-    
+
     switcher = {
         1: lambda: df.set_index(['cat']).sort_index(),
-        2: lambda: df.set_index(['cat', 'doctype']).sort_index(), 
-        3: lambda: df.set_index(['cat', 'doctype', 'sale']).sort_index(), 
+        2: lambda: df.set_index(['cat', 'doctype']).sort_index(),
+        3: lambda: df.set_index(['cat', 'doctype', 'sale']).sort_index(),
         4: lambda: df.set_index(['cat', 'doctype', 'sale', 'plan']).sort_index()
     }
-    
-    return switcher.get(group_level, lambda: DataFrame)()
 
-if __name__ == '__main__':
-    # print('Code count')
-    # print(df_v2(group_level=2))
-    pass
+    return switcher.get(group_level, lambda: DataFrame)()

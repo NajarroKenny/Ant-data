@@ -10,7 +10,3 @@ def df(q = None):
     df = active_df(q).div(installed_df(q))
     df = df.drop(['days_in_month'], axis=1)
     return df
-
-if __name__ == '__main__':
-    print('Average installed by Model and Month')
-    print(df())

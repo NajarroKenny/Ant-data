@@ -29,7 +29,3 @@ def df(q = None):
     df['days_in_month'] = df.index.daysinmonth
 
     return df
-
-if __name__ == '__main__':
-    print('Days installed by Model and Month')
-    print(df())

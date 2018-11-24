@@ -21,7 +21,7 @@ def search(q = None):
 
     Args:
         q (elasticsearch-dsl Q object, optional): Additional queries to chain.
-        
+
     Returns:
         elasticsearch-dsl search object response.
     """
@@ -41,11 +41,11 @@ def df(q = None):
 
     Args:
         q (elasticsearch-dsl Q object, optional): Additional queries to chain.
-        
+
     Returns:
-        Pandas DataFrame with a datetime index named 'date' corresponding to 
-        months of the year and columns = ['Kingo 15', 'Kingo - Basico', 
-        'Kingo TV', 'Kingo - Luz', 'Kingo Basico', 'Kingo 10', 'Kingo 100', 
+        Pandas DataFrame with a datetime index named 'date' corresponding to
+        months of the year and columns = ['Kingo 15', 'Kingo - Basico',
+        'Kingo TV', 'Kingo - Luz', 'Kingo Basico', 'Kingo 10', 'Kingo 100',
         'Kingo - TV', 'Kingo Hogar', 'no_model', 'total']
     """
     response = search(q)
@@ -64,7 +64,3 @@ def df(q = None):
     df.index.name = DFINDEX
 
     return df
-
-if __name__ == '__main__':
-    print('Kingo Installs by Model and Month')
-    print(df())

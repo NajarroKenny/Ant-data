@@ -40,7 +40,3 @@ def df(q = None):
     # df.fillna(0, inplace=True)
 
     return df
-
-if __name__ == '__main__':
-    print('Code count by month')
-    print(df())
