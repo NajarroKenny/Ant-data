@@ -49,6 +49,10 @@ def df(q = None):
 
     df.index = df.index.set_levels(df.index.levels[1].astype('datetime64'), level=1)
     df.index = df.index.set_levels(df.index.levels[0].astype('datetime64'), level=0)
+    df = df.rename(columns={ 'true': 'active', 'false': 'inactive'})
+    df.index = df.index.set_names('cohort', level=0)
+    df.index = df.index.set_names('month', level=1)
     df = df.fillna(0).astype('int64')
+    df['days_in_month'] = df.index.get_level_values(1).daysinmonth
 
     return df
