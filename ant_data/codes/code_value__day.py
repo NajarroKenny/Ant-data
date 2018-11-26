@@ -1,8 +1,8 @@
 """
-Code value per month
+Code value per day
 ========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
-Warehouse to generate a report on code value per month at different grouping 
+Warehouse to generate a report on code values per day at different grouping 
 levels
 
     - Level 1: Code Category
@@ -21,7 +21,7 @@ def search(q=None, group_level=4):
     """Instantiates and builds a search object to perform the respective query.
 
     The query is a multi-level grouping executed on the 'codes' index. The date
-    histogram at the MONTH level is the lowest grouping level, always present. 
+    histogram at the DAY level is the lowest grouping level, always present. 
     The other grouping levels are:
     - Level 1: Code Category
     - Level 2: Code Doctype
@@ -43,22 +43,22 @@ def search(q=None, group_level=4):
 
     switcher = {
         1: lambda: s.aggs.bucket('cats', 'terms', field='cat', size=1000) \
-            .bucket('months', 'date_histogram', field='datetime', interval='month') \
+            .bucket('days', 'date_histogram', field='datetime', interval='day') \
             .metric('value', 'sum', field='value', missing=0),
         2: lambda: s.aggs.bucket('cats', 'terms', field='cat', size=1000) \
             .bucket('doctypes', 'terms', field='doctype', size=1000) \
-            .bucket('months', 'date_histogram', field='datetime', interval='month') \
+            .bucket('days', 'date_histogram', field='datetime', interval='day') \
             .metric('value', 'sum', field='value', missing=0),
         3: lambda: s.aggs.bucket('cats', 'terms', field='cat', size=1000) \
             .bucket('doctypes', 'terms', field='doctype', size=1000) \
             .bucket('sales', 'terms', field='sale', size=1000) \
-            .bucket('months', 'date_histogram', field='datetime', interval='month') \
+            .bucket('days', 'date_histogram', field='datetime', interval='day') \
             .metric('value', 'sum', field='value', missing=0),
         4: lambda: s.aggs.bucket('cats', 'terms', field='cat', size=1000) \
             .bucket('doctypes', 'terms', field='doctype', size=1000) \
             .bucket('sales', 'terms', field='sale', size=1000) \
             .bucket('plans', 'terms', field='plan', size=1000) \
-            .bucket('months', 'date_histogram', field='datetime', interval='month') \
+            .bucket('days', 'date_histogram', field='datetime', interval='day') \
             .metric('value', 'sum', field='value', missing=0)
     }
     switcher.get(group_level, s)()
@@ -85,7 +85,7 @@ def df(q=None, group_level=4):
         - Level 2: 'doctype'
         - Level 3: 'sale'
         - Level 4: 'plan'
-        - Level 5: 'month'
+        - Level 5: 'day'
     """
     response = search(q, group_level)
 
@@ -94,51 +94,51 @@ def df(q=None, group_level=4):
     for cat in response.aggregations.cats.buckets:
         if group_level < 2:
             # breakpoint()
-            for month in cat.months.buckets:
+            for day in cat.days.buckets:
                 data.append({ 
-                    'cat': cat.key, 'month': month.key_as_string, 
-                    'value': month.value.value
+                    'cat': cat.key, 'day': day.key_as_string, 
+                    'value': day.value.value
                 })
         
         else:
             for doctype in cat.doctypes.buckets:
                 if group_level < 3:
-                    for month in doctype.months.buckets:
+                    for day in doctype.days.buckets:
                         data.append({ 
                             'cat': cat.key, 'doctype': doctype.key, 
-                            'month': month.key_as_string, 
-                            'value': month.value.value 
+                            'day': day.key_as_string, 
+                            'value': day.value.value 
                         })
 
                 else:
                     for sale in doctype.sales.buckets:
                         if group_level < 4:
-                            for month in sale.months.buckets:
+                            for day in sale.days.buckets:
                                 data.append({ 
                                     'cat': cat.key, 'doctype': doctype.key, 
                                     'sale': sale.key, 
-                                    'month': month.key_as_string, 
-                                    'value': month.value.value
+                                    'day': day.key_as_string, 
+                                    'value': day.value.value 
                                 })
                         
                         else:
                             for plan in sale.plans.buckets:
-                                for month in plan.months.buckets:
+                                for day in plan.days.buckets:
                                     data.append({ 
                                         'cat': cat.key, 'doctype': doctype.key, 
                                         'sale': sale.key, 'plan': plan.key, 
-                                        'month': month.key_as_string, 
-                                        'value': month.value.value 
+                                        'day': day.key_as_string, 
+                                        'value': day.value.value
                                     })
 
     df = DataFrame(json_normalize(data))
-    df['month'] = df['month'].astype('datetime64')
+    df['day'] = df['day'].astype('datetime64')
     
     switcher = {
-        1: lambda: df.set_index(['cat', 'month']).sort_index(),
-        2: lambda: df.set_index(['cat', 'doctype', 'month']).sort_index(),
-        3: lambda: df.set_index(['cat', 'doctype', 'sale', 'month']).sort_index(),
-        4: lambda: df.set_index(['cat', 'doctype', 'sale', 'plan', 'month']).sort_index()
+        1: lambda: df.set_index(['cat', 'day']).sort_index(),
+        2: lambda: df.set_index(['cat', 'doctype', 'day']).sort_index(),
+        3: lambda: df.set_index(['cat', 'doctype', 'sale', 'day']).sort_index(),
+        4: lambda: df.set_index(['cat', 'doctype', 'sale', 'plan', 'day']).sort_index()
     }
 
     return switcher.get(group_level, lambda: DataFrame)()
