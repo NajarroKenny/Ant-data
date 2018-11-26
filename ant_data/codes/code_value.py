@@ -87,7 +87,7 @@ def df(q=None, group_level=4):
         - Level 3: 'sale'
         - Level 4: 'plan'
     """
-    response = search(q)
+    response = search(q, group_level)
 
     data = []
 
