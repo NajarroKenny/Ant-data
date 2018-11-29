@@ -1,12 +1,12 @@
 from ant_data import elastic
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
-import pandas as pd
 
 
 def search(country, f=None, interval='month'):
-  s = Search(using=elastic, index='people_bak') \
-    .query('bool', filter=Q('term', country=country))
+  s = Search(using=elastic, index='people') \
+    .query('bool', filter=[Q('term', country=country), 
+                           Q('term', doctype='client')])
 
   if f is not None:
     s = s.query('bool', filter=f)
