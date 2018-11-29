@@ -1,0 +1,251 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CODE	../ant_data/static/CODES.py	/^CODE = {$/;"	kind:variable	line:1
+CODES.py	../ant_data/static/CODES.py	1;"	kind:file	line:1
+CREDIT	../ant_data/static/CODES.py	/^CREDIT = {$/;"	kind:variable	line:22
+CWD	../ant_data/__init__.py	/^CWD = os.path.dirname(os.path.realpath(__file__))$/;"	kind:variable	line:7
+DFINDEX	../ant_data/installs/kingo_installs__model_month.py	/^DFINDEX = 'date'$/;"	kind:variable	line:14
+DataFrame	../ant_data/codes/codes.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:3
+DataFrame	../ant_data/codes/codes_count.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:3
+DataFrame	../ant_data/codes/credits.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:3
+DataFrame	../ant_data/codes/credits__plan.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:3
+DataFrame	../ant_data/codes/credits_count.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:3
+DataFrame	../ant_data/dev/code_count.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:18
+DataFrame	../ant_data/installs/average_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/installs/days_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/installs/kingo_installs__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:8
+DataFrame	../ant_data/people/average_active__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/people/average_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/people/client_churn__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/people/clients_active__cohort_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/people/clients_opened__month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:8
+DataFrame	../ant_data/people/days_active__cohort_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/people/days_active__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/people/days_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/people/percent_active__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/systems/average_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+DataFrame	../ant_data/systems/days_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Elasticsearch	../ant_data/__init__.py	/^from elasticsearch import Elasticsearch$/;"	kind:namespace	line:5
+FINANCE.py	../ant_data/static/FINANCE.py	1;"	kind:file	line:1
+GEOGRAPHY.py	../ant_data/static/GEOGRAPHY.py	1;"	kind:file	line:1
+INTERVALS	../ant_data/static/TIME.py	/^INTERVALS = [$/;"	kind:variable	line:1
+IVA	../ant_data/codes/credits.py	/^from ..static.FINANCE import IVA$/;"	kind:namespace	line:6
+IVA	../ant_data/codes/credits__plan.py	/^from ..static.FINANCE import IVA$/;"	kind:namespace	line:6
+IVA	../ant_data/static/FINANCE.py	/^IVA = {$/;"	kind:variable	line:1
+Nested	../ant_data/installs/average_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/installs/days_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/people/average_active__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/people/average_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/people/client_churn__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/people/clients_active__cohort_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/people/days_active__cohort_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/people/days_active__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/people/days_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/people/percent_active__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/systems/average_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Nested	../ant_data/systems/days_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Q	../ant_data/codes/codes.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/codes/codes_count.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/codes/credits.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/codes/credits__plan.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/codes/credits_count.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/dev/code_count.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:17
+Q	../ant_data/installs/average_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/installs/days_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/installs/kingo_installs__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:7
+Q	../ant_data/people/average_active__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/people/average_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/people/client_churn__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/people/clients_active__cohort_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/people/clients_opened__month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:7
+Q	../ant_data/people/days_active__cohort_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/people/days_active__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/people/days_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/people/percent_active__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/systems/average_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Q	../ant_data/systems/days_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+REGIONS	../ant_data/static/GEOGRAPHY.py	/^REGIONS = [$/;"	kind:variable	line:1
+ROOT	../ant_data/dev/code_count.py	/^ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))$/;"	kind:variable	line:14
+SINDEX	../ant_data/people/clients_opened__month.py	/^SINDEX = 'date'$/;"	kind:variable	line:14
+SNAME	../ant_data/people/clients_opened__month.py	/^SNAME = 'count'$/;"	kind:variable	line:13
+Search	../ant_data/codes/codes.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/codes/codes_count.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/codes/credits.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/codes/credits__plan.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/codes/credits_count.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/dev/code_count.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:17
+Search	../ant_data/installs/average_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/installs/days_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/installs/kingo_installs__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:7
+Search	../ant_data/people/average_active__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/people/average_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/people/client_churn__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/people/clients_active__cohort_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/people/clients_opened__month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:7
+Search	../ant_data/people/days_active__cohort_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/people/days_active__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/people/days_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/people/percent_active__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/systems/average_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Search	../ant_data/systems/days_installed__model_month.py	/^from elasticsearch_dsl import Search, Q$/;"	kind:namespace	line:2
+Series	../ant_data/codes/codes.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:3
+Series	../ant_data/codes/codes_count.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:3
+Series	../ant_data/codes/credits.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:3
+Series	../ant_data/codes/credits__plan.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:3
+Series	../ant_data/codes/credits_count.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:3
+Series	../ant_data/dev/code_count.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:18
+Series	../ant_data/installs/average_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/installs/days_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/installs/kingo_installs__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:8
+Series	../ant_data/people/average_active__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/people/average_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/people/client_churn__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/people/clients_active__cohort_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/people/clients_opened__month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:8
+Series	../ant_data/people/days_active__cohort_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/people/days_active__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/people/days_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/people/percent_active__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/systems/average_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+Series	../ant_data/systems/days_installed__model_month.py	/^from pandas import DataFrame, Series$/;"	kind:namespace	line:4
+TECH	../ant_data/static/CODES.py	/^TECH = {$/;"	kind:variable	line:46
+TIME.py	../ant_data/static/TIME.py	1;"	kind:file	line:1
+Terms	../ant_data/installs/average_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/installs/days_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/people/average_active__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/people/average_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/people/client_churn__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/people/clients_active__cohort_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/people/days_active__cohort_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/people/days_active__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/people/days_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/people/percent_active__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/systems/average_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+Terms	../ant_data/systems/days_installed__model_month.py	/^from elasticsearch_dsl.aggs import Terms, Nested$/;"	kind:namespace	line:3
+__init__.py	../ant_data/__init__.py	1;"	kind:file	line:1
+__init__.py	../ant_data/codes/__init__.py	1;"	kind:file	line:1
+__init__.py	../ant_data/communities/__init__.py	1;"	kind:file	line:1
+__init__.py	../ant_data/dev/__init__.py	1;"	kind:file	line:1
+__init__.py	../ant_data/installs/__init__.py	1;"	kind:file	line:1
+__init__.py	../ant_data/people/__init__.py	1;"	kind:file	line:1
+__init__.py	../ant_data/static/__init__.py	1;"	kind:file	line:1
+__init__.py	../ant_data/stats/__init__.py	1;"	kind:file	line:1
+__init__.py	../ant_data/systems/__init__.py	1;"	kind:file	line:1
+_df	../ant_data/installs/average_installed__model_month.py	/^from .days_installed__model_month import df as _df$/;"	kind:namespace	line:6
+_df	../ant_data/people/average_active__model_month.py	/^from .days_active__model_month import df as _df$/;"	kind:namespace	line:6
+_df	../ant_data/people/average_installed__model_month.py	/^from .days_installed__model_month import df as _df$/;"	kind:namespace	line:6
+_df	../ant_data/people/client_churn__model_month.py	/^from .days_active__model_month import df as _df$/;"	kind:namespace	line:6
+_df	../ant_data/systems/average_installed__model_month.py	/^from .days_installed__model_month import df as _df$/;"	kind:namespace	line:6
+active_df	../ant_data/people/percent_active__model_month.py	/^from .days_active__model_month import df as active_df$/;"	kind:namespace	line:7
+author	../setup.py	/^      author='Roberto Hernandez',$/;"	kind:variable	line:7
+author_email	../setup.py	/^      author_email='roberto.hernandez@kingoenergy.com',$/;"	kind:variable	line:8
+average_active__model_month.py	../ant_data/people/average_active__model_month.py	1;"	kind:file	line:1
+average_installed__model_month.py	../ant_data/installs/average_installed__model_month.py	1;"	kind:file	line:1
+average_installed__model_month.py	../ant_data/people/average_installed__model_month.py	1;"	kind:file	line:1
+average_installed__model_month.py	../ant_data/systems/average_installed__model_month.py	1;"	kind:file	line:1
+client_churn__model_month.py	../ant_data/people/client_churn__model_month.py	1;"	kind:file	line:1
+clients_active__cohort_month.py	../ant_data/people/clients_active__cohort_month.py	1;"	kind:file	line:1
+clients_opened__month.py	../ant_data/people/clients_opened__month.py	1;"	kind:file	line:1
+code_count.py	../ant_data/dev/code_count.py	1;"	kind:file	line:1
+codes.py	../ant_data/codes/codes.py	1;"	kind:file	line:1
+codes_count.py	../ant_data/codes/codes_count.py	1;"	kind:file	line:1
+config	../ant_data/__init__.py	/^config = configparser.ConfigParser()$/;"	kind:variable	line:10
+configparser	../ant_data/__init__.py	/^import configparser$/;"	kind:namespace	line:1
+credits.py	../ant_data/codes/credits.py	1;"	kind:file	line:1
+credits__plan.py	../ant_data/codes/credits__plan.py	1;"	kind:file	line:1
+credits_count.py	../ant_data/codes/credits_count.py	1;"	kind:file	line:1
+days_active__cohort_month.py	../ant_data/people/days_active__cohort_month.py	1;"	kind:file	line:1
+days_active__model_month.py	../ant_data/people/days_active__model_month.py	1;"	kind:file	line:1
+days_installed__model_month.py	../ant_data/installs/days_installed__model_month.py	1;"	kind:file	line:1
+days_installed__model_month.py	../ant_data/people/days_installed__model_month.py	1;"	kind:file	line:1
+days_installed__model_month.py	../ant_data/systems/days_installed__model_month.py	1;"	kind:file	line:1
+description	../setup.py	/^      description='Fetch data from elasticsearch',$/;"	kind:variable	line:5
+df	../ant_data/codes/codes.py	/^def df(f = None, interval='month'):$/;"	kind:function	line:20
+df	../ant_data/codes/codes_count.py	/^def df(f = None, interval='month'):$/;"	kind:function	line:19
+df	../ant_data/codes/credits.py	/^def df(country='Guatemala', f=None, interval='month'):$/;"	kind:function	line:26
+df	../ant_data/codes/credits__plan.py	/^def df(country='Guatemala', f=None, interval='month', free=True, iva=True, commission=True):$/;"	kind:function	line:27
+df	../ant_data/codes/credits_count.py	/^def df(f = None, interval='month'):$/;"	kind:function	line:18
+df	../ant_data/dev/code_count.py	/^def df(q=None, group_level=4):$/;"	kind:function	line:62
+df	../ant_data/installs/average_installed__model_month.py	/^def df(q = None):$/;"	kind:function	line:8
+df	../ant_data/installs/days_installed__model_month.py	/^def df(q = None):$/;"	kind:function	line:19
+df	../ant_data/installs/kingo_installs__model_month.py	/^def df(q = None):$/;"	kind:function	line:39
+df	../ant_data/people/average_active__model_month.py	/^def df(q = None):$/;"	kind:function	line:8
+df	../ant_data/people/average_installed__model_month.py	/^def df(q = None):$/;"	kind:function	line:8
+df	../ant_data/people/client_churn__model_month.py	/^def df(q = None):$/;"	kind:function	line:8
+df	../ant_data/people/clients_active__cohort_month.py	/^def df(q = None):$/;"	kind:function	line:28
+df	../ant_data/people/days_active__cohort_month.py	/^def df(q = None):$/;"	kind:function	line:28
+df	../ant_data/people/days_active__model_month.py	/^def df(q = None):$/;"	kind:function	line:7
+df	../ant_data/people/days_installed__model_month.py	/^def df(q = None):$/;"	kind:function	line:25
+df	../ant_data/people/percent_active__model_month.py	/^def df(q = None):$/;"	kind:function	line:9
+df	../ant_data/systems/average_installed__model_month.py	/^def df(q = None):$/;"	kind:function	line:8
+df	../ant_data/systems/days_installed__model_month.py	/^def df(q = None):$/;"	kind:function	line:19
+elastic	../ant_data/__init__.py	/^    elastic = Elasticsearch($/;"	kind:variable	line:17
+elastic	../ant_data/__init__.py	/^    elastic = Elasticsearch()/;"	kind:variable	line:23
+elastic	../ant_data/codes/codes.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/codes/codes_count.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/codes/credits.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/codes/credits__plan.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/codes/credits_count.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/dev/code_count.py	/^from ant_data import elastic$/;"	kind:namespace	line:21
+elastic	../ant_data/installs/average_installed__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/installs/days_installed__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/installs/kingo_installs__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:10
+elastic	../ant_data/people/average_active__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/people/average_installed__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/people/client_churn__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/people/clients_active__cohort_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/people/clients_opened__month.py	/^from ant_data import elastic$/;"	kind:namespace	line:10
+elastic	../ant_data/people/days_active__cohort_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/people/days_active__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/people/days_installed__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/people/percent_active__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/systems/average_installed__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+elastic	../ant_data/systems/days_installed__model_month.py	/^from ant_data import elastic$/;"	kind:namespace	line:1
+installed_df	../ant_data/people/percent_active__model_month.py	/^from .days_installed__model_month import df as installed_df$/;"	kind:namespace	line:6
+json_normalize	../ant_data/codes/codes.py	/^from pandas.io.json import json_normalize$/;"	kind:namespace	line:4
+json_normalize	../ant_data/codes/codes_count.py	/^from pandas.io.json import json_normalize$/;"	kind:namespace	line:4
+json_normalize	../ant_data/codes/credits.py	/^from pandas.io.json import json_normalize$/;"	kind:namespace	line:4
+json_normalize	../ant_data/codes/credits__plan.py	/^from pandas.io.json import json_normalize$/;"	kind:namespace	line:4
+json_normalize	../ant_data/codes/credits_count.py	/^from pandas.io.json import json_normalize$/;"	kind:namespace	line:4
+json_normalize	../ant_data/dev/code_count.py	/^from pandas.io.json import json_normalize$/;"	kind:namespace	line:19
+kingo_installs__model_month.py	../ant_data/installs/kingo_installs__model_month.py	1;"	kind:file	line:1
+license	../setup.py	/^      license='Private',$/;"	kind:variable	line:9
+lost_communities.py	../ant_data/communities/lost_communities.py	1;"	kind:file	line:1
+os	../ant_data/__init__.py	/^import os$/;"	kind:namespace	line:2
+os	../ant_data/dev/code_count.py	/^import os$/;"	kind:namespace	line:12
+packages	../setup.py	/^      packages=['ant_data'],$/;"	kind:variable	line:10
+pd	../ant_data/codes/codes.py	/^import pandas as pd$/;"	kind:namespace	line:5
+pd	../ant_data/codes/codes_count.py	/^import pandas as pd$/;"	kind:namespace	line:5
+pd	../ant_data/codes/credits.py	/^import pandas as pd$/;"	kind:namespace	line:5
+pd	../ant_data/codes/credits__plan.py	/^import pandas as pd$/;"	kind:namespace	line:5
+pd	../ant_data/codes/credits_count.py	/^import pandas as pd$/;"	kind:namespace	line:5
+pd	../ant_data/people/clients_active__cohort_month.py	/^import pandas as pd$/;"	kind:namespace	line:5
+pd	../ant_data/people/days_active__cohort_month.py	/^import pandas as pd$/;"	kind:namespace	line:5
+percent_active__model_month.py	../ant_data/people/percent_active__model_month.py	1;"	kind:file	line:1
+port	../ant_data/__init__.py	/^        port= config['ES']['PORT']$/;"	kind:variable	line:19
+search	../ant_data/codes/codes.py	/^def search(f = None, interval='month'):$/;"	kind:function	line:7
+search	../ant_data/codes/codes_count.py	/^def search(f = None, interval='month'):$/;"	kind:function	line:7
+search	../ant_data/codes/credits.py	/^def search(country='Guatemala', f=None, interval='month'):$/;"	kind:function	line:9
+search	../ant_data/codes/credits__plan.py	/^def search(country='Guatemala', f=None, interval='month'):$/;"	kind:function	line:9
+search	../ant_data/codes/credits_count.py	/^def search(f = None, interval='month'):$/;"	kind:function	line:7
+search	../ant_data/dev/code_count.py	/^def search(q=None, group_level=4):$/;"	kind:function	line:24
+search	../ant_data/installs/days_installed__model_month.py	/^def search(q = None):$/;"	kind:function	line:6
+search	../ant_data/installs/kingo_installs__model_month.py	/^def search(q = None):$/;"	kind:function	line:16
+search	../ant_data/people/clients_active__cohort_month.py	/^def search(q = None):$/;"	kind:function	line:7
+search	../ant_data/people/clients_opened__month.py	/^def search(q=None):$/;"	kind:function	line:16
+search	../ant_data/people/days_active__cohort_month.py	/^def search(q = None):$/;"	kind:function	line:7
+search	../ant_data/people/days_active__model_month.py	/^from .days_installed__model_month import search$/;"	kind:namespace	line:5
+search	../ant_data/people/days_installed__model_month.py	/^def search(q = None):$/;"	kind:function	line:6
+search	../ant_data/systems/days_installed__model_month.py	/^def search(q = None):$/;"	kind:function	line:6
+series	../ant_data/people/clients_opened__month.py	/^def series(q=None):$/;"	kind:function	line:38
+setup	../setup.py	/^from setuptools import setup$/;"	kind:namespace	line:1
+setup.py	../setup.py	1;"	kind:file	line:1
+sys	../ant_data/__init__.py	/^import sys$/;"	kind:namespace	line:3
+sys	../ant_data/dev/code_count.py	/^import sys$/;"	kind:namespace	line:13
+url	../setup.py	/^      url='https:\/\/github.com\/kingoenergy\/ant_data',$/;"	kind:variable	line:6
+version	../setup.py	/^      version='0.1',$/;"	kind:variable	line:4
+zip_safe	../setup.py	/^      zip_safe=False)/;"	kind:variable	line:11

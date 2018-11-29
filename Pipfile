@@ -8,6 +8,8 @@ elasticsearch-dsl = "*"
 pandas = "*"
 numpy = "*"
 jupyter = "*"
+"bs4" = "*"
+requests = "*"
 
 [dev-packages]
 pylint = "*"
