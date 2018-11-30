@@ -25,7 +25,7 @@ def df(country, f=None):
     rows = []
     for hit in s.scan():
         row = {
-            'id': hit.id,
+            'community_id': hit.id,
             'community': hit.community,
             'municipality': hit.municipality,
             'department': hit.department
@@ -38,7 +38,8 @@ def df(country, f=None):
 
     df = DataFrame(rows)
     if not df.empty:
-        df = df.set_index('id')
+        df = df.set_index('community_id')
+        df.index.name = 'community_id'
         df = df[['lat', 'lon', 'community', 'municipality', 'department']]
 
     return df

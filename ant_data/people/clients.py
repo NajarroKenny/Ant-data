@@ -34,5 +34,6 @@ def df(country, f=None, interval='month'):
     df.index.name = 'date'
     df = df.reindex(df.index.astype('datetime64')).sort_index()
     df['open'] = df['opened'].cumsum() - df['closed'].cumsum()
+    df = df[(df.T != 0).any()]
 
     return df
