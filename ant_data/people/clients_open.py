@@ -37,10 +37,9 @@ def search_distinct(country, f=None, interval='month'):
     s = s.query('bool', filter=f)
 
   s.aggs.bucket('stats', 'children', type='stat') \
+    .bucket('date_range', 'filter', Q('range', date={'lte': 'now'})) \
     .bucket('dates', 'date_histogram', field='date', interval=interval) \
     .metric('count', 'cardinality', field='person_id', precision_threshold=40000)
-  
-  s.post_filter('range', date={'lte': 'now'})
   
   return s[:0].execute()
 
@@ -113,7 +112,7 @@ def df_distinct(country, f=None, interval='month'):
 
   obj = {}
 
-  for date in response.aggs.stats.dates.buckets: 
+  for date in response.aggs.stats.date_range.dates.buckets: 
     obj[date.key_as_string] = { date.count.value }
 
   df = DataFrame.from_dict(
