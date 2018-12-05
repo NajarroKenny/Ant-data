@@ -32,6 +32,10 @@ def df(country, f=None, interval='month'):
 
     df = DataFrame.from_dict(
         obj, orient='index', dtype='int64', columns=['opened', 'closed'])
+    
+    if df.empty:
+        return df
+    
     df.index.name = 'date'
     df = df.reindex(df.index.astype('datetime64')).sort_index()
     df = df.fillna(0).astype('int64')

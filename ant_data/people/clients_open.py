@@ -11,8 +11,9 @@ def search(country, f=None, interval='month'):
   if f is not None:
     s = s.query('bool', filter=f)
 
-  s.aggs.bucket('dates', 'date_histogram', field='opened', interval=interval)
-
+  s.aggs.bucket('stats', 'children', type='stat') \
+    .bucket('dates', 'date_histogram', field='date', interval=interval) \
+    .metric('count', 'cardinality', field='person_id', precision_threshold=40000)
   return s[:0].execute()
 
 def df(country, f=None, interval='month'):
@@ -20,13 +21,13 @@ def df(country, f=None, interval='month'):
 
   obj = {}
 
-  for date in response.aggregations.dates.buckets: 
-    obj[date.key_as_string] = { date.doc_count }
+  for date in response.aggs.stats.dates.buckets: 
+    obj[date.key_as_string] = { date.count.value }
 
   df = DataFrame.from_dict(
-    obj, orient='index', dtype='int64', columns=['opened']
+    obj, orient='index', dtype='int64', columns=['open']
   )
-  
+
   if df.empty:
     return df
 
