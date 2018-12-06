@@ -11,8 +11,12 @@ def search(country, type, f=None, interval='month'):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    s.aggs.bucket('dates', 'date_histogram', field=type, interval=interval) \
-        .bucket('communities', 'terms', field='community.community_id')
+    s.aggs.bucket(
+        'dates', 'date_histogram', field=type, interval=interval, 
+        min_doc_count=0
+    ).bucket(
+        'communities', 'terms', field='community.community_id', min_doc_count=0
+    )
 
     return s[:0].execute()
 

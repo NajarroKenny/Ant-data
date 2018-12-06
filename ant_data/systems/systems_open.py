@@ -24,7 +24,9 @@ def search_weighted(country, f=None, interval='month'):
   if f is not None:
     s = s.query('bool', filter=f)
   
-  s.aggs.bucket('dates', 'date_histogram', field='date', interval=interval)
+  s.aggs.bucket(
+    'dates', 'date_histogram', field='date', interval=interval, min_doc_count=0
+  )
   return s[:0].execute()
 
 
@@ -38,11 +40,14 @@ def search_distinct(country, f=None, interval='month'):
 
   s.aggs.bucket('stats', 'children', type='stat') \
     .bucket('date_range', 'filter', Q('range', date={'lte': 'now'})) \
-    .bucket('dates', 'date_histogram', field='date', interval=interval) \
-    .metric('count', 'cardinality', field='system_id', precision_threshold=40000)
+    .bucket(
+      'dates', 'date_histogram', field='date', interval=interval, 
+      min_doc_count=0
+    ).metric(
+      'count', 'cardinality', field='system_id', precision_threshold=40000
+    )
   
   return s[:0].execute()
-
 
 def df_start(country, f=None, interval='month'):
   open = open_now(country, f=f)
