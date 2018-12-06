@@ -51,7 +51,7 @@ def df_start(country, f=None, interval='month'):
   merged = opened.merge(closed, on='date', how='outer').sort_index()
   merged = merged.fillna(0).astype('int64')
 
-  df_start = DataFrame(index=merged.index, columns=['start'])
+  df = DataFrame(index=merged.index, columns=['start'])
   
   if merged.empty:
     return DataFrame(columns=['start'])
@@ -61,18 +61,18 @@ def df_start(country, f=None, interval='month'):
 
   for i in range(len(rev_idx)):
     if i == 0:
-      df_start.loc[rev_idx[i]] = (
+      df.loc[rev_idx[i]] = (
         open - merged['opened'].get(rev_idx[i], 0)
-        + closed['closed'].get(rev_idx[i], 0)
+        + merged['closed'].get(rev_idx[i], 0)
       )
   
     elif i > 0:
-      df_start.loc[rev_idx[i]] = (
-        df_start.loc[rev_idx[i-1]] - merged['opened'].get(rev_idx[i], 0)
-        + closed['closed'].get(rev_idx[i], 0)
+      df.loc[rev_idx[i]] = (
+        df.loc[rev_idx[i-1]] - merged['opened'].get(rev_idx[i], 0)
+        + merged['closed'].get(rev_idx[i], 0)
       )
 
-  return df_start
+  return df
 
 def df_end(country, f=None, interval='month'):
   open = open_now(country, f=f)
@@ -81,7 +81,7 @@ def df_end(country, f=None, interval='month'):
   merged = opened.merge(closed, on='date', how='outer').sort_index()
   merged = merged.fillna(0).astype('int64')
 
-  df_end = DataFrame(index=merged.index, columns=['end'])
+  df = DataFrame(index=merged.index, columns=['end'])
   
   if merged.empty:
     return DataFrame(columns=['end'])
@@ -91,15 +91,15 @@ def df_end(country, f=None, interval='month'):
 
   for i in range(len(rev_idx)):
     if i == 0:
-      df_end.loc[rev_idx[i]] = open
+      df.loc[rev_idx[i]] = open
 
     elif i > 0:
-      df_end.loc[rev_idx[i]] = (
-        df_end.loc[rev_idx[i-1]] - merged['opened'].get(rev_idx[i-1], 0)
-        + closed['closed'].get(rev_idx[i-1], 0)
+      df.loc[rev_idx[i]] = (
+        df.loc[rev_idx[i-1]] - merged['opened'].get(rev_idx[i-1], 0)
+        + merged['closed'].get(rev_idx[i-1], 0)
       )
 
-  return df_end
+  return df
 
 def df_average(country, f=None, interval='month'):
   return DataFrame(concat(
@@ -135,21 +135,21 @@ def df_weighted(country, f=None, interval='month'):
   for date in response.aggs.dates.buckets: 
     obj[date.key_as_string] = { date.doc_count }
   
-  df_weighted = DataFrame.from_dict(
+  df = DataFrame.from_dict(
     obj, orient='index', dtype='int64', columns=['weighted']
   )
 
-  if df_weighted.empty:
-    return df_weighted
+  if df.empty:
+    return df
 
-  df_weighted.index.name = 'date'
-  df_weighted = df_weighted.reindex(df_weighted.index.astype('datetime64')).sort_index()
-  bucket_len = [x.days for x in diff(df_weighted.index.tolist())]
-  bucket_len.append((Timestamp.now()-df_weighted.index[-1]).days)
+  df.index.name = 'date'
+  df = df.reindex(df.index.astype('datetime64')).sort_index()
+  bucket_len = [x.days for x in diff(df.index.tolist())]
+  bucket_len.append((Timestamp.now()-df.index[-1]).days)
 
-  df_weighted = df_weighted.div(bucket_len, axis='index')
+  df = df.div(bucket_len, axis='index')
 
-  return df_weighted.astype('int64')
+  return df.astype('int64')
 
 def df(country, method=None, f=None, interval='month'):
   
