@@ -1,27 +1,53 @@
-from ant_data import elastic
+"""
+Systems Opened by Model
+========================
+Provides functions to fetch and parse data from Kingo's ElasticSearch Data
+Warehouse to generate a report on systems opened by model
+
+- Create date:  2018-12-06
+- Update date:  2018-12-06
+- Version:      1.0
+- Notes:        Uses min_doc_count parameter and pre-populates de obj dictionary 
+                with all date x model combinations to guarantee dates are 
+                not sparse.
+"""
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, MultiIndex, Series
+
+from ant_data import elastic
 
 
 def search(country, f=None, interval='month'):
   s = Search(using=elastic, index='systems') \
-    .query('bool', filter=[Q('term', country=country), 
-                           Q('term', doctype='kingo')])
+    .query(
+      'bool', filter=[Q('term', country=country), Q('term', doctype='kingo')],
+      must_not=[Q('term', doctype='pos')]
+    )
 
   if f is not None:
     s = s.query('bool', filter=f)
 
-  s.aggs.bucket('dates', 'date_histogram', field='opened', interval=interval, min_doc_count=0) \
-    .bucket('models', 'terms', field='model', min_doc_count=0)
+  s.aggs.bucket(
+      'dates', 'date_histogram', field='opened', interval=interval, 
+      min_doc_count=0
+    ).bucket(
+      'models', 'terms', field='model', exclude='Kingo Shopkeeper', 
+      min_doc_count=0
+    )
 
   return s[:0].execute()
 
 def df(country, f=None, interval='month'):
   response = search(country, f=f, interval=interval)
 
-  obj = {}
+  dates = [x.key_as_string for x in response.aggs.dates.buckets]
+  models = list(
+    {y.key for x in response.aggs.dates.buckets for y in x.models.buckets}
+  )
 
-  for date in response.aggregations.dates.buckets: 
+  obj = {(x, y): { 'opened': 0 } for x in dates for y in models}
+  
+  for date in response.aggs.dates.buckets: 
     for model in date.models.buckets:
       obj[(date.key_as_string, model.key)] = { 'opened': model.doc_count }
 
