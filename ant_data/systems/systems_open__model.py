@@ -125,7 +125,7 @@ def df_start(country, f=None, interval='month'):
   closed = systems_closed__model.df(country, f=f, interval=interval)
   models = opened['model'].unique().tolist()
 
-  if models == []:
+  if opened.empty or closed.empty or models == []:
     return df
   
   for model in models:
@@ -171,7 +171,7 @@ def df_end(country, f=None, interval='month'):
   closed = systems_closed__model.df(country, f=f, interval=interval)
   models = opened['model'].unique().tolist()
 
-  if models == []:
+  if opened.empty or closed.empty or models == []:
     return df
   
   for model in models:
@@ -314,6 +314,9 @@ def df(country, method=None, f=None, interval='month'):
     average = df_average(country, f=f, interval=interval)
     distinct = df_distinct(country, f=f, interval=interval)
     weighted = df_weighted(country, f=f, interval=interval)
+
+    if start.empty or end.empty or average.empty or distinct.empy or weighted.empty:  
+      return DataFrame(columns=['start', 'end', 'average', 'weighted', 'distinct'])
 
     return start.merge(end, on=['date', 'model'], how='inner')\
       .merge(average, on=['date', 'model'], how='inner') \

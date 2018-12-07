@@ -64,8 +64,7 @@ def search_weighted(country, f=None, interval='month'):
   s = Search(using=elastic, index='systems') \
     .query(
       'has_parent', parent_type='system', query=Q('bool', filter=[
-        Q('term', country=country), Q('term', doctype='kingo'),
-        ~Q('term', model='Kingo Shopkeeper')
+        Q('term', country=country), Q('term', doctype='kingo')
       ])
     ).query('bool', filter=Q('term', doctype='stat')) \
     .query('range', date={'lte':'now'})
@@ -120,7 +119,7 @@ def df_end(country, f=None, interval='month'):
   closed = systems_closed.df(country, f=f, interval=interval)
   
   if opened.empty or closed.empty:
-    return DataFrame(columns=['start'])
+    return DataFrame(columns=['end'])
 
   merged = opened.merge(closed, on='date', how='outer').sort_index()
   merged = merged.fillna(0).astype('int64')
@@ -218,6 +217,9 @@ def df(country, method=None, f=None, interval='month'):
     distinct = df_distinct(country, f=f, interval=interval)
     weighted = df_weighted(country, f=f, interval=interval)
 
+    if start.empty or end.empty or average.empty or distinct.empy or weighted.empty:
+      return DataFrame(columns=['start', 'end', 'average', 'weighted', 'distinct'])
+    
     return start.merge(end, on='date', how='inner')\
       .merge(average, on='date', how='inner') \
       .merge(distinct, on='date', how='inner') \
