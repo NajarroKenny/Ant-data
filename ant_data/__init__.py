@@ -12,11 +12,13 @@ config.read(sys.path[-1]+'/config.ini')
 
 if config['ES']['HOST'] != '' and config['ES']['PORT'] != '':
     print(f"Elasticsearch host is {config['ES']['HOST']}")
-    print(f"Elastcisearch port is {config['ES']['PORT']}")
+    print(f"Elasticsearch port is {config['ES']['PORT']}")
+    print(f"Elasticsearch timeout is {config['ES']['TIMEOUT']}")
 
     elastic = Elasticsearch(
         config['ES']['HOST'],
-        port= config['ES']['PORT']
+        port= config['ES']['PORT'],
+        timeout = float(config['ES']['TIMEOUT'])
     )
 
 else:
