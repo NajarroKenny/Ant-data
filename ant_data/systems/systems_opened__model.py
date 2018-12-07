@@ -7,9 +7,12 @@ Warehouse to generate a report on systems opened by model
 - Create date:  2018-12-06
 - Update date:  2018-12-06
 - Version:      1.0
-- Notes:        Uses min_doc_count parameter and pre-populates de obj dictionary 
-                with all date x model combinations to guarantee dates are 
-                not sparse.
+
+Notes:
+==========================        
+- v1.0: Uses min_doc_count parameter and pre-populates de obj dictionary 
+        with all date x model combinations to guarantee dates are not sparse.
+- v1.1: Put filter on closed date < now. Added get method to df_open_now
 """
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, MultiIndex, Series
@@ -20,8 +23,10 @@ from ant_data import elastic
 def search(country, f=None, interval='month'):
   s = Search(using=elastic, index='systems') \
     .query(
-      'bool', filter=[Q('term', country=country), Q('term', doctype='kingo')],
-      must_not=[Q('term', doctype='pos')]
+      'bool', filter=[
+        Q('term', country=country), Q('term', doctype='kingo'),
+        Q('range', closed={'lte': 'now'})
+      ]
     )
 
   if f is not None:
@@ -64,7 +69,7 @@ def df(country, f=None, interval='month'):
     labels=df.index.labels, names=['date', 'model']
   )
   df = DataFrame(df.values, index=idx, columns=['opened']).sort_index().reset_index()
-  df = df.set_index('date')
+  df = df.set_index('date').sort_values(['model', 'date'])
 
   return df
 

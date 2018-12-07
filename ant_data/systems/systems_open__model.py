@@ -8,9 +8,11 @@ in five different ways: 'start', 'end', 'average', 'distinct', and 'weighted'
 - Create date:  2018-12-06
 - Update date:  2018-12-06
 - Version:      1.0
-- Notes:        Uses min_doc_count parameter and pre-populates de obj dictionary 
-                with all date x model combinations to guarantee dates are 
-                not sparse.
+
+Notes:        
+==========================
+- v1.0: Uses min_doc_count parameter and pre-populates de obj dictionary 
+        with all date x model combinations to guarantee dates are not sparse.
 """
 from elasticsearch_dsl import Search, Q
 from numpy import diff
@@ -111,7 +113,7 @@ def df_start(country, f=None, interval='month'):
   
   for model in models:
     merged = opened[opened['model']==model].merge(
-      closed[closed['model']==model], on=('date', 'model'), how='outer'
+      closed[closed['model']==model], on=['date', 'model'], how='outer'
     ).sort_index()
     merged = merged.fillna(0)
 
@@ -123,7 +125,7 @@ def df_start(country, f=None, interval='month'):
     for i in range(len(rev_idx)):
       if i == 0:
         df_model.loc[rev_idx[i]]['start'] = (
-          open.loc[model].tolist()[0] - merged['opened'].get(rev_idx[i], 0)
+          open['now'].get(model, 0) - merged['opened'].get(rev_idx[i], 0)
           + merged['closed'].get(rev_idx[i], 0)
         )
     
@@ -135,7 +137,8 @@ def df_start(country, f=None, interval='month'):
     
     df = df.append(df_model)
 
-  df.index.name = 'date'  
+  df.index.name = 'date'
+  df = df.sort_values(['model', 'date'])  
   
   return df
 
@@ -155,7 +158,7 @@ def df_end(country, f=None, interval='month'):
   
   for model in models:
     merged = opened[opened['model']==model].merge(
-      closed[closed['model']==model], on=('date', 'model'), how='outer'
+      closed[closed['model']==model], on=['date', 'model'], how='outer'
     ).sort_index()
     merged = merged.fillna(0)
 
@@ -166,7 +169,7 @@ def df_end(country, f=None, interval='month'):
     
     for i in range(len(rev_idx)):
       if i == 0:
-        df_model.loc[rev_idx[i]]['end'] = open.loc[model].tolist()[0]
+        df_model.loc[rev_idx[i]]['end'] = open['now'].get(model, 0)
     
       elif i > 0:
         df_model.loc[rev_idx[i]]['end'] = (
@@ -178,6 +181,7 @@ def df_end(country, f=None, interval='month'):
     df = df.append(df_model)
 
   df.index.name = 'date'
+  df = df.sort_values(['model', 'date'])
 
   return df
 
@@ -186,7 +190,7 @@ def df_average(country, f=None, interval='month'):
     df_end(country, f=f, interval=interval), on=['date','model'], how='outer').fillna(0)
   
   df['average'] = df[['start', 'end']].mean(axis=1)
-  df = df.drop(['start', 'end'], axis=1)
+  df = df.drop(['start', 'end'], axis=1).sort_values(['model', 'date'])
   
   return df
   
@@ -221,7 +225,7 @@ def df_distinct(country, f=None, interval='month'):
     labels=df.index.labels, names=['date', 'model']
   )
   df = DataFrame(df.values, index=idx, columns=['distinct']).sort_index().reset_index()
-  df = df.set_index('date')
+  df = df.set_index('date').sort_values(['model', 'date'])
 
   return df
 
@@ -266,6 +270,8 @@ def df_weighted(country, f=None, interval='month'):
 
     df[df['model']==model] = df_model
 
+  df = df.sort_values(['model', 'date'])
+
   return df
 
 def df(country, method=None, f=None, interval='month'):
@@ -288,6 +294,8 @@ def df(country, method=None, f=None, interval='month'):
     distinct = df_distinct(country, f=f, interval=interval)
     weighted = df_weighted(country, f=f, interval=interval)
 
-    return start.merge(end, on='date').merge(average, on='date') \
-      .merge(distinct, on='date').merge(weighted, on='date')
+    return start.merge(end, on=['date', 'model'], how='inner')\
+      .merge(average, on=['date', 'model'], how='inner') \
+      .merge(distinct, on=['date', 'model'], how='inner')\
+      .merge(weighted, on=['date', 'model'], how='inner')
   
