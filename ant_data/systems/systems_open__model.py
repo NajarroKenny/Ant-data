@@ -315,7 +315,7 @@ def df(country, method=None, f=None, interval='month'):
     distinct = df_distinct(country, f=f, interval=interval)
     weighted = df_weighted(country, f=f, interval=interval)
 
-    if start.empty or end.empty or average.empty or distinct.empy or weighted.empty:  
+    if start.empty or end.empty or average.empty or distinct.empty or weighted.empty:  
       return DataFrame(columns=['start', 'end', 'average', 'weighted', 'distinct'])
 
     return start.merge(end, on=['date', 'model'], how='inner')\
