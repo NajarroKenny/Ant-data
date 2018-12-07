@@ -34,7 +34,7 @@ def search(country, f=None, interval='month'):
       'dates', 'date_histogram', field='closed', interval=interval, 
       min_doc_count=0
     ).bucket(
-      'models', 'terms', field='model', exclude='Kingo Shopkeeper', 
+      'models', 'terms', field='model', exclude=['Kingo Shopkeeper', 'Ant Mobile'], 
       min_doc_count=0
     )
 

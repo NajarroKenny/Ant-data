@@ -36,7 +36,7 @@ def search_open_now(country, f=None):
     s = s.query('bool', filter=f)
 
   s.aggs.bucket(
-    'models', 'terms', field='model', exclude='Kingo Shopkeeper', 
+    'models', 'terms', field='model', exclude=['Kingo Shopkeeper', 'Ant Mobile'], 
     min_doc_count=0
   )
 
@@ -55,7 +55,7 @@ def search_distinct(country, f=None, interval='month'):
     s = s.query('bool', filter=f)
 
   s.aggs.bucket(
-    'models', 'terms', field='model', exclude='Kingo Shopkeeper', 
+    'models', 'terms', field='model', exclude=['Kingo Shopkeeper', 'Ant Mobile'], 
     min_doc_count=0
   ).bucket('stats', 'children', type='stat') \
   .bucket('date_range', 'filter', Q('range', date={'lte': 'now'})) \
@@ -79,7 +79,7 @@ def search_weighted(country, f=None, interval='month'):
     s = s.query('bool', filter=f)
 
   s.aggs.bucket(
-      'models', 'terms', field='model', exclude='Kingo Shopkeeper', 
+      'models', 'terms', field='model', exclude=['Kingo Shopkeeper', 'Ant Mobile'], 
       min_doc_count=0
   ).bucket('stats', 'children', type='stat') \
   .bucket('date_range', 'filter', Q('range', date={'lte': 'now'})) \
@@ -123,9 +123,13 @@ def df_start(country, f=None, interval='month'):
 
   opened = systems_opened__model.df(country, f=f, interval=interval)
   closed = systems_closed__model.df(country, f=f, interval=interval)
-  models = opened['model'].unique().tolist()
+  
+  if opened.empty or closed.empty:
+    return df
 
-  if opened.empty or closed.empty or models == []:
+  models = opened['model'].unique().tolist()
+  
+  if models == []:
     return df
   
   for model in models:
@@ -169,9 +173,13 @@ def df_end(country, f=None, interval='month'):
 
   opened = systems_opened__model.df(country, f=f, interval=interval)
   closed = systems_closed__model.df(country, f=f, interval=interval)
-  models = opened['model'].unique().tolist()
+ 
+  if opened.empty or closed.empty:
+    return df
 
-  if opened.empty or closed.empty or models == []:
+  models = opened['model'].unique().tolist()
+  
+  if models == []:
     return df
   
   for model in models:
