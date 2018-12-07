@@ -42,6 +42,7 @@ def search(country, f=None, interval='month'):
 
   return s[:0].execute()
 
+
 def df(country, f=None, interval='month'):
   response = search(country, f=f, interval=interval)
 

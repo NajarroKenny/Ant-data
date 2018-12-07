@@ -7,12 +7,13 @@ in five different ways: 'start', 'end', 'average', 'distinct', and 'weighted'
 
 - Create date:  2018-12-06
 - Update date:  2018-12-06
-- Version:      1.0
+- Version:      1.1
 
 Notes:        
 ==========================
 - v1.0: Uses min_doc_count parameter and pre-populates de obj dictionary 
         with all date x model combinations to guarantee dates are not sparse.
+- v1.1: Fixed bug when key didn't exit in df_open_now
 """
 from elasticsearch_dsl import Search, Q
 from numpy import diff
@@ -21,10 +22,15 @@ from pandas import concat, DataFrame, MultiIndex, offsets, Series, Timestamp
 from ant_data import elastic
 from ant_data.systems import systems_closed__model, systems_opened__model
 
+
 def search_open_now(country, f=None):
   s = Search(using=elastic, index='systems') \
-    .query('bool', filter=[Q('term', country=country), 
-    Q('term', doctype='kingo'), Q('term', open=True)])
+    .query(
+      'bool', filter=[
+        Q('term', country=country), Q('term', doctype='kingo'), 
+        Q('term', open=True)
+      ]
+    )
 
   if f is not None:
     s = s.query('bool', filter=f)
@@ -36,17 +42,21 @@ def search_open_now(country, f=None):
 
   return s[:0].execute()
 
+
 def search_distinct(country, f=None, interval='month'):
   s = Search(using=elastic, index='systems') \
-    .query('bool', filter=[Q('term', country=country), 
-                           Q('term', doctype='kingo')])
+    .query(
+      'bool', filter=[
+        Q('term', country=country), Q('term', doctype='kingo')
+      ]
+    )
 
   if f is not None:
     s = s.query('bool', filter=f)
 
   s.aggs.bucket(
-      'models', 'terms', field='model', exclude='Kingo Shopkeeper', 
-      min_doc_count=0
+    'models', 'terms', field='model', exclude='Kingo Shopkeeper', 
+    min_doc_count=0
   ).bucket('stats', 'children', type='stat') \
   .bucket('date_range', 'filter', Q('range', date={'lte': 'now'})) \
   .bucket(
@@ -56,11 +66,14 @@ def search_distinct(country, f=None, interval='month'):
   
   return s[:0].execute()
 
+
 def search_weighted(country, f=None, interval='month'):
-  
   s = Search(using=elastic, index='systems') \
-    .query('bool', filter=[Q('term', country=country), 
-                           Q('term', doctype='kingo')])
+    .query(
+      'bool', filter=[
+        Q('term', country=country), Q('term', doctype='kingo')
+      ]
+    )
 
   if f is not None:
     s = s.query('bool', filter=f)
@@ -77,10 +90,13 @@ def search_weighted(country, f=None, interval='month'):
   
   return s[:0].execute()
 
+
 def df_open_now(country, f=None, interval='month'):
   response = search_open_now(country, f=f)
 
-  obj = {}
+  models = [x.key for x in response.aggs.models.buckets]
+
+  obj = {x: { 0 } for x in models}
 
   for model in response.aggs.models.buckets: 
     obj[model.key] = { model.doc_count }
@@ -96,6 +112,7 @@ def df_open_now(country, f=None, interval='month'):
   df = df.sort_index()
 
   return df
+
 
 def df_start(country, f=None, interval='month'):
   df = DataFrame(columns=['model', 'start'])
@@ -142,6 +159,7 @@ def df_start(country, f=None, interval='month'):
   
   return df
 
+
 def df_end(country, f=None, interval='month'):
   df = DataFrame(columns=['model', 'end'])
   open = df_open_now(country, f=f)
@@ -185,6 +203,7 @@ def df_end(country, f=None, interval='month'):
 
   return df
 
+
 def df_average(country, f=None, interval='month'):
   df = df_start(country, f=f, interval=interval).merge(
     df_end(country, f=f, interval=interval), on=['date','model'], how='outer').fillna(0)
@@ -193,7 +212,8 @@ def df_average(country, f=None, interval='month'):
   df = df.drop(['start', 'end'], axis=1).sort_values(['model', 'date'])
   
   return df
-  
+
+
 def df_distinct(country, f=None, interval='month'):
 
   response = search_distinct(country, f=f, interval=interval)
@@ -228,6 +248,7 @@ def df_distinct(country, f=None, interval='month'):
   df = df.set_index('date').sort_values(['model', 'date'])
 
   return df
+
 
 def df_weighted(country, f=None, interval='month'):
   response = search_weighted(country, f=f, interval=interval)
@@ -265,7 +286,7 @@ def df_weighted(country, f=None, interval='month'):
 
     df_model = df[df['model']==model]
     bucket_len = [x.days for x in diff(df_model.index.tolist())]
-    bucket_len.append((Timestamp.now()-df_model.index[-1]).days)
+    bucket_len.append((Timestamp.now()-df_model.index[-1]).days + 1)
     df_model['distinct'] = df_model['distinct'].div(bucket_len, axis='index')
 
     df[df['model']==model] = df_model
@@ -274,8 +295,8 @@ def df_weighted(country, f=None, interval='month'):
 
   return df
 
+
 def df(country, method=None, f=None, interval='month'):
-  
   switcher = {
      'start': df_start,
      'end':  df_end,

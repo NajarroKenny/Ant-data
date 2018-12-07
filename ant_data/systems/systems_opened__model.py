@@ -1,12 +1,12 @@
 """
 Systems Opened by Model
-========================
+==========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on systems opened by model
 
 - Create date:  2018-12-06
 - Update date:  2018-12-06
-- Version:      1.0
+- Version:      1.1
 
 Notes:
 ==========================        
@@ -25,7 +25,7 @@ def search(country, f=None, interval='month'):
     .query(
       'bool', filter=[
         Q('term', country=country), Q('term', doctype='kingo'),
-        Q('range', closed={'lte': 'now'})
+        Q('range', opened={'lte': 'now'})
       ]
     )
 
@@ -41,6 +41,7 @@ def search(country, f=None, interval='month'):
     )
 
   return s[:0].execute()
+
 
 def df(country, f=None, interval='month'):
   response = search(country, f=f, interval=interval)

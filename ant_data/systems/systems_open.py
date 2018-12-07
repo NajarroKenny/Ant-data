@@ -1,39 +1,49 @@
-from ant_data import elastic
+"""
+Systems Open
+========================
+Provides functions to fetch and parse data from Kingo's ElasticSearch Data
+Warehouse to generate reports on systems open. The 'open' count is done
+in five different ways: 'start', 'end', 'average', 'distinct', and 'weighted'
+
+- Create date:  2018-12-04
+- Update date:  2018-12-06
+- Version:      1.1
+
+Notes:        
+==========================
+- v1.0: Initial version
+- v1.1: Updated with standards from v1.0 of systems_open__model
+"""
 from elasticsearch_dsl import Search, Q
 from numpy import diff
 from pandas import concat, DataFrame, offsets, Series, Timestamp
+
+from ant_data import elastic
 from ant_data.systems import systems_closed, systems_opened
+
 
 def open_now(country, f=None):
   s = Search(using=elastic, index='systems') \
-    .query('bool', filter=[Q('term', country=country), 
-    Q('term', doctype='kingo'), Q('term', open=True)])
+    .query(
+      'bool', filter=[
+        Q('term', country=country), Q('term', doctype='kingo'), 
+        Q('term', open=True)
+      ]
+    )
 
   if f is not None:
     s = s.query('bool', filter=f)
 
   return s[:0].execute().hits.total
 
-def search_weighted(country, f=None, interval='month'):
-  s = Search(using=elastic, index='systems') \
-        .query('has_parent', parent_type='system', query=Q('bool', 
-          filter=[Q('term', country=country), Q('term', doctype='kingo')])) \
-        .query('bool', filter=Q('term', doctype='stat')) \
-        .query('range', date={'lte':'now'})
-
-  if f is not None:
-    s = s.query('bool', filter=f)
-  
-  s.aggs.bucket(
-    'dates', 'date_histogram', field='date', interval=interval, min_doc_count=0
-  )
-  return s[:0].execute()
-
 
 def search_distinct(country, f=None, interval='month'):
   s = Search(using=elastic, index='systems') \
-    .query('bool', filter=[Q('term', country=country), 
-                           Q('term', doctype='kingo')])
+    .query(
+      'bool', filter=[
+        Q('term', country=country), Q('term', doctype='kingo')
+      ]
+    )
 
   if f is not None:
     s = s.query('bool', filter=f)
@@ -46,13 +56,37 @@ def search_distinct(country, f=None, interval='month'):
     ).metric(
       'count', 'cardinality', field='system_id', precision_threshold=40000
     )
-  
+
   return s[:0].execute()
+
+
+def search_weighted(country, f=None, interval='month'):
+  s = Search(using=elastic, index='systems') \
+    .query(
+      'has_parent', parent_type='system', query=Q('bool', filter=[
+        Q('term', country=country), Q('term', doctype='kingo'),
+        ~Q('term', model='Kingo Shopkeeper')
+      ])
+    ).query('bool', filter=Q('term', doctype='stat')) \
+    .query('range', date={'lte':'now'})
+
+  if f is not None:
+    s = s.query('bool', filter=f)
+  
+  s.aggs.bucket(
+    'dates', 'date_histogram', field='date', interval=interval, min_doc_count=0
+  )
+  return s[:0].execute()
+  
 
 def df_start(country, f=None, interval='month'):
   open = open_now(country, f=f)
   opened = systems_opened.df(country, f=f, interval=interval)
   closed = systems_closed.df(country, f=f, interval=interval)
+  
+  if opened.empty or closed.empty:
+    return DataFrame(columns=['start'])
+
   merged = opened.merge(closed, on='date', how='outer').sort_index()
   merged = merged.fillna(0).astype('int64')
 
@@ -79,10 +113,15 @@ def df_start(country, f=None, interval='month'):
 
   return df
 
+
 def df_end(country, f=None, interval='month'):
   open = open_now(country, f=f)
   opened = systems_opened.df(country, f=f, interval=interval)
   closed = systems_closed.df(country, f=f, interval=interval)
+  
+  if opened.empty or closed.empty:
+    return DataFrame(columns=['start'])
+
   merged = opened.merge(closed, on='date', how='outer').sort_index()
   merged = merged.fillna(0).astype('int64')
 
@@ -106,16 +145,18 @@ def df_end(country, f=None, interval='month'):
 
   return df
 
+
 def df_average(country, f=None, interval='month'):
   return DataFrame(concat(
     (df_start(country, f=f, interval=interval), df_end(country, f=f, interval=interval)), 
     axis=1).mean(axis=1)).astype('int64').rename(columns={0: 'average'})
   
-def df_distinct(country, f=None, interval='month'):
 
+def df_distinct(country, f=None, interval='month'):
   response = search_distinct(country, f=f, interval=interval)
 
-  obj = {}
+  dates = [x.key_as_string for x in response.aggs.stats.date_range.dates.buckets]
+  obj = { x: { 0 } for x in dates}
 
   for date in response.aggs.stats.date_range.dates.buckets: 
     obj[date.key_as_string] = { date.count.value }
@@ -132,10 +173,12 @@ def df_distinct(country, f=None, interval='month'):
 
   return df
 
+
 def df_weighted(country, f=None, interval='month'):
   response = search_weighted(country, f=f, interval=interval)
 
-  obj = {}
+  dates = [x.key_as_string for x in response.aggs.dates.buckets]
+  obj = { x: { 0 } for x in dates}
 
   for date in response.aggs.dates.buckets: 
     obj[date.key_as_string] = { date.doc_count }
@@ -150,14 +193,13 @@ def df_weighted(country, f=None, interval='month'):
   df.index.name = 'date'
   df = df.reindex(df.index.astype('datetime64')).sort_index()
   bucket_len = [x.days for x in diff(df.index.tolist())]
-  bucket_len.append((Timestamp.now()-df.index[-1]).days)
-
+  bucket_len.append((Timestamp.now()-df.index[-1]).days + 1)
   df = df.div(bucket_len, axis='index')
 
   return df.astype('int64')
 
+
 def df(country, method=None, f=None, interval='month'):
-  
   switcher = {
      'start': df_start,
      'end':  df_end,
@@ -176,6 +218,8 @@ def df(country, method=None, f=None, interval='month'):
     distinct = df_distinct(country, f=f, interval=interval)
     weighted = df_weighted(country, f=f, interval=interval)
 
-    return start.merge(end, on='date').merge(average, on='date') \
-      .merge(distinct, on='date').merge(weighted, on='date')
+    return start.merge(end, on='date', how='inner')\
+      .merge(average, on='date', how='inner') \
+      .merge(distinct, on='date', how='inner') \
+      .merge(weighted, on='date', how='inner')
   
