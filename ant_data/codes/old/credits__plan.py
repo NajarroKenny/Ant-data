@@ -47,7 +47,7 @@ def df(
 
   obj = {}
 
-  for date in response.aggs.dates.buckets:
+  for date in response.aggregations.dates.buckets:
     obj[date.key_as_string] = {}
     
     for plan in date.plans.buckets:

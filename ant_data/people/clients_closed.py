@@ -45,7 +45,7 @@ def df(country, f=None, interval='month'):
   dates = [x.key_as_string for x in response.aggs.dates.buckets]
   obj = {x: { 0 } for x in dates}
 
-  for date in response.aggregations.dates.buckets: 
+  for date in response.aggs.dates.buckets: 
     obj[date.key_as_string] = { date.doc_count }
 
   df = DataFrame.from_dict(
