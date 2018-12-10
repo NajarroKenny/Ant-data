@@ -31,7 +31,7 @@ config.read(sys.path[-1]+'/config.ini')
 def engine():
   return create_engine(
     f"postgresql+psycopg2://{config['PG']['USER']}:{config['PG']['PASSWORD']}"
-    f"@{config['PG']['HOST']}:{config['PG']['PORT']}/{config['PG']['GTM-DB']}", 
+    f"@{config['PG']['HOST']}:{config['PG']['PORT']}/{config['PG']['DB']}", 
     echo=True
   )
 
@@ -39,7 +39,11 @@ def engine():
 ENGINE = engine()
 
 
-def fetch_sync_log(engine):
+def fetch_sync_log(country, engine):
+  switcher = {
+    'Guatemala': 'public',
+    'Colombia': 'fdw_kingo_co'
+  }
   query = (
     "SELECT (sl.region||':pos:'||sl.pos_id) AS system_id, "
       "CASE "
@@ -51,7 +55,7 @@ def fetch_sync_log(engine):
       "ai.shopkeeper_id AS person_id, "
       "ai.employee_id AS employee_id, "
       "max(sl.date) sync_date "
-    "FROM public.sync_log sl "
+    f"FROM {switcher.get(country)}.sync_log sl "
     "INNER JOIN stream.application_instance ai ON ai.id = sl.pos_id "
     "GROUP BY 1, 2, 3, 4 "
     "ORDER BY 1;"
@@ -79,7 +83,7 @@ def fetch_user_list(engine):
   return read_sql(query, engine)
 
 
-def index_sync_log():
+def index_sync_log(country):
   def gendata(df):
     for i in range(len(df)):
       system_id = df.index[i]
@@ -107,7 +111,7 @@ def index_sync_log():
           "doc": doc
       }
   
-  sync_log = fetch_sync_log(ENGINE)
+  sync_log = fetch_sync_log(country, ENGINE)
   user_list = fetch_user_list(ENGINE)
   sync_df = sync_log.merge(user_list, on='employee_id', how='left')\
     .drop('employee_id', axis=1).set_index(sync_log.index)
