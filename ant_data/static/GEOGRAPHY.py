@@ -1,3 +1,5 @@
+COUNTRY_LIST = ['Colombia', 'Guatemala']
+
 REGIONS = [
   {'key': 'GTM', 'name': 'Guatemala', 'level_1': [
     {'key': 'GTM_1', 'name': 'Alta Verapaz', 'level_2': [

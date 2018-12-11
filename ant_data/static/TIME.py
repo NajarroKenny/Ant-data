@@ -5,3 +5,8 @@ INTERVALS = [
     {'key': 'quarter', 'name': 'Trimestre'},
     {'key': 'year', 'name': 'Año'}
 ]
+
+TZ = {
+    'Guatemala': 'America/Guatemala',
+    'Colombia': 'America/Bogota'
+}

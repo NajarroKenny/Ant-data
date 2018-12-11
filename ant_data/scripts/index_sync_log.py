@@ -1,5 +1,5 @@
 """
-Sync Log
+Index sync Log
 ==========================
 Contains functions to fetch Kingo's POS sync log from Postgres SQL and index it
 to elasticsearch
@@ -22,6 +22,7 @@ import psycopg2
 from sqlalchemy import create_engine
 
 from ant_data import elastic
+from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
 config = configparser.ConfigParser()
@@ -84,6 +85,9 @@ def fetch_user_list(engine):
 
 
 def index_sync_log(country):
+  if country not in COUNTRY_LIST:
+    raise Exception(f'{country} is not a valid country')
+
   def gendata(df):
     for i in range(len(df)):
       system_id = df.index[i]
@@ -93,8 +97,12 @@ def index_sync_log(country):
       sync_date = df.iloc[i]['sync_date']  
       
       doc = {
+        "_index": "sync_log",
+        "_type": "_doc",
         "system_id": system_id,
-        "sync_date": sync_date}
+        "country": country,
+        "sync_date": sync_date
+      }
 
       if instance_type is not None:
         doc['instance_type'] = instance_type
@@ -105,11 +113,8 @@ def index_sync_log(country):
       if isinstance(agent_id, str):
         doc['agent_id'] = agent_id
 
-      yield {
-          "_index": "sync_log",
-          "_type": "_doc",
-          "doc": doc
-      }
+      yield doc
+      
   
   sync_log = fetch_sync_log(country, ENGINE)
   user_list = fetch_user_list(ENGINE)
