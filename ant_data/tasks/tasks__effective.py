@@ -19,7 +19,8 @@ from ant_data import elastic
 from ant_data.tasks import tasks__action_list as tal
 
 
-def df(country, f=None, interval='month'):
-    actions = ['attach-kingo-new', 'attach-kingo-swap', 'attach-kingo-pickup', 'receipt-hour', 'receipt-day', 'receipt-three_days',
+action_list=['attach-kingo-new', 'attach-kingo-swap', 'attach-kingo-pickup',
                'receipt-week', 'receipt-fortnight', 'receipt-month', 'receipt-quarter', 'receipt-semester', 'receipt-year']
-    return tal.df(country, actions, f, interval)
+
+def df(country, f=None, interval='month'):
+    return tal.df(country, action_list, f, interval)
