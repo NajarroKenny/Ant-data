@@ -26,12 +26,12 @@ def search(country, f=None, interval='month'):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    s.aggs.bucket('agents', 'terms', field='agent_id') \
+    s.aggs.bucket('agents', 'terms', field='agent_id', size=10000) \
         .bucket(
         'dates', 'date_histogram', field='due', interval=interval,
         min_doc_count=0
     ) \
-        .bucket('status', 'terms', field='status') \
+        .bucket('status', 'terms', field='status', size=10000) \
 
     return s[:0].execute()
 

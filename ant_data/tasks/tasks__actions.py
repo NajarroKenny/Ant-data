@@ -2,7 +2,7 @@
 Clients Opened
 ==========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
-Warehouse to generate a report on task histories/actions.
+Warehouse to generate a report on task status.
 
 - Create date:  2018-12-10
 - Update date:
@@ -21,17 +21,18 @@ from ant_data import elastic
 def search(country, f=None, interval='month'):
     s = Search(using=elastic, index='tasks') \
         .query('term', country=country) \
-        .query('term', doctype='history')
+        .query('term', doctype='task')
 
     if f is not None:
         s = s.query('bool', filter=f)
 
-    s.aggs.bucket('agents', 'terms', field='agent_id') \
+    s.aggs.bucket('agents', 'terms', field='agent_id', size=10000) \
         .bucket(
-        'dates', 'date_histogram', field='datetime', interval=interval,
+        'dates', 'date_histogram', field='due', interval=interval,
         min_doc_count=0
     ) \
-        .bucket('types', 'terms', field='type') \
+        .bucket('histories', 'children', type='history') \
+        .bucket('actions', 'terms', field='type', size=10000) \
 
     return s[:0].execute()
 
@@ -44,7 +45,7 @@ def df(country, f=None, interval='month'):
         obj[agent.key] = {}
         for interval in agent.dates.buckets:
             obj[agent.key][interval.key_as_string] = {}
-            for action in interval.types.buckets:
+            for action in interval.histories.actions.buckets:
                 obj[agent.key][interval.key_as_string][action.key] = action.doc_count
 
     df = DataFrame.from_dict({(i, j): obj[i][j]

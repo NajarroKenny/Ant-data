@@ -26,12 +26,12 @@ def search(country, f=None, interval='month'):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    s.aggs.bucket('agents', 'terms', field='agent_id') \
+    s.aggs.bucket('agents', 'terms', field='agent_id', size=10000) \
         .bucket(
         'dates', 'date_histogram', field='due', interval=interval,
         min_doc_count=0
     ) \
-        .bucket('status', 'terms', field='status') \
+        .bucket('planned', 'terms', field='planned') \
 
     return s[:0].execute()
 
@@ -44,8 +44,9 @@ def df(country, f=None, interval='month'):
         obj[agent.key] = {}
         for interval in agent.dates.buckets:
             obj[agent.key][interval.key_as_string] = {}
-            for status in interval.status.buckets:
-                obj[agent.key][interval.key_as_string][status.key] = status.doc_count
+            for planned in interval.planned.buckets:
+                key = 'planned' if planned.key else 'unplanned'
+                obj[agent.key][interval.key_as_string][key] = planned.doc_count
 
     df = DataFrame.from_dict({(i, j): obj[i][j]
                               for i in obj.keys()
