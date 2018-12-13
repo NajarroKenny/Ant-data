@@ -3,7 +3,7 @@ from elasticsearch_dsl import Search, Q
 from elasticsearch_dsl.aggs import Terms, Nested
 from pandas import DataFrame, Series
 
-from .days_installed__model_month import df as _df
+from .days_installed_month import df as _df
 
 def df(q = None):
     df = _df(q)

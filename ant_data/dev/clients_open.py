@@ -1,7 +1,7 @@
 from ant_data import elastic
 from elasticsearch_dsl import Search, Q
 from pandas import concat, DataFrame, offsets, Series, Timestamp
-from ant_data.clients import clients_closed, clients_opened
+from ant_data.people import clients_closed, clients_opened
 
 def open_now(country, f=None):
   s = Search(using=elastic, index='people') \

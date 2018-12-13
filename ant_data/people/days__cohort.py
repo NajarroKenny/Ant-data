@@ -20,8 +20,7 @@ from ant_data import elastic
 
 def search(country, f=None, interval='month'):
     s = Search(using=elastic, index='people') \
-        .query('term', country=country) \
-        .query('term', doctype='client')
+        .query('term', country=country)
 
     if f is not None:
         s = s.query('bool', filter=f)

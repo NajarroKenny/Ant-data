@@ -9,9 +9,9 @@ Warehouse to generate a report on credits by plan
 - Version:      1.1
 
 Notes:
-==========================        
+==========================
 - v1.0: Initial version
-- v1.1: Updated with standard based on v1.1 of systems_opened__model
+- v1.1: Updated with standard based on v1.1 of systems_opened
 """
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
@@ -40,7 +40,7 @@ def search(country, f=None, interval='month'):
 
 
 def df(
-  country, f=None, interval='month', paid=True, free=True, iva=True, 
+  country, f=None, interval='month', paid=True, free=True, iva=True,
   commission=True
 ):
   response = search(country, f=f, interval=interval)
@@ -49,7 +49,7 @@ def df(
 
   for date in response.aggregations.dates.buckets:
     obj[date.key_as_string] = {}
-    
+
     for plan in date.plans.buckets:
       f = 0
       p = 0
@@ -76,7 +76,7 @@ def df(
       obj[date.key_as_string][plan.key] = value
 
   df = DataFrame.from_dict(obj, orient='index')
-  
+
   if df.empty:
     return DataFrame(columns=[''])
 

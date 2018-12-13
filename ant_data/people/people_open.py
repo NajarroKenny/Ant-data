@@ -1,32 +1,34 @@
 """
-Clients Open
+People Open
 ========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
-Warehouse to generate reports on open clients. The 'open' count is done
+Warehouse to generate reports on open people. The 'open' count is done
 in five different ways: 'start', 'end', 'average', 'distinct', and 'weighted'
 
 - Create date:  2018-12-04
-- Update date:  2018-12-06
-- Version:      1.1
+- Update date:  2018-12-13
+- Version:      1.3
 
 Notes:
 ==========================
 - v1.0: Initial version
 - v1.1: Updated with standards from v1.1 of systems_open
+- v1.2: Removed has_parent and unnecessary date filtering
+- v1.3: Major clean up, rewrite open calculations, remove doctype filtering
 """
 from elasticsearch_dsl import Search, Q
 from numpy import diff
 from pandas import concat, DataFrame, offsets, Series, Timestamp
 
 from ant_data import elastic
-from ant_data.clients import clients_closed, clients_opened
+from ant_data.people import people_closed, people_opened
 
 
 def open_now(country, f=None):
   s = Search(using=elastic, index='people') \
     .query(
       'bool', filter=[
-        Q('term', country=country), Q('term', doctype='client'),
+        Q('term', country=country),
         Q('term', open=True)
       ]
     )
@@ -38,50 +40,41 @@ def open_now(country, f=None):
 
 
 def search_distinct(country, f=None, interval='month'):
-  s = Search(using=elastic, index='people') \
-    .query(
-      'bool', filter=[
-        Q('term', country=country), Q('term', doctype='client')
-      ]
-    )
+    s = Search(using=elastic, index='people') \
+        .query('term', country=country)
 
-  if f is not None:
-    s = s.query('bool', filter=f)
+    if f is not None:
+        s = s.query('bool', filter=f)
 
-  s.aggs.bucket('stats', 'children', type='stat') \
-    .bucket('date_range', 'filter', Q('range', date={'lte': 'now'})) \
-    .bucket(
-      'dates', 'date_histogram', field='date', interval=interval,
-      min_doc_count=0
-    ).metric(
-      'count', 'cardinality', field='person_id', precision_threshold=40000
-    )
+    s.aggs.bucket('stats', 'children', type='stat') \
+        .bucket('dates', 'date_histogram', field='date', interval=interval) \
+        .metric('count', 'cardinality', field='person_id')
 
-  return s[:0].execute()
+    return s[:0].execute()
 
 
 def search_weighted(country, f=None, interval='month'):
   s = Search(using=elastic, index='people') \
-    .query(
-      'has_parent', parent_type='person', query=Q('bool', filter=[
-        Q('term', country=country), Q('term', doctype='client')
-      ])
-    ).query('bool', filter=Q('term', doctype='stat')) \
-    .query('range', date={'lte':'now'})
+      .query('term', country=country)
 
   if f is not None:
-    s = s.query('bool', filter=f)
+      s = s.query('bool', filter=f)
 
-  s.aggs.bucket(
-    'dates', 'date_histogram', field='date', interval=interval, min_doc_count=0
-  )
+  s.aggs.bucket('stats', 'children', type='stat') \
+      .bucket('date_filter', 'filter', Q('range', date={'lte': 'now-1d/d'})) \
+      .bucket('dates', 'date_histogram', field='date', interval=interval)
+
   return s[:0].execute()
 
 
 def df_start(country, f=None, interval='month'):
+
+  if f is None:
+    f = []
+
   open = open_now(country, f=f)
-  opened = clients_opened.df(country, f=f, interval=interval)
-  closed = clients_closed.df(country, f=f, interval=interval)
+  opened = people_opened.df(country, f=f, interval=interval)
+  closed = people_closed.df(country, f=f, interval=interval)
 
   if opened.empty or closed.empty:
     return DataFrame(columns=['start'])
@@ -114,9 +107,12 @@ def df_start(country, f=None, interval='month'):
 
 
 def df_end(country, f=None, interval='month'):
+  if f is None:
+    f = []
+
   open = open_now(country, f=f)
-  opened = clients_opened.df(country, f=f, interval=interval)
-  closed = clients_closed.df(country, f=f, interval=interval)
+  opened = people_opened.df(country, f=f, interval=interval)
+  closed = people_closed.df(country, f=f, interval=interval)
 
   if opened.empty or closed.empty:
     return DataFrame(columns=['end'])
@@ -154,10 +150,10 @@ def df_average(country, f=None, interval='month'):
 def df_distinct(country, f=None, interval='month'):
   response = search_distinct(country, f=f, interval=interval)
 
-  dates = [x.key_as_string for x in response.aggs.stats.date_range.dates.buckets]
+  dates = [x.key_as_string for x in response.aggs.stats.dates.buckets]
   obj = {x: { 0 } for x in dates}
 
-  for date in response.aggs.stats.date_range.dates.buckets:
+  for date in response.aggs.stats.dates.buckets:
     obj[date.key_as_string] = { date.count.value }
 
   df = DataFrame.from_dict(
@@ -176,10 +172,10 @@ def df_distinct(country, f=None, interval='month'):
 def df_weighted(country, f=None, interval='month'):
   response = search_weighted(country, f=f, interval=interval)
 
-  dates = [x.key_as_string for x in response.aggs.dates.buckets]
+  dates = [x.key_as_string for x in response.aggs.stats.date_filter.dates.buckets]
   obj = {x: { 0 } for x in dates}
 
-  for date in response.aggs.dates.buckets:
+  for date in response.aggs.stats.date_filter.dates.buckets:
     obj[date.key_as_string] = { date.doc_count }
 
   df = DataFrame.from_dict(
@@ -192,14 +188,14 @@ def df_weighted(country, f=None, interval='month'):
   df.index.name = 'date'
   df = df.reindex(df.index.astype('datetime64')).sort_index()
   bucket_len = [x.days for x in diff(df.index.tolist())]
-  bucket_len.append((Timestamp.now()-df.index[-1]).days + 1)
+  bucket_len.append((Timestamp.now()-df.index[-1]).days)
 
   df = df.div(bucket_len, axis='index')
 
   return df.astype('int64')
 
 
-def df(country, method=None, f=None, interval='month'):
+def df(country, method='end', f=None, interval='month'):
   switcher = {
      'start': df_start,
      'end':  df_end,
@@ -208,21 +204,4 @@ def df(country, method=None, f=None, interval='month'):
      'weighted': df_weighted
    }
 
-  if method is not None:
-    return switcher.get(method)(country, f=f, interval=interval)
-
-  else:
-    start = df_start(country, f=f, interval=interval)
-    end = df_end(country, f=f, interval=interval)
-    average = df_average(country, f=f, interval=interval)
-    distinct = df_distinct(country, f=f, interval=interval)
-    weighted = df_weighted(country, f=f, interval=interval)
-
-    if start.empty or end.empty or average.empty or distinct.empty or weighted.empty:
-      return DataFrame(columns=['start', 'end', 'average', 'weighted', 'distinct'])
-
-    return start.merge(end, on='date', how='inner')\
-      .merge(average, on='date', how='inner') \
-      .merge(distinct, on='date', how='inner') \
-      .merge(weighted, on='date', how='inner')
-
+  return switcher.get(method)(country, f=f, interval=interval)
