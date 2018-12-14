@@ -2,18 +2,17 @@
 Roster
 ============================
 Leverages Google Sheet's API to fetch Kingo's Roster and save it as a csv
-to ant_data/google/roster.csv
+to ant_data/google/roster_at.csv and ant_data/google/roster_atr.csv
 
 - Create date:  2018-12-14
 - Update date:  2018-12-14
-- Version:      1.0
+- Version:      1.1
 
 Notes:
 ============================      
 - v1.0: Initial version
+- v1.1: Split between ATs and ATRs
 """
-import sys
-
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools

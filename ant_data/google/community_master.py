@@ -1,8 +1,22 @@
-from __future__ import print_function
-from pandas import DataFrame
+"""
+Community Master
+============================
+Leverages Google Sheet's API to fetch Kingo's Community Master and save it as a 
+csv to ant_data/google/community_master.csv
+
+- Create date:  2018-12-14
+- Update date:  2018-12-14
+- Version:      1.1
+
+Notes:
+============================      
+- v1.0: Initial version
+"""
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
+from pandas import DataFrame
+
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
@@ -11,8 +25,10 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 SPREADSHEET_ID = '1rKNutCZRrLRyUOgYo0DyRvQt41VKAClhnMcmzAO4ptk'
 RANGE_NAME = 'Maestro para Tableau!A2:H10000'
 
-def main():
+FNAME = 'community_master.csv'
 
+
+def main():
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
@@ -31,7 +47,7 @@ def main():
     df = DataFrame(values, columns=['community', 'municipality', 'department', 'concat', 'at', 'cs', 'ss', 'clients'])
     df = df.set_index('concat')
 
-    df.to_csv('community_master.csv', sep=',')
+    df.to_csv(FNAME, sep=',')
 
     return df
 
