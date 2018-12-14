@@ -51,7 +51,6 @@ def main():
             'telefono', 'correo', 'ingreso'
             ]
         )
-    breakpoint()
 
     result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
                                 range=RANGE2).execute()
@@ -62,6 +61,8 @@ def main():
             'telefono', 'correo', 'ingreso'
             ]
         ))
+
+    df = df.drop(df[df['nombre']=='Vacante'].index)
 
     df.to_csv(FNAME, sep=',')
 
