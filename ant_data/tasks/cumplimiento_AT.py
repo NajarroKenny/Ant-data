@@ -39,6 +39,7 @@ def df(country, f=None, agent_id=None, start_date=None, end_date=None): #FIXME: 
   
   local_date = get_local_date(country, as_str=False)
   previous_day = shift_date(get_local_date(country, as_str=False), -1).isoformat()
+  previous_day = '2018-12-12' #FIXME:
 
   if end_date is None:
     end_date = local_date.isoformat()
@@ -56,20 +57,20 @@ def df(country, f=None, agent_id=None, start_date=None, end_date=None): #FIXME: 
     return df_tasks
 
   df_visited = tasks__types(country, f=DEV_F+VISITED_F, interval='day') #FIXME:  
-  df_effective = tasks__effective_type(country, f=DEV_F+VISITED_F, interval='day') #FIXME:
+  df_effective = tasks_effective__type(country, f=DEV_F+VISITED_F, interval='day') #FIXME:
   df_additional = tasks__types(country, f=DEV_F+ADDITIONAL_F, interval='day') #FIXME:
 
-  tasks = [x for x in list(df_visited) if x != 'agent_id']
+  tasks = [x for x in list(df_visited)]
 
   if previous_day not in df_tasks.index or tasks==[]:
     return DataFrame()
   else:
-    df = DataFrame(df_tasks.loc[previous_day].T.drop('agent_id'))
+    df = DataFrame(df_tasks.loc[previous_day].T)
     df.index.name = 'types'
     df = df.rename(columns={list(df.columns)[0]:'tasks'})
 
   if previous_day in df_visited.index:
-    tmp = DataFrame(df_visited.loc[previous_day].T.drop('agent_id'))
+    tmp = DataFrame(df_visited.loc[previous_day].T)
     tmp.index.name = 'types'
     tmp = tmp.rename(columns={list(tmp.columns)[0]:'visited'})
   else:
@@ -79,7 +80,7 @@ def df(country, f=None, agent_id=None, start_date=None, end_date=None): #FIXME: 
   df = df.merge(tmp, on='types', how='left')
   
   if previous_day in df_effective.index:
-    tmp = DataFrame(df_effective.loc[previous_day].T.drop('agent_id'))
+    tmp = DataFrame(df_effective.loc[previous_day].T)
     tmp.index.name = 'types'
     tmp = tmp.rename(columns={list(tmp.columns)[0]:'effective'})
 
@@ -90,7 +91,7 @@ def df(country, f=None, agent_id=None, start_date=None, end_date=None): #FIXME: 
   df = df.merge(tmp, on='types', how='left')
 
   if previous_day in df_additional.index:
-    tmp = DataFrame(df_additional.loc[previous_day].T.drop('agent_id'))
+    tmp = DataFrame(df_additional.loc[previous_day].T)
     tmp.index.name = 'types'
     tmp = tmp.rename(columns={list(tmp.columns)[0]:'additional'})
     
