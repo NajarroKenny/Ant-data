@@ -5,13 +5,14 @@ Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on credits
 
 - Create date:  2018-11-30
-- Update date:  2018-12-07
-- Version:      1.1
+- Update date:  2018-12-14
+- Version:      1.2
 
 Notes:
-==========================        
+==========================
 - v1.0: Initial version
 - v1.1: Updated with standard based on v1.1 of systems_opened
+- v1.2: Added free, paid, iva, commission filters
 """
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
@@ -39,34 +40,37 @@ def search(country, f=None, interval='month'):
   return s[:0].execute()
 
 
-def df(country, f=None, interval='month'):
+def df(
+  country, f=None, interval='month', paid=True, free=True, iva=True,
+  commission=True
+):
   response = search(country, f=f, interval=interval)
 
   dates = [x.key_as_string for x in response.aggs.dates.buckets]
   obj = {x: { 'paid': 0, 'free': 0, 'commission':0 } for x in dates}
 
   for date in response.aggs.dates.buckets:
-    free = 0
-    paid = 0
-    commission = 0
+    free_value = 0
+    paid_value = 0
+    commission_value = 0
 
     for sale in date.sales.buckets:
       if sale.key_as_string == 'true':
-        paid += sale.value.value
+        paid_value += sale.value.value
       elif sale.key_as_string == 'false':
-        free += sale.value.value
-      commission += sale.commission.value
+        free_value += sale.value.value
+      commission_value += sale.commission.value
 
     obj[date.key_as_string] = {
-      'paid': paid,
-      'free': free,
-      'commission': commission
+      'paid': paid_value,
+      'free': free_value,
+      'commission': commission_value
     }
 
   df = DataFrame.from_dict(obj, orient='index')
 
   if df.empty:
-    return DataFrame(columns=['free', 'paid', 'iva', 'commission', 'total'])  
+    return DataFrame(columns=['free', 'paid', 'iva', 'commission', 'total'])
 
   df.index.name = 'date'
   df = df.reindex(df.index.astype('datetime64')).sort_index()
@@ -75,6 +79,16 @@ def df(country, f=None, interval='month'):
   df['iva'] = IVA[country] * df['paid']
   df['paid'] = (1-IVA[country]) * df['paid']
   df['total'] = df.sum(axis=1)
+
+  if not paid:
+    df['paid'] = 0
+  if not free:
+    df['free'] = 0
+  if not commission:
+    df['commission'] = 0
+  if not iva:
+    df['iva'] = 0
+
   df = df.fillna(0).astype('double')
   df = df[['free', 'paid', 'iva', 'commission', 'total']]
 
