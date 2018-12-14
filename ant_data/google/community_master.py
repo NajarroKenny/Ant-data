@@ -29,6 +29,7 @@ def main():
     values = result.get('values', [])
 
     df = DataFrame(values, columns=['community', 'municipality', 'department', 'concat', 'at', 'cs', 'ss', 'clients'])
+    df = df.set_index('concat')
 
     df.to_csv('community_master.csv', sep=',')
 
