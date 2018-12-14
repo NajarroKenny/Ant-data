@@ -26,7 +26,7 @@ def search(country, f=None, interval='month'):
         s = s.query('bool', filter=f)
 
     s.aggs.bucket('stats', 'children', type='stat') \
-        .bucket('dates', 'date_histogram', field='date', interval=interval)
+        .bucket('dates', 'date_histogram', field='date', interval=interval, min_doc_count=1)
     s.aggs['stats']['dates'].bucket('active','terms',field='active')
     s.aggs['stats']['dates'].bucket('sync','terms',field='sync')
     s.aggs['stats']['dates'].bucket('update','terms',field='update')

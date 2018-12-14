@@ -12,8 +12,8 @@ def search(country, type, f=None, interval='month'):
         s = s.query('bool', filter=f)
 
     s.aggs.bucket(
-        'dates', 'date_histogram', field=type, interval=interval, 
-        min_doc_count=0
+        'dates', 'date_histogram', field=type, interval=interval,
+        min_doc_count=q
     ).bucket(
         'communities', 'terms', field='community.community_id', min_doc_count=0
     )

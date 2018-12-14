@@ -11,7 +11,7 @@ def search(country, type, f=None, interval='month'):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    s.aggs.bucket('dates', 'date_histogram', field=type, interval=interval)
+    s.aggs.bucket('dates', 'date_histogram', field=type, interval=interval, min_doc_count=1)
 
     return s[:0].execute()
 
@@ -32,10 +32,10 @@ def df(country, f=None, interval='month'):
 
     df = DataFrame.from_dict(
         obj, orient='index', dtype='int64', columns=['opened', 'closed'])
-    
+
     if df.empty:
         return df
-    
+
     df.index.name = 'date'
     df = df.reindex(df.index.astype('datetime64')).sort_index()
     df = df.fillna(0).astype('int64')

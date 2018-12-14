@@ -12,7 +12,7 @@ def search(q = None):
         s = s.query(q)
 
     s.aggs.bucket('models', 'terms', field='model') \
-        .bucket('months', 'date_histogram', field='date', interval='month')
+        .bucket('months', 'date_histogram', field='date', interval='month', min_doc_count=1)
 
     return s[:0].execute()
 

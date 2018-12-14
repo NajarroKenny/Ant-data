@@ -25,9 +25,9 @@ def search(country, f=None, interval='month'):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    s.aggs.bucket('cohort', 'date_histogram', field='opened', interval=interval) \
+    s.aggs.bucket('cohort', 'date_histogram', field='opened', interval=interval, min_doc_count=1) \
         .bucket('stats', 'children', type='stat') \
-        .bucket('dates', 'date_histogram', field='date', interval=interval)
+        .bucket('dates', 'date_histogram', field='date', interval=interval, min_doc_count=1)
     s.aggs['cohort']['stats']['dates'].bucket('active','terms',field='active')
     s.aggs['cohort']['stats']['dates'].bucket('sync','terms',field='sync')
     s.aggs['cohort']['stats']['dates'].bucket('update','terms',field='update')

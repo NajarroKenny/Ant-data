@@ -31,7 +31,7 @@ def search(country, f=None, interval='month'):
 
   s.aggs.bucket(
     'dates', 'date_histogram', field='datetime', interval=interval,
-    min_doc_count=0
+    min_doc_count=1
   ) \
   .bucket('sales', 'terms', field='sale') \
   .metric('value', 'sum', field='value', missing=0) \

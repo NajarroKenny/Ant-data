@@ -11,7 +11,7 @@ def search(f = None, interval='month'):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    s.aggs.bucket('dates', 'date_histogram', field='datetime', interval=interval) \
+    s.aggs.bucket('dates', 'date_histogram', field='datetime', interval=interval, min_doc_count=1) \
         .bucket('plan', 'terms', field='plan') \
         .metric('value', 'sum', field='value', missing=0) \
 

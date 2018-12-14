@@ -55,7 +55,7 @@ def search_distinct(country, f=None, interval='month'):
   .bucket('date_range', 'filter', Q('range', date={'lte': 'now'})) \
   .bucket(
       'dates', 'date_histogram', field='date', interval=interval,
-      min_doc_count=0
+      min_doc_count=1
   ).metric('count', 'cardinality', field='system_id', precision_threshold=40000)
 
   return s[:0].execute()
@@ -74,7 +74,7 @@ def search_weighted(country, f=None, interval='month'):
   .bucket('date_range', 'filter', Q('range', date={'lte': 'now-1d/d'})) \
   .bucket(
       'dates', 'date_histogram', field='date', interval=interval,
-      min_doc_count=0
+      min_doc_count=1
   )
 
   return s[:0].execute()

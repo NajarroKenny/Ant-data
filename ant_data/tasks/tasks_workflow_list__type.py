@@ -1,8 +1,8 @@
 """
-Tasks Planned
+Tasks action list
 ============================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
-Warehouse to generate a report on planned tasks.
+Warehouse to generate a report on task workflows based on a given action list.
 
 - Create date:  2018-12-10
 - Update date:
@@ -19,36 +19,38 @@ from ant_data import elastic
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
-def search(country, f=None, interval='month'):
+def search(country, workflows, f=None, interval='month'):
     if country not in COUNTRY_LIST:
         raise Exception(f'{country} is not a valid country')
 
     s = Search(using=elastic, index='tasks') \
         .query('term', country=country) \
-        .query('term', doctype='task')
+        .query('term', doctype='task') \
+        .query('has_child', type='history', query=Q('terms', workflow=workflows))
 
     if f is not None:
         s = s.query('bool', filter=f)
 
-    s.aggs.bucket('dates', 'date_histogram', field='due', interval=interval, min_doc_count=1) \
-        .bucket('planned', 'terms', field='planned') \
+    s.aggs.bucket(
+        'dates', 'date_histogram', field='due', interval=interval, min_doc_count=1
+        ).bucket('types', 'terms', field='type', size=10000)
 
     return s[:0].execute()
 
 
-def df(country, f=None, interval='month'):
+
+def df(country, workflows, f=None, interval='month'):
     if country not in COUNTRY_LIST:
         raise Exception(f'{country} is not a valid country')
 
-    response = search(country, f=f, interval=interval)
+    must = search(country, workflows, f=f, interval=interval)
 
     obj = {}
-    for interval in response.aggs.dates.buckets:
-        obj[interval.key_as_string] = {}
-        for planned in interval.planned.buckets:
-            key = 'planned' if planned.key else 'unplanned'
-            obj[interval.key_as_string][key] = planned.doc_count
-
+    for interval in must.aggs.dates.buckets:
+        if not interval.key_as_string in obj:
+            obj[interval.key_as_string] = {}
+        for task_type in interval.types.buckets:
+            obj[interval.key_as_string][task_type.key] = task_type.doc_count
 
     df = DataFrame.from_dict(obj, orient='index')
 

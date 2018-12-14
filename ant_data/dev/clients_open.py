@@ -22,7 +22,7 @@ def search_weighted(country, f=None, interval='month'):
     s = s.query('bool', filter=f)
 
   s.aggs.bucket('stats', 'children', type='stat') \
-    .bucket('dates', 'date_histogram', field='date', interval=interval)
+    .bucket('dates', 'date_histogram', field='date', interval=interval, min_doc_count=1)
   return s[:0].execute()
 
 
@@ -35,7 +35,7 @@ def search_distinct(country, f=None, interval='month'):
     s = s.query('bool', filter=f)
 
   s.aggs.bucket('stats', 'children', type='stat') \
-    .bucket('dates', 'date_histogram', field='date', interval=interval) \
+    .bucket('dates', 'date_histogram', field='date', interval=interval, min_doc_count=1) \
     .metric('count', 'cardinality', field='person_id', precision_threshold=40000)
   return s[:0].execute()
 

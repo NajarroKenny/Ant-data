@@ -17,16 +17,16 @@ from pandas import DataFrame, Series
 
 from ant_data import elastic
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
-from ant_data.tasks import tasks__action_list as tal
+from ant_data.tasks import tasks_workflow_list__type as twlt
 
 
-ACTION_LIST=[
-  'active-code', 'install', 'pickup', 'register', 'sale', 'swap', 
-  'visit-install' 
+WORKFLOW_LIST=[
+  'active-code', 'install', 'pickup', 'register', 'sale', 'swap',
+  'visit-install'
   ]
 
 def df(country, f=None, interval='month'):
     if country not in COUNTRY_LIST:
       raise Exception(f'{country} is not a valid country')
 
-    return tal.df(country, ACTION_LIST, f, interval)
+    return twlt.df(country, WORKFLOW_LIST, f, interval)

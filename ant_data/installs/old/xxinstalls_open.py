@@ -6,7 +6,7 @@ from ant_data.installs import installs_closed, installs_opened
 
 def open_now(country, f=None):
   s = Search(using=elastic, index='installs') \
-    .query('bool', filter=[Q('term', country=country), 
+    .query('bool', filter=[Q('term', country=country),
     Q('term', doctype='install'), Q('term', open=True)])
 
   if f is not None:
@@ -16,23 +16,23 @@ def open_now(country, f=None):
 
 def search_weighted(country, f=None, interval='month'):
   s = Search(using=elastic, index='installs') \
-        .query('has_parent', parent_type='install', query=Q('bool', 
+        .query('has_parent', parent_type='install', query=Q('bool',
           filter=[Q('term', country=country), Q('term', doctype='install')])) \
         .query('bool', filter=Q('term', doctype='stat')) \
         .query('range', date={'lte':'now'})
 
   if f is not None:
     s = s.query('bool', filter=f)
-  
+
   s.aggs.bucket(
-    'dates', 'date_histogram', field='date', interval=interval, min_doc_count=0
+    'dates', 'date_histogram', field='date', interval=interval, min_doc_count=1
   )
   return s[:0].execute()
 
 
 def search_distinct(country, f=None, interval='month'):
   s = Search(using=elastic, index='installs') \
-    .query('bool', filter=[Q('term', country=country), 
+    .query('bool', filter=[Q('term', country=country),
                            Q('term', doctype='install')])
 
   if f is not None:
@@ -41,12 +41,12 @@ def search_distinct(country, f=None, interval='month'):
   s.aggs.bucket('stats', 'children', type='stat') \
     .bucket('date_range', 'filter', Q('range', date={'lte': 'now'})) \
     .bucket(
-      'dates', 'date_histogram', field='date', interval=interval, 
-      min_doc_count=0
+      'dates', 'date_histogram', field='date', interval=interval,
+      min_doc_count=1
     ).metric(
       'count', 'cardinality', field='install_id', precision_threshold=40000
     )
-  
+
   return s[:0].execute()
 
 
@@ -58,7 +58,7 @@ def df_start(country, f=None, interval='month'):
   merged = merged.fillna(0).astype('int64')
 
   df = DataFrame(index=merged.index, columns=['start'])
-  
+
   if merged.empty:
     return DataFrame(columns=['start'])
 
@@ -71,7 +71,7 @@ def df_start(country, f=None, interval='month'):
         open - merged['opened'].get(rev_idx[i], 0)
         + merged['closed'].get(rev_idx[i], 0)
       )
-  
+
     elif i > 0:
       df.loc[rev_idx[i]] = (
         df.loc[rev_idx[i-1]] - merged['opened'].get(rev_idx[i], 0)
@@ -88,7 +88,7 @@ def df_end(country, f=None, interval='month'):
   merged = merged.fillna(0).astype('int64')
 
   df = DataFrame(index=merged.index, columns=['end'])
-  
+
   if merged.empty:
     return DataFrame(columns=['end'])
 
@@ -109,16 +109,16 @@ def df_end(country, f=None, interval='month'):
 
 def df_average(country, f=None, interval='month'):
   return DataFrame(concat(
-    (df_start(country, f=f, interval=interval), df_end(country, f=f, interval=interval)), 
+    (df_start(country, f=f, interval=interval), df_end(country, f=f, interval=interval)),
     axis=1).mean(axis=1)).astype('int64').rename(columns={0: 'average'})
-  
+
 def df_distinct(country, f=None, interval='month'):
 
   response = search_distinct(country, f=f, interval=interval)
 
   obj = {}
 
-  for date in response.aggs.stats.date_range.dates.buckets: 
+  for date in response.aggs.stats.date_range.dates.buckets:
     obj[date.key_as_string] = { date.count.value }
 
   df = DataFrame.from_dict(
@@ -138,9 +138,9 @@ def df_weighted(country, f=None, interval='month'):
 
   obj = {}
 
-  for date in response.aggs.dates.buckets: 
+  for date in response.aggs.dates.buckets:
     obj[date.key_as_string] = { date.doc_count }
-  
+
   df = DataFrame.from_dict(
     obj, orient='index', dtype='int64', columns=['weighted']
   )
@@ -158,7 +158,7 @@ def df_weighted(country, f=None, interval='month'):
   return df.astype('int64')
 
 def df(country, method=None, f=None, interval='month'):
-  
+
   switcher = {
      'start': df_start,
      'end':  df_end,
@@ -166,7 +166,7 @@ def df(country, method=None, f=None, interval='month'):
      'distinct': df_distinct,
      'weighted': df_weighted
    }
-  
+
   if method is not None:
     return switcher.get(method)(country, f=f, interval=interval)
 
@@ -179,4 +179,4 @@ def df(country, method=None, f=None, interval='month'):
 
     return start.merge(end, on='date').merge(average, on='date') \
       .merge(distinct, on='date').merge(weighted, on='date')
-  
+

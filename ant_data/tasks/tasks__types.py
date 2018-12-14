@@ -30,11 +30,7 @@ def search(country, f=None, interval='month'):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    s.aggs.bucket('agents', 'terms', field='agent_id', size=10000) \
-        .bucket(
-            'dates', 'date_histogram', field='due', interval=interval,
-            min_doc_count=0
-        ) \
+    s.aggs.bucket('dates', 'date_histogram', field='due', interval=interval, min_doc_count=1) \
         .bucket('types', 'terms', field='type', size=10000)
 
     return s[:0].execute()
@@ -43,34 +39,24 @@ def search(country, f=None, interval='month'):
 def df(country, f=None, interval='month'):
     if country not in COUNTRY_LIST:
         raise Exception(f'{country} is not a valid country')
-    
+
     response = search(country, f=f, interval=interval)
 
     obj = {}
-    for agent in response.aggs.agents.buckets:
-        obj[agent.key] = {}
-        for interval in agent.dates.buckets:
-            
-            obj[agent.key][interval.key_as_string] = {}
-            for type in interval.types.buckets:
-                obj[agent.key][interval.key_as_string][type.key] = type.doc_count
+    for interval in response.aggs.dates.buckets:
+        obj[interval.key_as_string] = {}
+        for type in interval.types.buckets:
+            obj[interval.key_as_string][type.key] = type.doc_count
 
-    df = DataFrame.from_dict({(i, j): obj[i][j]
-                              for i in obj.keys()
-                              for j in obj[i].keys()},
-                             orient='index')
+
+    df = DataFrame.from_dict(obj, orient='index')
 
     if df.empty:
         return df
 
-    df.index = df.index.set_levels(
-        df.index.levels[1].astype('datetime64'), level=1)
-
-    df.index = df.index.set_names('agent_id', level=0)
-    df.index = df.index.set_names('date', level=1)
+    df.index = df.index.astype('datetime64')
+    df.index.name = 'date'
     df = df.fillna(0).astype('int64')
-    df = df.swaplevel(1, 0).reset_index()
-    df = df.set_index('date')
     df['total'] = df.sum(axis=1)
 
     return df
