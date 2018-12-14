@@ -10,6 +10,10 @@ numpy = "*"
 jupyter = "*"
 "bs4" = "*"
 requests = "*"
+"psycopg2" = "*"
+sqlalchemy = "*"
+google-api-python-client = "*"
+"oauth2client" = "*"
 
 [dev-packages]
 pylint = "*"
