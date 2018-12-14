@@ -17,7 +17,7 @@ from pandas import DataFrame, Series
 
 from ant_data import elastic
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
-from ant_data.tasks import tasks__action_list as tal
+from ant_data.tasks import tasks__action_list_type as talt
 
 
 ACTION_LIST=[
@@ -29,4 +29,4 @@ def df(country, f=None, interval='month'):
     if country not in COUNTRY_LIST:
       raise Exception(f'{country} is not a valid country')
 
-    return tal.df(country, ACTION_LIST, f, interval)
+    return talt.df(country, ACTION_LIST, f, interval)
