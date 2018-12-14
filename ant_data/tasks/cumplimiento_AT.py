@@ -1,3 +1,4 @@
+# TODO: Create tasks version script that generates aggregate on range
 """
 Cumplimiento AT
 ============================
@@ -24,86 +25,46 @@ from ant_data.tasks.tasks import *
 from shared.helpers import get_local_date, shift_date
 
 
-DEV_F = [Q('term', agent_id='at.cesar.tot@energysupport.gt'), Q('range', due={'gte':'2018-12-01'})] #FIXME:
 VISITED_F = [Q('has_child', type='history', query=Q())]
 NOT_VISITED_F = [Q('bool', must_not=Q('has_child', type='history', query=Q()))]
 PLANNED_F = [Q('term', planned=True)]
 ADDITIONAL_F = [Q('term', planned=False)]
 
-def df(country, f=None, agent_id=None, start_date=None, end_date=None): #FIXME: AGENT ID
+def df(country, agent_id, start, end, f=None):
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
-  
+
   if f is None:
     f = []
-  
-  local_date = get_local_date(country, as_str=False)
-  previous_day = shift_date(get_local_date(country, as_str=False), -1).isoformat()
-  previous_day = '2018-12-12' #FIXME:
 
-  if end_date is None:
-    end_date = local_date.isoformat()
-  if start_date is None:
-    start_date = shift_date(local_date, -14).isoformat()
-
-  base_f = [
-    Q('term', agent_id=agent_id), 
-    Q('range', due={'gte': start_date, 'lte': end_date})
+  f += [
+    Q('term', agent_id=agent_id),
+    Q('range', due={'gte': start, 'lte': end})
   ]
 
-  df_tasks = tasks__types(country, f=DEV_F, interval='day') #FIXME:
+  df_tasks = tasks__types(country, f=f, interval='year').sum(axis=0)
+  df_tasks = DataFrame(df_tasks, columns=['tasks'])
+  df_tasks.index.name = 'types'
 
   if df_tasks.empty:
     return df_tasks
 
-  df_visited = tasks__types(country, f=DEV_F+VISITED_F, interval='day') #FIXME:  
-  df_effective = tasks_effective__type(country, f=DEV_F+VISITED_F, interval='day') #FIXME:
-  df_additional = tasks__types(country, f=DEV_F+ADDITIONAL_F, interval='day') #FIXME:
+  df_visited = tasks__types(country, f=f+VISITED_F, interval='year')
+  df_visited = DataFrame(df_visited.sum(axis=0), columns=['visited'])
+  df_visited.index.name = 'types'
+  df_effective = tasks_effective__type(country, f=f+VISITED_F, interval='year')
+  df_effective = DataFrame(df_effective.sum(axis=0), columns=['effective'])
+  df_effective.index.name = 'types'
+  df_additional = tasks__types(country, f=f+ADDITIONAL_F, interval='year')
+  df_additional = DataFrame(df_additional.sum(axis=0), columns=['additional'])
+  df_additional.index.name = 'types'
 
-  tasks = [x for x in list(df_visited)]
-
-  if previous_day not in df_tasks.index or tasks==[]:
-    return DataFrame()
-  else:
-    df = DataFrame(df_tasks.loc[previous_day].T)
-    df.index.name = 'types'
-    df = df.rename(columns={list(df.columns)[0]:'tasks'})
-
-  if previous_day in df_visited.index:
-    tmp = DataFrame(df_visited.loc[previous_day].T)
-    tmp.index.name = 'types'
-    tmp = tmp.rename(columns={list(tmp.columns)[0]:'visited'})
-  else:
-    tmp = DataFrame(index=tasks, columns=['visited'])
-    tmp.index.name = 'types'
-
-  df = df.merge(tmp, on='types', how='left')
-  
-  if previous_day in df_effective.index:
-    tmp = DataFrame(df_effective.loc[previous_day].T)
-    tmp.index.name = 'types'
-    tmp = tmp.rename(columns={list(tmp.columns)[0]:'effective'})
-
-  else:
-    tmp = DataFrame(index=tasks, columns=['effective'])
-    tmp.index.name = 'types'
-  
-  df = df.merge(tmp, on='types', how='left')
-
-  if previous_day in df_additional.index:
-    tmp = DataFrame(df_additional.loc[previous_day].T)
-    tmp.index.name = 'types'
-    tmp = tmp.rename(columns={list(tmp.columns)[0]:'additional'})
-    
-  else:
-    tmp = DataFrame(index=tasks, columns=['additional'])
-    tmp.index.name = 'types'
-  
-  df = df.merge(tmp, on='types', how='left')
-  
+  df = df_tasks.merge(df_visited, on='types', how='left')
+  df = df.merge(df_effective, on='types', how='left')
+  df = df.merge(df_additional, on='types', how='left')
   df = df.fillna(0).astype('int64')
   df['visited_perc'] = df['visited'].div(df['tasks'])
   df['effective_perc'] = df['effective'].div(df['visited'])
   df = df.fillna(0).replace((np.inf, -np.inf), (0,0))
-  
+
   return df
