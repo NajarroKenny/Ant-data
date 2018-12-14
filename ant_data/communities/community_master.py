@@ -1,6 +1,21 @@
-from pandas import DataFrame
-import pandas as pd
+"""
+Community Master
+============================
+Loads the Community Master CSV file into a Pandas DataFrame
+
+- Create date:  2018-12-14
+- Update date:  2018-12-14
+- Version:      1.0
+
+Notes:
+============================      
+- v1.0: Initial version
+"""
 import pkg_resources
+
+import pandas as pd
+from pandas import DataFrame
+
 
 def community_master():
   path = '../google/community_master.csv'
