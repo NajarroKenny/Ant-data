@@ -1,5 +1,5 @@
 """
-Systems Opened by Model
+Installs Opened by Model
 ==========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on installs opened by model
