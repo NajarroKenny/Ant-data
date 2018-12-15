@@ -1,10 +1,11 @@
 from elasticsearch_dsl import Q
+from ant_data.people import days as _days
+from ant_data.people import days__cohort as _days__cohort
 from ant_data.people import people_opened as _people_opened
 from ant_data.people import people_closed as _people_closed
 from ant_data.people import people_open as _people_open
-from ant_data.people import days as _days
-from ant_data.people import days__cohort as _days__cohort
 from ant_data.people import roster as _roster
+from ant_data.people import sync_log as _sync_log
 
 def people_opened(country, f=None, interval='month'):
   return _people_opened.df(country, f=f, interval=interval)
@@ -116,3 +117,6 @@ def roster_at():
 
 def roster_atr():
   return _roster.atr()
+
+def sync_log(country, f=None):
+  return _sync_log.df(country=country, f=f)

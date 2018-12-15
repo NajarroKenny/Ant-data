@@ -43,3 +43,6 @@ def fetch_fx():
   fx = gtq.join(cop, on='date', how='inner')
 
   fx.to_csv(FNAME, header=True)
+
+if __name__=='__main__':
+    fetch_fx()

@@ -125,3 +125,6 @@ def index_sync_log(country):
   bulk(elastic, gendata(sync_df))
   print(f'{Timestamp.now().isoformat()} - Finished indexind sync log')
 
+if __name__=='__main__':
+  index_sync_log('Guatemala')
+  # index_sync_log('Colombia') FIXME:
