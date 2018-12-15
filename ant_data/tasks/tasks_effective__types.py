@@ -17,7 +17,7 @@ from pandas import DataFrame, Series
 
 from ant_data import elastic
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
-from ant_data.tasks import tasks_workflow_list__type as twlt
+from ant_data.tasks import tasks_workflow_list__types as twlt
 
 
 WORKFLOW_LIST=[

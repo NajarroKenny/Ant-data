@@ -38,7 +38,6 @@ def search(country, workflows, f=None, interval='month'):
     return s[:0].execute()
 
 
-
 def df(country, workflows, f=None, interval='month'):
     if country not in COUNTRY_LIST:
         raise Exception(f'{country} is not a valid country')
