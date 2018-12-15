@@ -13,6 +13,7 @@ Notes:
 """
 import pkg_resources
 
+import numpy as np
 import pandas as pd
 from pandas import concat,DataFrame
 
@@ -20,8 +21,8 @@ from pandas import concat,DataFrame
 def agents():
   path = '../google/roster_agents.csv'
   filepath = pkg_resources.resource_filename(__name__, path)
-
-  return pd.read_csv(filepath, index_col='agent_id')
+  df = pd.read_csv(filepath, index_col='agent_id').replace(np.nan, '')
+  return df
 
 def supervisors():
   path = '../google/roster_supervisors.csv'

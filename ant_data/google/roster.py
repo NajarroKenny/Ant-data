@@ -24,7 +24,7 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 # SPREADSHEET_ID = '1UjLlBMpf7UqOWe2Icp3kJuOHc0zN0S_U365o4-AnMQw' FIXME:
 SPREADSHEET_ID = '1WXLG241suRmBKKGJyyu43-T5DYErPrpr0GBG0T8ogq0'
 RANGE_AT = 'AT´S!B2:M'
-RANGE_ATR = 'ATR´S!B2:M'
+RANGE_ATR = 'ATR´S!B2:O'
 RANGE_CS_SS = 'CS - SS!B2:J'
 
 FNAME_AGENTS = 'roster_agents.csv'
@@ -39,8 +39,6 @@ COORDINATOR_ROLES = ['coordinador de servicio', 'coordinador de servicio comodí
 SUPERVISOR_ROLES = ['supervisor comercial', 'supervisor it']
 
 def assign_role_id(role):
-
-
     if role.lower() in AT_ROLES:
         return 'at'
     elif role.lower() in IT_ROLES:
@@ -66,10 +64,16 @@ def auth():
     return service
 
 def agents():
-    AGENTS_COLS = [
+    AT_COLS = [
         'name', 'role', 'system_id', 'coordinator', 'coordinator_id', 
         'supervisor', 'supervisor_id', 'departament', 'municipality', 
         'phone', 'agent_id', 'start_date'
+    ]
+
+    ATR_COLS = [
+        'name', 'role', 'system_id', 'coordinator_ref', 'coordinator_ref_id', 
+        'coordinator', 'coordinator_id',  'supervisor', 'supervisor_id', 
+        'departament', 'municipality', 'phone', 'agent_id', 'start_date'
     ]
     
     service = auth()
@@ -81,16 +85,19 @@ def agents():
                                 range=RANGE_AT).execute()
     values = result.get('values', [])
 
-    df = DataFrame(values, columns=AGENTS_COLS)
-
+    df = DataFrame(values, columns=AT_COLS)
+    df['coordinator_ref'] = ''
+    df['coordinator_ref_id'] = ''
+    df = df[ATR_COLS]
+    
     result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
                                 range=RANGE_ATR).execute()
     values = result.get('values', [])
     
-    df = df.append(DataFrame(values, columns=AGENTS_COLS))
+    df = df.append(DataFrame(values, columns=ATR_COLS))
     df = df.drop(df[df['name']=='Vacante'].index)
     df['role_id'] = df['role'].apply(assign_role_id)
-    COL_ORDER = AGENTS_COLS[0:2]+['role_id']+AGENTS_COLS[2:-1]
+    COL_ORDER = ATR_COLS[0:2]+['role_id'] + ATR_COLS[2:-1]
     df = df[COL_ORDER]
     df = df.set_index('agent_id')
 
