@@ -22,7 +22,7 @@ import pandas as pd
 from pandas import DataFrame
 
 
-def community_master():
+def df():
   path = '../google/community_master.csv'
   filepath = pkg_resources.resource_filename(__name__, path)
   cm = pd.read_csv(filepath, index_col='concat')
@@ -30,8 +30,8 @@ def community_master():
   return cm
 
 
-def cm_ids():
-  cm = community_master()
+def df_ids():
+  cm = df()
 
   ids = []
   scores = []
@@ -48,7 +48,7 @@ def cm_ids():
         Q('match', municipality__text=data['municipality']),
         Q('match', department__text=data['department'])
       ])
-    response = s[0:5].execute()
+    response = s[0:2].execute()
 
     ids.append(response.hits.hits[0]['_source']['community_id'])
     scores.append(response.hits.hits[0]['_score'])
@@ -73,6 +73,7 @@ def cm_ids():
   return cm
 
 def communities(at=None, cs=None, ss=None):
+  # TODO: should get information from es
   cm = pd.read_csv('community_master_ids.csv', index_col='concat')
   r = p.roster()
 
