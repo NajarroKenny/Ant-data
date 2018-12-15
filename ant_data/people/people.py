@@ -112,14 +112,14 @@ def no_persons_days__cohort(country, f=None, interval='month'):
   f.append(Q('term', doctype='no_person'))
   return _days__cohort.df(country, f=f, interval=interval)
 
-def roster_at():
-  return _roster.at()
+def agents():
+  return _roster.agents()
 
-def roster_atr():
-  return _roster.atr()
+def coordinators():
+  return _roster.coordinators()
 
-def roster():
-  return _roster.roster()
+def supervisors():
+  return _roster.supervisors()
 
 def sync_log(country, f=None):
   return _sync_log.df(country=country, f=f)

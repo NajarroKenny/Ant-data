@@ -25,12 +25,34 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 SPREADSHEET_ID = '1WXLG241suRmBKKGJyyu43-T5DYErPrpr0GBG0T8ogq0'
 RANGE_AT = 'AT´S!B2:M'
 RANGE_ATR = 'ATR´S!B2:M'
+RANGE_CS_SS = 'CS - SS!B2:J'
 
-FNAME_AT = 'roster_at.csv'
-FNAME_ATR = 'roster_atr.csv'
+FNAME_AGENTS = 'roster_agents.csv'
+FNAME_COORDINATORS = 'roster_coordinators.csv'
+FNAME_SUPERVISORS = 'roster_supervisors.csv'    
+
+AT_ROLES = ['asesor técnico', 'asesor técnico comodín']
+IT_ROLES = ['instalador']
+ATR_ROLES = ['asesor técnico rutero', 'atr aperturador']
+COORDINATOR_ROLES = ['coordinador de servicio', 'coordinador de servicio comodín',
+'coordinador de instalación', 'coordinador kingo cash']
+SUPERVISOR_ROLES = ['supervisor comercial', 'supervisor it']
+
+def assign_role_id(role):
 
 
-def main():
+    if role.lower() in AT_ROLES:
+        return 'at'
+    elif role.lower() in IT_ROLES:
+        return 'it'
+    elif role.lower() in ATR_ROLES:
+        return 'atr'
+    elif role.lower() in COORDINATOR_ROLES:
+        return 'coordinator'
+    elif role.lower in SUPERVISOR_ROLES:
+        return 'supervisor'
+
+def auth():
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
@@ -41,37 +63,91 @@ def main():
         creds = tools.run_flow(flow, store)
     service = build('sheets', 'v4', http=creds.authorize(Http()))
 
+    return service
+
+def agents():
+    AGENTS_COLS = [
+        'name', 'role', 'system_id', 'coordinator', 'coordinator_id', 
+        'supervisor', 'supervisor_id', 'departament', 'municipality', 
+        'phone', 'agent_id', 'start_date'
+    ]
+    
+    service = auth()
+
     # Call the Sheets API
     sheet = service.spreadsheets()
     
-    result_at = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
                                 range=RANGE_AT).execute()
-    values_at = result_at.get('values', [])
+    values = result.get('values', [])
 
-    df_at = DataFrame(
-        values_at, columns=[
-            'name', 'position', 'system_id', 'cs', 'cs_id', 'ss', 'ss_id', 
-            'departament', 'municipality', 'phone', 'agent_id', 'start_date'
-            ]
-        )
-    df_at = df_at.drop(df_at[df_at['name']=='Vacante'].index)
-    df_at = df_at.set_index('agent_id')
+    df = DataFrame(values, columns=AGENTS_COLS)
 
-    result_atr = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
                                 range=RANGE_ATR).execute()
-    values_atr = result_atr.get('values', [])
+    values = result.get('values', [])
     
-    df_atr = DataFrame(
-        values_atr, columns=[
-            'name', 'position', 'system_id', 'cs', 'cs_id', 'ss', 'ss_id', 
-            'departament', 'municipality', 'phone', 'agent_id', 'start_date'
-            ]
-        )
-    df_atr = df_atr.drop(df_atr[df_atr['name']=='Vacante'].index)
-    df_atr = df_atr.set_index('agent_id')
+    df = df.append(DataFrame(values, columns=AGENTS_COLS))
+    df = df.drop(df[df['name']=='Vacante'].index)
+    df['role_id'] = df['role'].apply(assign_role_id)
+    COL_ORDER = AGENTS_COLS[0:2]+['role_id']+AGENTS_COLS[2:-1]
+    df = df[COL_ORDER]
+    df = df.set_index('agent_id')
+
+    df.to_csv(FNAME_AGENTS, sep=',')
+
+def coordinators():
+    COORDINATOR_COLS = [
+        'name', 'role', 'system_id', 'supervisor', 'supervisor_id', 'region',
+        'phone', 'coordinator_id', 'start_date'
+    ]
+
+    service = auth()
+
+    # Call the Sheets API
+    sheet = service.spreadsheets()
     
-    df_at.to_csv(FNAME_AT, sep=',')
-    df_atr.to_csv(FNAME_ATR, sep=',')
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
+                                range=RANGE_CS_SS).execute()
+    values = result.get('values', [])
+
+    df = DataFrame(values, columns=COORDINATOR_COLS)
+    df = df[df['role'].apply(lambda x: x.lower()).isin(COORDINATOR_ROLES)]
+    
+    df['role_id'] = df['role'].apply(assign_role_id)
+    COL_ORDER = COORDINATOR_COLS[0:2]+['role_id']+COORDINATOR_COLS[2:-1]
+    df = df[COL_ORDER]
+    df = df.set_index('coordinator_id')
+
+    df.to_csv(FNAME_COORDINATORS, sep=',')
+
+def supervisors():
+    SUPERVISOR_COLS = [
+        'name', 'role', 'system_id', 'boss', 'boss_id', 'region',
+        'phone', 'supervisor_id', 'start_date'
+    ]
+
+    service = auth()
+
+    # Call the Sheets API
+    sheet = service.spreadsheets()
+    
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
+                                range=RANGE_CS_SS).execute()
+    values = result.get('values', [])
+
+    df = DataFrame(values, columns=SUPERVISOR_COLS)
+    df = df[df['role'].apply(lambda x: x.lower()).isin(SUPERVISOR_ROLES)]
+    
+    df['role_id'] = df['role'].apply(assign_role_id)
+    COL_ORDER = SUPERVISOR_COLS[0:2]+['role_id']+SUPERVISOR_COLS[2:-1]
+    df = df[COL_ORDER]
+    df = df.set_index('supervisor_id')
+
+    df.to_csv(FNAME_SUPERVISORS, sep=',')
+
 
 if __name__ == '__main__':
-    main()
+    agents()
+    coordinators()
+    supervisors()

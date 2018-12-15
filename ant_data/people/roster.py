@@ -17,19 +17,20 @@ import pandas as pd
 from pandas import concat,DataFrame
 
 
-def at():
-  path = '../google/roster_at.csv'
+def agents():
+  path = '../google/roster_agents.csv'
   filepath = pkg_resources.resource_filename(__name__, path)
-  at = pd.read_csv(filepath, index_col='agent_id')
+  
+  return pd.read_csv(filepath, index_col='agent_id')
 
-  return at
-
-def atr():
-  path = '../google/roster_atr.csv'
+def supervisors():
+  path = '../google/roster_supervisors.csv'
   filepath = pkg_resources.resource_filename(__name__, path)
-  atr = pd.read_csv(filepath, index_col='agent_id')
 
-  return atr
+  return pd.read_csv(filepath, index_col='supervisor_id')
 
-def roster():
-  return concat([at(),atr()])
+def coordinators():
+  path = '../google/roster_coordinators.csv'
+  filepath = pkg_resources.resource_filename(__name__, path)
+  
+  return pd.read_csv(filepath, index_col='coordinator_id')
