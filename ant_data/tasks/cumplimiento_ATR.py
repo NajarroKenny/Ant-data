@@ -19,7 +19,6 @@ from pandas import DataFrame
 
 
 from ant_data import elastic
-from ant_data.people.people import sync_log
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 from ant_data.static.TIME import TZ
 from ant_data.tasks.tasks import *

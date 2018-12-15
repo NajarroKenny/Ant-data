@@ -68,8 +68,8 @@ def main():
         )
     df_atr = df_atr.drop(df_atr[df_atr['nombre']=='Vacante'].index)
     
-    df_at.to_csv(FNAME_AT, sep=',')
-    df_atr.to_csv(FNAME_ATR, sep=',')
+    df_at.to_csv(FNAME_AT, sep=',', index=False)
+    df_atr.to_csv(FNAME_ATR, sep=',', index=False)
 
 if __name__ == '__main__':
     main()
