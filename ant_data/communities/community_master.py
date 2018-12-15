@@ -8,13 +8,14 @@ Loads the Community Master CSV file into a Pandas DataFrame
 - Version:      1.0
 
 Notes:
-============================      
+============================
 - v1.0: Initial version
 """
 import pkg_resources
 from elasticsearch_dsl import Search, Q
 
 from ant_data import elastic
+from ant_data.people import people as p
 
 
 import pandas as pd
@@ -48,9 +49,6 @@ def cm_ids():
         Q('match', department__text=data['department'])
       ])
     response = s[0:5].execute()
-    # print(data['community'], data['municipality'], data['department'])
-    # for hit in response.hits.hits:
-    #   print(hit['_score'], hit['_source']['community'], hit['_source']['municipality'], hit['_source']['department'])
 
     ids.append(response.hits.hits[0]['_source']['community_id'])
     scores.append(response.hits.hits[0]['_score'])
@@ -68,7 +66,23 @@ def cm_ids():
   cm['percentage'] = round(100 * cm['second_scores'] / cm['scores'])
 
   cm = cm.reset_index()
-  cm = cm[['community_id', 'concat', 'scores', 'second_scores', 'percentage', 'ant_community', 'community', 'ant_municipality', 'municipality', 'ant_department', 'department', 'at', 'cs', 'ss', 'clients']]
+  cm = cm[['community_id', 'concat', 'scores', 'second_scores', 'percentage', 'ant_community', 'community', 'ant_municipality', 'municipality', 'ant_department', 'department', 'at', 'clients']]
+
   cm.to_csv('community_master_ids.csv', sep=',')
 
   return cm
+
+def communities(at=None, cs=None, ss=None):
+  cm = pd.read_csv('community_master_ids.csv', index_col='concat')
+  r = p.roster()
+
+  if at is None and cs is not None:
+    agent_ids = r[r['cs_id']==cs].index.values
+    return cm[cm['at'].isin(agent_ids)]['community_id'].values
+  elif at is None and ss is not None:
+    agent_ids = r[r['ss_id']==ss].index.values
+    return cm[cm['at'].isin(agent_ids)]['community_id'].values
+  elif at is not None:
+    return cm[cm['at']==at]['community_id'].values
+  else:
+    ss = r.loc[at]['ss_id']
