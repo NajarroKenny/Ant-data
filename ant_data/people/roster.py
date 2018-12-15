@@ -20,16 +20,14 @@ from pandas import concat,DataFrame
 def at():
   path = '../google/roster_at.csv'
   filepath = pkg_resources.resource_filename(__name__, path)
-  at = pd.read_csv(filepath, index_col='correo')
-  at.index.name = 'agent_id'
+  at = pd.read_csv(filepath, index_col='agent_id')
 
   return at
 
 def atr():
   path = '../google/roster_atr.csv'
   filepath = pkg_resources.resource_filename(__name__, path)
-  atr = pd.read_csv(filepath, index_col='correo')
-  atr.index.name = 'agent_id'
+  atr = pd.read_csv(filepath, index_col='agent_id')
 
   return atr
 
