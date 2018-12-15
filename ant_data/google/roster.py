@@ -49,7 +49,7 @@ def assign_role_id(role):
         return 'atr'
     elif role.lower() in COORDINATOR_ROLES:
         return 'coordinator'
-    elif role.lower in SUPERVISOR_ROLES:
+    elif role.lower() in SUPERVISOR_ROLES:
         return 'supervisor'
 
 def auth():
@@ -113,7 +113,6 @@ def coordinators():
 
     df = DataFrame(values, columns=COORDINATOR_COLS)
     df = df[df['role'].apply(lambda x: x.lower()).isin(COORDINATOR_ROLES)]
-    
     df['role_id'] = df['role'].apply(assign_role_id)
     COL_ORDER = COORDINATOR_COLS[0:2]+['role_id']+COORDINATOR_COLS[2:-1]
     df = df[COL_ORDER]
@@ -138,7 +137,6 @@ def supervisors():
 
     df = DataFrame(values, columns=SUPERVISOR_COLS)
     df = df[df['role'].apply(lambda x: x.lower()).isin(SUPERVISOR_ROLES)]
-    
     df['role_id'] = df['role'].apply(assign_role_id)
     COL_ORDER = SUPERVISOR_COLS[0:2]+['role_id']+SUPERVISOR_COLS[2:-1]
     df = df[COL_ORDER]
