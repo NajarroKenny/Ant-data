@@ -50,7 +50,7 @@ def main():
 
     df_at = DataFrame(
         values_at, columns=[
-            'nombre', 'puesto', 'id', 'cs', 'correo_cs', 'ss', 'correo_ss', 
+            'nombre', 'puesto', 'id', 'cs', 'cs_id', 'ss', 'ss_id', 
             'departamento', 'municipio', 'telefono', 'correo', 'ingreso'
             ]
         )
@@ -62,7 +62,7 @@ def main():
     
     df_atr = DataFrame(
         values_atr, columns=[
-            'nombre', 'puesto', 'id', 'cs', 'correo_cs', 'ss', 'correo_ss', 
+            'nombre', 'puesto', 'id', 'cs', 'cs_id', 'ss', 'ss_id', 
             'departamento', 'municipio', 'telefono', 'correo', 'ingreso'
             ]
         )

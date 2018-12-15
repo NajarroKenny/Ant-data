@@ -14,7 +14,7 @@ Notes:
 import pkg_resources
 
 import pandas as pd
-from pandas import DataFrame
+from pandas import concat,DataFrame
 
 
 def at():
@@ -32,3 +32,6 @@ def atr():
   atr.index.name = 'agent_id'
 
   return atr
+
+def roster():
+  return concat([at(),atr()])
