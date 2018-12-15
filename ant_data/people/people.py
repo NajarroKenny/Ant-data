@@ -118,7 +118,7 @@ def roster_at():
 def roster_atr():
   return _roster.atr()
 
-def roster_atr():
+def roster():
   return _roster.roster()
 
 def sync_log(country, f=None):
