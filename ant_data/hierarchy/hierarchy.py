@@ -42,7 +42,7 @@ def index(country):
         "agent_id": key,
         "coordinator_id": agent['coordinator_id'],
         "supervisor_id": agent['supervisor_id'],
-        "communities": cm[cm['at']==key]['community_id'].tolist()
+        "community_id": cm[cm['at']==key]['community_id'].tolist()
       }
     docs.append(doc)
 

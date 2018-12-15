@@ -48,7 +48,7 @@ def df_ids():
         Q('match', municipality__text=data['municipality']),
         Q('match', department__text=data['department'])
       ])
-    response = s[0:2].execute()
+    response = s[0:5].execute()
 
     ids.append(response.hits.hits[0]['_source']['community_id'])
     scores.append(response.hits.hits[0]['_score'])
