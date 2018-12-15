@@ -1,6 +1,7 @@
 .vscode
 credentials.json
 *.csv
+*.xlsx
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
