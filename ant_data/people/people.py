@@ -118,5 +118,8 @@ def roster_at():
 def roster_atr():
   return _roster.atr()
 
+def roster_atr():
+  return _roster.roster()
+
 def sync_log(country, f=None):
   return _sync_log.df(country=country, f=f)

@@ -50,11 +50,12 @@ def main():
 
     df_at = DataFrame(
         values_at, columns=[
-            'nombre', 'puesto', 'id', 'cs', 'cs_id', 'ss', 'ss_id', 
-            'departamento', 'municipio', 'telefono', 'correo', 'ingreso'
+            'name', 'position', 'pos_id', 'cs', 'cs_id', 'ss', 'ss_id', 
+            'departament', 'municipality', 'phone', 'agent_id', 'start_date'
             ]
         )
-    df_at = df_at.drop(df_at[df_at['nombre']=='Vacante'].index)
+    df_at = df_at.drop(df_at[df_at['name']=='Vacante'].index)
+    df_at = df_at.set_index('agent_id')
 
     result_atr = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
                                 range=RANGE_ATR).execute()
@@ -62,14 +63,15 @@ def main():
     
     df_atr = DataFrame(
         values_atr, columns=[
-            'nombre', 'puesto', 'id', 'cs', 'cs_id', 'ss', 'ss_id', 
-            'departamento', 'municipio', 'telefono', 'correo', 'ingreso'
+            'name', 'position', 'pos_id', 'cs', 'cs_id', 'ss', 'ss_id', 
+            'departament', 'municipality', 'phone', 'agent_id', 'start_date'
             ]
         )
-    df_atr = df_atr.drop(df_atr[df_atr['nombre']=='Vacante'].index)
+    df_atr = df_atr.drop(df_atr[df_atr['name']=='Vacante'].index)
+    df_atr = df_atr.set_index('agent_id')
     
-    df_at.to_csv(FNAME_AT, sep=',', index=False)
-    df_atr.to_csv(FNAME_ATR, sep=',', index=False)
+    df_at.to_csv(FNAME_AT, sep=',')
+    df_atr.to_csv(FNAME_ATR, sep=',')
 
 if __name__ == '__main__':
     main()
