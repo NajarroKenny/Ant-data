@@ -61,7 +61,7 @@ def search_weighted(country, f=None, interval='month'):
       s = s.query('bool', filter=f)
 
   s.aggs.bucket('stats', 'children', type='stat') \
-      .bucket('date_filter', 'filter', Q('range', date={'lte': 'now-1d/d'})) \
+      .bucket('date_filter', 'filter', Q('range', date={'lt': 'now/d'})) \
       .bucket('dates', 'date_histogram', field='date', interval=interval, min_doc_count=1)
 
   return s[:0].execute()

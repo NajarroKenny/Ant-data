@@ -40,7 +40,7 @@ def df(country, agent_id, start, end, f=None):
 
   f += [
     Q('term', agent_id=agent_id),
-    Q('range', due={'gte': start, 'lte': end})
+    Q('range', due={'gte': start, 'lt': end})
   ]
 
   sd = sync_log(country=country) #TODO:

@@ -26,7 +26,7 @@ def search(country, start, end, f=None):
     s = Search(using=elastic, index='tasks') \
         .query('term', country=country) \
         .query('term', doctype='task') \
-        .query('range', due={'gte': start, 'lte': end})
+        .query('range', due={'gte': start, 'lt': end})
 
     if f is not None:
         s = s.query('bool', filter=f)

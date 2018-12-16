@@ -27,7 +27,7 @@ def search(country, workflows, start, end, f=None):
     s = Search(using=elastic, index='tasks') \
         .query('term', country=country) \
         .query('term', doctype='task') \
-        .query('range', due={'gte': start, 'lte': end}) \
+        .query('range', due={'gte': start, 'lt': end}) \
         .query('has_child', type='history', query=Q('terms', workflow=workflows))
 
     if f is not None:
