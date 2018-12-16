@@ -127,56 +127,12 @@ def df_average(country, f=None, interval='month'):
   return df
 
 
-def df_distinct(country, f=None, interval='month'):
-  response = search_distinct(country, f=f, interval=interval)
-
-  obj = {}
-
-  for model in response.aggs.models.buckets:
-    obj[model.key] = {}
-    for date in model.stats.date_range.dates.buckets:
-      obj[model.key][date.key_as_string] = date.count.value
-
-  df = DataFrame.from_dict(obj, orient='index')
-
-  if df.empty:
-    return df
-
-  df = df.T.fillna(0).astype('int64')
-  df.index = df.index.astype('datetime64')
-  df.index.name = 'date'
-  df['total'] = df.sum(axis=1)
-
-  return df
-
-
 def df_weighted(country, f=None, interval='month'):
-  response = search_weighted(country, f=f, interval=interval)
-
-  obj = {}
-
-  for model in response.aggs.models.buckets:
-    obj[model.key] = {}
-    for date in model.stats.date_range.dates.buckets:
-      obj[model.key][date.key_as_string] = date.doc_count
-
-  df = DataFrame.from_dict(obj, orient='index')
-
-  if df.empty:
-    return df
-
-  df = df.T.fillna(0).astype('int64')
-  df.index = df.index.astype('datetime64')
-  df.index.name = 'date'
-  df['total'] = df.sum(axis=1)
-
-  bucket_len = [x.days for x in diff(df.index.tolist())]
-  bucket_len.append((Timestamp.now()-df.index[-1]).days)
-
-  df = df.div(bucket_len, axis='index')
+  print('Systems do not support method="weighted".')
 
 
-  return df
+def df_distinct(country, f=None, interval='month'):
+  print('Systems do not support method="distinct".')
 
 
 def df(country, method='end', f=None, interval='month'):
