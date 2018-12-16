@@ -18,6 +18,7 @@ def fetch_fx():
     'http://www.banguat.gob.gt/cambio/historico.asp?kmoneda=02&ktipo=5&kmes=01&kdia=1&kanio=2013&kmes1={}&kdia1={}&kanio1={}&kcsv=OFF&submit1=Consultation'
     .format(END_DATE.date().month, END_DATE.date().day, END_DATE.date().year)
   )
+  print(f'Starting to fetch exchange rates for GTQ from {START_DATE} until {END_DATE}')
   gtq_req = requests.get(gtq_url).text
   gtq_soup = BeautifulSoup(gtq_req, 'html.parser')
 
@@ -33,16 +34,20 @@ def fetch_fx():
   gtq = pd.Series(gtq_data)
   gtq.index.name = 'date'
   gtq = pd.DataFrame(gtq.values, index=pd.to_datetime(gtq.index, dayfirst=True)).rename(columns={0: 'gtq'})
+  print(f'Finished fetching exchange rates for GTQ from {START_DATE} until {END_DATE}')
 
+  print(f'Starting to fetch exchange rates for COL from {START_DATE} until {END_DATE}')
   cop_url = 'https://www.superfinanciera.gov.co/descargas?com=institucional&name=pubFile1010997&downloadname=historia.csv'
   cop = pd.read_csv(cop_url, index_col='Fecha', usecols=['Fecha', 'TCRM'])
   cop = cop.reindex(pd.to_datetime(cop.index))
   cop = cop.apply(lambda x: x.str.replace(',',''))
   cop = cop.loc[START_DATE: END_DATE].rename(columns={'TCRM': 'cop'}).astype('float64')
+  print(f'Finished fetching exchange rates for GTQ from {START_DATE} until {END_DATE}')
 
   fx = gtq.join(cop, on='date', how='inner')
 
   fx.to_csv(FNAME, header=True)
+  print(f'Saved exchange rates to {FNAME}')
 
 if __name__=='__main__':
     fetch_fx()

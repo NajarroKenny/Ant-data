@@ -88,3 +88,7 @@ def index(country):
 
 
   bulk(elastic, docs)
+
+if __name__=='__main__':
+  index('Guatemala')
+  # index('Colombia') FIXME:

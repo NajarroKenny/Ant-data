@@ -26,12 +26,8 @@ FHEADER = 'AGENT_LIST = [ \n'
 FFOOTER = ']'
 
 
-def search(country, f=None):
-  if country not in COUNTRY_LIST:
-    raise Exception(f'{country} is not a valid country')
-
+def search(f=None):
   s = Search(using=elastic, index='tasks') \
-        .query('term', country=country) \
         .query('term', doctype='task')
 
   if f is not None:
@@ -41,11 +37,8 @@ def search(country, f=None):
 
   return s[:0].execute()
 
-def df(country, f=None):
-  if country not in COUNTRY_LIST:
-    raise Exception(f'{country} is not a valid country')
-  
-  response = search(country, f=f)
+def df(f=None):
+  response = search(f=f)
 
   obj = {}
 
@@ -58,15 +51,18 @@ def df(country, f=None):
   return df
 
 
-def fetch_agent_list(country, f=None):
-  if country not in COUNTRY_LIST:
-    raise Exception(f'{country} is not a valid country')
+def agent_list(f=None):
+  print('Starting to fetch agent list')
+  agent_list = df(f=f)
 
-  agent_list = df(country, f=f)
-
+  print('Writing agent list to file')
   with open(FNAME, 'w') as fh:
     fh.write(FHEADER)
     for agent in agent_list.index.tolist():
       fh.write(agent+'\n')
     fh.write(FFOOTER)
+  print(f'Wrote agent list to file {FNAME}')
+
+if __name__=='__main__':
+  agent_list()
 
