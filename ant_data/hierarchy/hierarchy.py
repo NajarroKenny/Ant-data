@@ -33,6 +33,11 @@ def index(country):
 
   for row in agents.iterrows():
     (key, agent) = row
+    if agent['coordinator_ref_id'] == '':
+      community_ids = cm[cm['agent_id']==key]['community_id'].tolist()
+    else:
+      agent_ids = agents[agents['coordinator_id']==agent['coordinator_ref_id']].index.tolist()
+      community_ids = cm[cm['agent_id'].isin(agent_ids)]['community_id'].tolist()
     doc = {
         "_index": "hierarchy",
         "_type": "_doc",
@@ -42,14 +47,14 @@ def index(country):
         "agent_id": key,
         "coordinator_id": agent['coordinator_id'],
         "supervisor_id": agent['supervisor_id'],
-        "community_id": cm[cm['at']==key]['community_id'].tolist()
+        "community_id": community_ids
       }
     docs.append(doc)
 
   for row in coordinators.iterrows():
     (key, coordinator) = row
     agent_ids = agents[agents['coordinator_id']==key].index.tolist()
-    community_ids = cm[cm['at'].isin(agent_ids)]['community_id'].tolist()
+    community_ids = cm[cm['agent_id'].isin(agent_ids)]['community_id'].tolist()
     doc = {
       "_index": "hierarchy",
       "_type": "_doc",
@@ -67,7 +72,7 @@ def index(country):
     (key, supervisor) = row
     agent_ids = agents[agents['supervisor_id']==key].index.tolist()
     coordinator_ids = coordinators[coordinators['supervisor_id']==key].index.tolist()
-    community_ids = cm[cm['at'].isin(agent_ids)]['community_id'].tolist()
+    community_ids = cm[cm['agent_id'].isin(agent_ids)]['community_id'].tolist()
     doc = {
         "_index": "hierarchy",
         "_type": "_doc",

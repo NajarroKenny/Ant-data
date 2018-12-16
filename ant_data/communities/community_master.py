@@ -66,7 +66,8 @@ def df_ids():
   cm['percentage'] = round(100 * cm['second_scores'] / cm['scores'])
 
   cm = cm.reset_index()
-  cm = cm[['community_id', 'concat', 'scores', 'second_scores', 'percentage', 'ant_community', 'community', 'ant_municipality', 'municipality', 'ant_department', 'department', 'at', 'clients']]
+  cm = cm.rename(columns={ 'at': 'agent_id' })
+  cm = cm[['community_id', 'concat', 'scores', 'second_scores', 'percentage', 'ant_community', 'community', 'ant_municipality', 'municipality', 'ant_department', 'department', 'agent_id', 'clients']]
 
   cm.to_csv('community_master_ids.csv', sep=',')
 
