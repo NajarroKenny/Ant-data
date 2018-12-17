@@ -22,6 +22,7 @@ from pandas import DataFrame
 
 from ant_data import elastic
 from ant_data.people.people import sync_log
+from ant_data.static.AGENT_MAPPING import AGENT_MAPPING
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 from ant_data.static.TIME import TZ
 from ant_data.tasks.tasks import *
@@ -41,8 +42,13 @@ def data(country, agent_id, start, end, f=None):
     f = []
 
   f.append(Q('term', agent_id=agent_id))
-  g = (Q('term', agent_id='cesar.tot@kingoenergy.com.gt')) #FIXME:
-  ls = sync_log(country=country, f=f) #FIXME:
+  
+  if agent_id in AGENT_MAPPING:
+    sf = Q('term', agent_id=AGENT_MAPPING.get(agent_id))
+  else:
+    sf = f
+
+  ls = sync_log(country=country, f=sf)
   ls = ls['sync_date'].max()
   ls = '' if (isinstance(ls, float)) else ls
   sync_threshold = shift_date(end, -1).isoformat()
