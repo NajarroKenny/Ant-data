@@ -45,6 +45,7 @@ def data(country, agent_id, start, end, f=None):
   ls = sync_log(country=country, f=f) #FIXME:
   ls = ls['sync_date'].max()
   ls = '' if (isinstance(ls, float)) else ls
+  sync_threshold = shift_date(end, -1).isoformat()
 
   f.append(Q('range', due={'gte': start, 'lt': end}))
 
@@ -53,7 +54,11 @@ def data(country, agent_id, start, end, f=None):
   df_tasks.index.name = 'types'
 
   if df_tasks.empty:
-    return df_tasks
+    return {
+      'last_sync': ls,
+      'sync_status': True if ls >= sync_threshold else False,
+      'task_info': df_tasks
+    }
 
   df_visited = tasks__types(country, f=f+VISITED_F, interval='year')
   df_visited = DataFrame(df_visited.sum(axis=0), columns=['visited'])
@@ -73,7 +78,6 @@ def data(country, agent_id, start, end, f=None):
   df['effective_perc'] = df['effective'].div(df['visited'])
   df = df.fillna(0).replace((np.inf, -np.inf), (0,0))
   df = df.replace(np.nan, 0)
-  sync_threshold = shift_date(end, -1).isoformat()
 
   data = {
     'last_sync': ls,
