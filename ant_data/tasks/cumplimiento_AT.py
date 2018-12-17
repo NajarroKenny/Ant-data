@@ -1,7 +1,7 @@
 # TODO: Create tasks version script that generates aggregate on range
 """
 Cumplimiento AT
-============================
+==========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on task status.
 
@@ -10,7 +10,7 @@ Warehouse to generate a report on task status.
 - Version:      1.0
 
 Notes:
-============================
+==========================
 - v1.0: Initial version
 """
 import datetime as dt
@@ -33,21 +33,20 @@ NOT_VISITED_F = [Q('bool', must_not=Q('has_child', type='history', query=Q()))]
 PLANNED_F = [Q('term', planned=True)]
 ADDITIONAL_F = [Q('term', planned=False)]
 
-def df(country, agent_id, start, end, f=None):
+def data(country, agent_id, start, end, f=None):
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
 
   if f is None:
     f = []
 
-  f += [
-    Q('term', agent_id=agent_id),
-    Q('range', due={'gte': start, 'lt': end})
-  ]
-  
-  sd = sync_log(country=country)
-  sd = sd[sd['agent_id']==agent_id]['sync_date'].max()
-  # sd = sd[sd['agent_id']=='cesar.tot@kingoenergy.com.gt']['sync_date'].max() 
+  f.append(Q('term', agent_id=agent_id))
+  g = (Q('term', agent_id='cesar.tot@kingoenergy.com.gt')) #FIXME:
+  ls = sync_log(country=country, f=f) #FIXME:
+  ls = ls['sync_date'].max()
+  ls = '' if (isinstance(ls, float)) else ls
+
+  f.append(Q('range', due={'gte': start, 'lt': end}))
 
   df_tasks = tasks__types(country, f=f, interval='year').sum(axis=0)
   df_tasks = DataFrame(df_tasks, columns=['tasks'])
@@ -74,8 +73,12 @@ def df(country, agent_id, start, end, f=None):
   df['effective_perc'] = df['effective'].div(df['visited'])
   df = df.fillna(0).replace((np.inf, -np.inf), (0,0))
   df = df.replace(np.nan, 0)
-  df['last_sync'] = sd
   sync_threshold = shift_date(end, -1).isoformat()
-  df['synced'] = True if sd >= sync_threshold else False
 
-  return df
+  data = {
+    'last_sync': ls,
+    'sync_status': True if ls >= sync_threshold else False,
+    'task_info': df
+  }
+
+  return data
