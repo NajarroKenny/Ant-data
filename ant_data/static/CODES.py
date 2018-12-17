@@ -59,3 +59,15 @@ TECH = {
     { 'key': False, 'name': 'Gratis' }
   ]
 }
+
+CODE_PLANS = {
+  'hour': 0,
+  'day': 1,
+  'three_days': 3,
+  'week': 7,
+  'fortnight': 15,
+  'month': 30,
+  'quarter': 90,
+  'semester': 182,
+  'year': 365
+}

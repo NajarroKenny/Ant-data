@@ -28,7 +28,7 @@ def search(country, f=None, date=None):
         .query('has_parent', parent_type='person', query=Q('term', doctype='client'))
 
     if f is not None:
-        s = s.query('has_paremt', parent_type='person', query=Q('bool', filter=f))
+        s = s.query('has_parent', parent_type='person', query=Q('bool', filter=f))
 
     ranges30 = [
         { 'to': 1 },

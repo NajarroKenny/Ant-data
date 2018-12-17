@@ -53,7 +53,7 @@ def search(country, f=None, date=None):
         ]
 
         if f is not None:
-            s = s.query('has_paremt', parent_type='person', query=Q('bool', filter=f))
+            s = s.query('has_parent', parent_type='person', query=Q('bool', filter=f))
 
         s.aggs.bucket('days30', 'range', field='days30', ranges=ranges)
 

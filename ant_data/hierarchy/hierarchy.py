@@ -11,6 +11,8 @@ Notes:
 ==========================
 - v1.0: Initial version
 """
+import datetime as dt
+from elasticsearch_dsl import Search, Q
 from elasticsearch.helpers import bulk
 from pandas import DataFrame, Timestamp
 
@@ -88,6 +90,54 @@ def index(country):
 
 
   bulk(elastic, docs)
+
+
+def communities(agent):
+  s = Search(using=elastic, index='hierarchy') \
+    .query('ids', values=[agent])
+
+  response = s[0:1].execute()
+  if response.hits.total == 1:
+    return response.hits.hits[0]['_source']['community_id']
+  else:
+    return []
+
+
+def clients(agent, date=None):
+  if date is None:
+    date = dt.datetime.today().strftime('%Y-%m-%d')
+  s = Search(using=elastic, index='people') \
+    .query('term', doctype='client') \
+    .query('term', community__employees__at__agent_id=agent) \
+    .query('bool', should=[
+      Q('term', open=True),
+      Q('range', closed={ 'gte': date })
+    ])
+
+  clients = []
+  for hit in s.scan():
+    clients.append(hit)
+
+  return clients
+
+
+def codes(agent, start, end):
+  c = communities(agent)
+
+  s = Search(using=elastic, index='codes') \
+    .query('term', doctype='code') \
+    .query('terms', to__community__community_id=c) \
+    .query('range', datetime={
+      'gte': start,
+      'lt': end
+    })
+
+  codes = []
+  for hit in s.scan():
+    codes.append(hit)
+
+  return codes
+
 
 if __name__=='__main__':
   index('Guatemala')
