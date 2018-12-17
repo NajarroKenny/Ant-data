@@ -62,6 +62,7 @@ def df(country, f=None, **kwargs):
     df.index.name = 'period'
     df = df.rename(columns={ 0: 'inactive', 1: 'active' })
     df['total'] = df.sum(axis=1)
+    df.loc['total'] = df.sum()
     df = df.fillna(0).astype('int64')
     df['percent'] = df['active'].div(df['total'])
     df = df.replace((np.nan, -np.nan), (0, 0))

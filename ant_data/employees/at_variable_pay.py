@@ -63,6 +63,10 @@ def df(agent, start, end):
     obj[cat] += 1
 
   df = DataFrame([obj[key] for key in keys ], index=keys, columns=['Parque'])
+
+  if df.empty:
+    return df
+
   df['Activo Mes Anterior'] = df['Parque']
   df.at['Inactivo', 'Activo Mes Anterior'] = 0
   df.loc['Total'] = df.sum()

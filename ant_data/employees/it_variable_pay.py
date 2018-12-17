@@ -81,6 +81,10 @@ def df(agent, start, end):
                           for i in obj.keys()
                           for j in obj[i].keys()},
                           orient='index')
+
+  if df.empty:
+    return df
+
   df = df.fillna(0)
   df.index = df.index.set_names('Activo', level=0)
   df.index = df.index.set_names('Mes', level=1)
