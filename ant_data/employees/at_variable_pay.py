@@ -12,7 +12,8 @@ def df(agent, start, end):
   communities = hierarchy.communities(agent)
   clients = hierarchy.clients(agent, 'at', end)
   codes = hierarchy.codes(agent, start, end)
-  hard_days = hard_client_days.df(agent, start, end)
+  client_ids = [ client['person_id'] for client in clients ]
+  hard_days = hard_client_days.df(client_ids, start, end)
 
   code_map = {}
   for code in codes:

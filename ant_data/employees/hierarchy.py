@@ -103,6 +103,20 @@ def communities(agent):
     return []
 
 
+def installs(agent, start, end):
+  s = Search(using=elastic, index='installs') \
+    .query('term', doctype='install') \
+    .query('term', agent_id=agent) \
+    .query('range', opened={ 'gte': start, 'lt': end })
+
+  installs = []
+  for hit in s.scan():
+    installs.append(hit.to_dict())
+
+  return installs
+
+
+
 def clients(agent, agent_type, date=None):
   if date is None:
     date = dt.datetime.today().strftime('%Y-%m-%d')
@@ -116,7 +130,7 @@ def clients(agent, agent_type, date=None):
 
   clients = []
   for hit in s.scan():
-    clients.append(hit)
+    clients.append(hit.to_dict())
 
   return clients
 
@@ -134,7 +148,7 @@ def codes(agent, start, end):
 
   codes = []
   for hit in s.scan():
-    codes.append(hit)
+    codes.append(hit.to_dict())
 
   return codes
 

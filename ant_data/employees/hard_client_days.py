@@ -4,14 +4,9 @@ from pandas import DataFrame
 from ant_data import elastic
 
 
-def df(agent, start, end):
+def df(client_ids, start, end):
   s = Search(using=elastic, index='people') \
-    .query('term', doctype='client') \
-    .query('term', community__employees__at__agent_id=agent) \
-    .query('bool', should=[
-      Q('term', open=True),
-      Q('range', closed={ 'gte': end })
-    ])
+    .query('ids', type='_doc', values=client_ids)
 
   #TODO: use partitions to get all the results
   # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions
