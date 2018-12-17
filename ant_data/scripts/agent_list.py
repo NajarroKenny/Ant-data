@@ -51,7 +51,7 @@ def df(f=None):
   return df
 
 
-def agent_list(f=None):
+def write(f=None):
   print('Starting to fetch agent list')
   agent_list = df(f=f)
 
@@ -64,5 +64,5 @@ def agent_list(f=None):
   print(f'Wrote agent list to file {FNAME}')
 
 if __name__=='__main__':
-  agent_list()
+  write()
 

@@ -84,7 +84,7 @@ def fetch_user_list(engine):
   return read_sql(query, engine)
 
 
-def index_sync_log(country):
+def index(country):
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
 
@@ -126,5 +126,5 @@ def index_sync_log(country):
   print(f'{Timestamp.now().isoformat()} - Finished indexind sync log')
 
 if __name__=='__main__':
-  index_sync_log('Guatemala')
-  # index_sync_log('Colombia') FIXME:
+  index('Guatemala')
+  index('Colombia')

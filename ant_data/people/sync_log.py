@@ -18,12 +18,14 @@ from ant_data import elastic
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
-def search(country, f=None):
-  if country not in COUNTRY_LIST:
-    raise Exception(f'{country} is not a valid country')
+def search(country=None, f=None):
+  s = Search(using=elastic, index='sync_log')
+  
+  if country is not None: 
+    if country not in COUNTRY_LIST:
+      raise Exception(f'{country} is not a valid country')
 
-  s = Search(using=elastic, index='sync_log') \
-    .query(
+    s=s.query(
       'bool', filter= Q('term', country=country)
     )
 
@@ -33,8 +35,8 @@ def search(country, f=None):
   return s.scan()
 
 
-def df(country, f=None):
-  if country not in COUNTRY_LIST:
+def df(country=None, f=None):
+  if country is not None and country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
   
   response = search(country, f=f)
