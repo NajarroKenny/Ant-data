@@ -1,10 +1,22 @@
+"""
+People
+==========================
+Wrapper for all people data-fetching functions
+
+- Create date:  2018-12-08
+- Update date:  2018-12-14
+- Version:      1.0
+ 
+Notes
+==========================
+- v1.0: Initial version
+"""
 from elasticsearch_dsl import Q
 from ant_data.people import days as _days
 from ant_data.people import days__cohort as _days__cohort
 from ant_data.people import people_opened as _people_opened
 from ant_data.people import people_closed as _people_closed
 from ant_data.people import people_open as _people_open
-from ant_data.people import roster as _roster
 from ant_data.people import sync_log as _sync_log
 
 def people_opened(country, f=None, interval='month'):
@@ -111,15 +123,6 @@ def no_persons_days__cohort(country, f=None, interval='month'):
     f = []
   f.append(Q('term', doctype='no_person'))
   return _days__cohort.df(country, f=f, interval=interval)
-
-def agents():
-  return _roster.agents()
-
-def coordinators():
-  return _roster.coordinators()
-
-def supervisors():
-  return _roster.supervisors()
 
 def sync_log(country, f=None):
   return _sync_log.df(country=country, f=f)
