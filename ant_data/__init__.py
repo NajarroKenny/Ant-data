@@ -22,4 +22,7 @@ if config['ES']['HOST'] != '' and config['ES']['PORT'] != '':
     )
 
 else:
-    elastic = Elasticsearch()
+    print(f"Elasticsearch timeout is {config['ES']['TIMEOUT']}")
+    elastic = Elasticsearch(
+        timeout = float(config['ES']['TIMEOUT'])
+    )
