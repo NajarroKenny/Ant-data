@@ -103,12 +103,12 @@ def communities(agent):
     return []
 
 
-def clients(agent, date=None):
+def clients(agent, agent_type, date=None):
   if date is None:
     date = dt.datetime.today().strftime('%Y-%m-%d')
   s = Search(using=elastic, index='people') \
     .query('term', doctype='client') \
-    .query('term', community__employees__at__agent_id=agent) \
+    .query('term', **{ f'community.employees.{agent_type}.agent_id': agent }) \
     .query('bool', should=[
       Q('term', open=True),
       Q('range', closed={ 'gte': date })
