@@ -1,7 +1,7 @@
 # TODO: Create tasks version script that generates aggregate on range
 """
 Cumplimiento AT
-==========================
+============================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on task status.
 
@@ -10,23 +10,18 @@ Warehouse to generate a report on task status.
 - Version:      1.0
 
 Notes:
-==========================
+============================
 - v1.0: Initial version
 """
-import datetime as dt
-
 from elasticsearch_dsl import Q
 import numpy as np
 from pandas import DataFrame
 
 
 from ant_data import elastic
-from ant_data.people.people import sync_log
-from ant_data.static.AGENT_MAPPING import AGENT_MAPPING
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 from ant_data.static.TIME import TZ
 from ant_data.tasks.tasks import *
-from ant_data.shared.helpers import shift_date, shift_date_object
 
 
 VISITED_F = [Q('has_child', type='history', query=Q())]
@@ -34,42 +29,32 @@ NOT_VISITED_F = [Q('bool', must_not=Q('has_child', type='history', query=Q()))]
 PLANNED_F = [Q('term', planned=True)]
 ADDITIONAL_F = [Q('term', planned=False)]
 
-def data(country, agent_id, start, end, f=None):
+def df(country, agent_id, start, end, f=None):
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
 
   if f is None:
     f = []
 
-  f.append(Q('term', agent_id=agent_id))
-  
-  if agent_id in AGENT_MAPPING:
-    sf = Q('term', agent_id=AGENT_MAPPING.get(agent_id))
-  else:
-    sf = f
+  f += [
+    Q('term', agent_id=agent_id),
+    Q('range', due={'gte': start, 'lt': end})
+  ]
 
-  ls = sync_log(country=country, f=sf)
-  ls = ls['sync_date'].max()
-  ls = '' if (isinstance(ls, float)) else ls
-  sync_threshold = shift_date(end, -1).isoformat()
-
-  f.append(Q('range', due={'gte': start, 'lt': end}))
+  sd = sync_log(country=country) #TODO:
+  sd = sd[sd['agent_id']==agent_id]['sync_date'] #TODO:
 
   df_tasks = tasks__types(country, f=f, interval='year').sum(axis=0)
   df_tasks = DataFrame(df_tasks, columns=['tasks'])
   df_tasks.index.name = 'types'
 
   if df_tasks.empty:
-    return {
-      'last_sync': ls,
-      'sync_status': True if ls >= sync_threshold else False,
-      'task_info': df_tasks
-    }
+    return df_tasks
 
   df_visited = tasks__types(country, f=f+VISITED_F, interval='year')
   df_visited = DataFrame(df_visited.sum(axis=0), columns=['visited'])
   df_visited.index.name = 'types'
-  df_effective = tasks_effective__types(country, f=f+VISITED_F, interval='year')
+  df_effective = tasks_effective__type(country, f=f+VISITED_F, interval='year')
   df_effective = DataFrame(df_effective.sum(axis=0), columns=['effective'])
   df_effective.index.name = 'types'
   df_additional = tasks__types(country, f=f+ADDITIONAL_F, interval='year')
@@ -83,12 +68,7 @@ def data(country, agent_id, start, end, f=None):
   df['visited_perc'] = df['visited'].div(df['tasks'])
   df['effective_perc'] = df['effective'].div(df['visited'])
   df = df.fillna(0).replace((np.inf, -np.inf), (0,0))
-  df = df.replace(np.nan, 0)
+  df['last_sync'] = sd #TODO:
+  df['synced'] = True if sd==end else False #TODO:
 
-  data = {
-    'last_sync': ls,
-    'sync_status': True if ls >= sync_threshold else False,
-    'task_info': df
-  }
-
-  return data
+  return df

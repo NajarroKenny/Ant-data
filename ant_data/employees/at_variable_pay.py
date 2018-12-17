@@ -1,4 +1,3 @@
-import datetime as dt
 from elasticsearch_dsl import Search, Q, A
 from pandas import DataFrame, Series
 import numpy as np
@@ -6,6 +5,7 @@ import numpy as np
 from ant_data import elastic
 from ant_data.employees import hierarchy, hard_client_days
 from ant_data.static import CODES
+from ant_data.shared import helpers
 
 
 def df(agent, start, end):
@@ -25,7 +25,7 @@ def df(agent, start, end):
       code_map[client_id]['agent'] += CODES.CODE_PLANS[code['plan']]
 
 
-  new_old = dt.datetime.strptime(start[:10], '%Y-%m-%d') - dt.timedelta(days=105) # FIXME: local time
+  new_old = helpers.shift_date_str(end, days=-105) # FIXME:check with Chino
 
   keys = ['Activo Compra Tendero >= 15', 'Activo Compra Tendero >= 7', 'Activo Nuevo >= 15', 'Activo Nuevo >= 10', 'Activo >= 15', 'Activo >= 7', 'Activo < 7', 'Inactivo']
   obj = {}
@@ -34,7 +34,7 @@ def df(agent, start, end):
 
   for client in clients:
     client_id = client['person_id']
-    opened = dt.datetime.strptime(client['opened'][:10], '%Y-%m-%d')
+    opened = client['opened']
     days = hard_days.loc[client_id]['active']
 
     if opened < new_old:

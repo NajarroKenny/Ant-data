@@ -92,6 +92,17 @@ def index(country):
   bulk(elastic, docs)
 
 
+def info(agent):
+  s = Search(using=elastic, index='hierarchy') \
+    .query('ids', values=[agent])
+  response = s[:1].execute()
+
+  if response.hits.total == 1:
+    return response.hits.hits[0]['_source']
+  else:
+    return None
+
+
 def communities(agent):
   s = Search(using=elastic, index='hierarchy') \
     .query('ids', values=[agent])
