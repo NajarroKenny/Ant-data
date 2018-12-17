@@ -17,7 +17,7 @@ from elasticsearch.helpers import bulk
 from pandas import DataFrame, Timestamp
 
 from ant_data import elastic
-from ant_data.communities import communities
+from ant_data.communities import communities as _communities
 from ant_data.people import people
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
@@ -26,7 +26,7 @@ def index(country):
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
 
-  cm = communities.community_master_ids()
+  cm = _communities.community_master_ids()
   agents = people.agents()
   coordinators = people.coordinators()
   supervisors = people.supervisors()
