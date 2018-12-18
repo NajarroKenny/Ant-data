@@ -71,5 +71,6 @@ def df(country, f=None, **kwargs):
         return df
 
     df.index.name = 'period'
+    df = df.reset_index()
 
     return df

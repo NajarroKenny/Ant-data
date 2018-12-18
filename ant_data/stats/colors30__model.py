@@ -57,5 +57,6 @@ def df(country, f=None, **kwargs):
     df = df[['black','red','yellow','blue','green']]
     df['total'] = df.sum(axis=1)
     df.loc['total'] = df.sum()
+    df = df.reset_index()
 
     return df

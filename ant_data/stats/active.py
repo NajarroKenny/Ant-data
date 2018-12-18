@@ -92,19 +92,6 @@ def df(country, f=None, **kwargs):
             obj[360][i] = days.doc_count
             i += 1
 
-        df = DataFrame.from_dict(obj).T
-
-        if df.empty:
-            return df
-
-        df.index.name = 'period'
-        df = df.rename(columns={ 0: 'inactive', 1: 'active' })
-        df['total'] = df.sum(axis=1)
-        df = df.fillna(0).astype('int64')
-        df['percent'] = df['active'].div(df['total'])
-        df = df.replace((np.nan, -np.nan), (0, 0))
-        df = df.replace((np.inf, -np.inf), (0, 0))
-
     else:
         obj = {}
         obj[30] = {}
@@ -113,17 +100,18 @@ def df(country, f=None, **kwargs):
             obj[30][i] = days.doc_count
             i += 1
 
-        df = DataFrame.from_dict(obj).T
+    df = DataFrame.from_dict(obj).T
 
-        if df.empty:
-            return df
+    if df.empty:
+        return df
 
-        df.index.name = 'period'
-        df = df.rename(columns={ 0: 'inactive', 1: 'active' })
-        df['total'] = df.sum(axis=1)
-        df = df.fillna(0).astype('int64')
-        df['percent'] = df['active'].div(df['total'])
-        df = df.replace((np.nan, -np.nan), (0, 0))
-        df = df.replace((np.inf, -np.inf), (0, 0))
+    df.index.name = 'period'
+    df = df.rename(columns={ 0: 'inactive', 1: 'active' })
+    df['total'] = df.sum(axis=1)
+    df = df.fillna(0).astype('int64')
+    df['percent'] = df['active'].div(df['total'])
+    df = df.replace((np.nan, -np.nan), (0, 0))
+    df = df.replace((np.inf, -np.inf), (0, 0))
+    df = df.reset_index()
 
     return df

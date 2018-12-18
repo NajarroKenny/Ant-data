@@ -72,28 +72,20 @@ def df(country, f=None, **kwargs):
         for ur in response.aggs.ur360.buckets:
             obj[360][round(ur.key,2)] = ur.doc_count
 
-        df = DataFrame.from_dict(obj).T
-
-        if df.empty:
-            return df
-
-        df.index.name = 'period'
-        df = df.fillna(0).astype('int64')
-        df['total'] = df.sum(axis=1)
-
     else:
         obj = {}
         obj[30] = {}
         for ur in response.aggs.ur30.buckets:
             obj[30][round(ur.key,2)] = ur.doc_count
 
-        df = DataFrame.from_dict(obj).T
+    df = DataFrame.from_dict(obj).T
 
-        if df.empty:
-            return df
+    if df.empty:
+        return df
 
-        df.index.name = 'period'
-        df = df.fillna(0).astype('int64')
-        df['total'] = df.sum(axis=1)
+    df.index.name = 'period'
+    df = df.fillna(0).astype('int64')
+    df['total'] = df.sum(axis=1)
+    df = df.reset_index()
 
     return df

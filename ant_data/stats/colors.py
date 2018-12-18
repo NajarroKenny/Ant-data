@@ -72,30 +72,20 @@ def df(country, f=None, **kwargs):
         for color in response.aggs.color360.buckets:
             obj[360][color.key] = color.doc_count
 
-        df = DataFrame.from_dict(obj).T
-
-        if df.empty:
-            return df
-
-        df.index.name = 'period'
-        df = df.fillna(0).astype('int64')
-        df = df[['black','red','yellow','blue','green']]
-        df['total'] = df.sum(axis=1)
-
     else:
         obj = {}
         obj[30] = {}
         for color in response.aggs.color30.buckets:
             obj[30][color.key] = color.doc_count
 
-        df = DataFrame.from_dict(obj).T
+    df = DataFrame.from_dict(obj).T
 
-        if df.empty:
-            return df
+    if df.empty:
+        return df
 
-        df.index.name = 'period'
-        df = df.fillna(0).astype('int64')
-        df = df[['black','red','yellow','blue','green']]
-        df['total'] = df.sum(axis=1)
+    df.index.name = 'period'
+    df = df.fillna(0).astype('int64')
+    df = df[['black','red','yellow','blue','green']]
+    df['total'] = df.sum(axis=1)
 
     return df

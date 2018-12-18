@@ -52,9 +52,10 @@ def df(country, f=None, **kwargs):
     if df.empty:
         return df
 
-    df.index.name = 'period'
+    df.index.name = 'model'
     df = df.fillna(0).astype('int64')
     df['total'] = df.sum(axis=1)
     df.loc['total'] = df.sum()
+    df = df.reset_index()
 
     return df

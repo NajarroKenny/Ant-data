@@ -126,15 +126,6 @@ def df(country, f=None, **kwargs):
             obj[360][i] = days.doc_count
             i += 1
 
-        df = DataFrame.from_dict(obj).T
-
-        if df.empty:
-            return df
-
-        df.index.name = 'period'
-        df = df.fillna(0).astype('int64')
-        df['total'] = df.sum(axis=1)
-
     else:
         obj = {}
         obj[30] = {}
@@ -143,13 +134,14 @@ def df(country, f=None, **kwargs):
             obj[30][i] = days.doc_count
             i += 1
 
-        df = DataFrame.from_dict(obj).T
+    df = DataFrame.from_dict(obj).T
 
-        if df.empty:
-            return df
+    if df.empty:
+        return df
 
-        df.index.name = 'period'
-        df = df.fillna(0).astype('int64')
-        df['total'] = df.sum(axis=1)
+    df.index.name = 'period'
+    df = df.fillna(0).astype('int64')
+    df['total'] = df.sum(axis=1)
+    df = df.reset_index()
 
     return df
