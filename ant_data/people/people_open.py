@@ -24,12 +24,24 @@ from ant_data import elastic
 from ant_data.people import people_closed, people_opened
 
 
-def open_now(country, f=None):
-  s = Search(using=elastic, index='people') \
-    .query(
+def open_now(country, start=None, end=None, f=None):
+  s = Search(using=elastic, index='people')
+
+  if start is None and end is None:
+    s = s.query(
       'bool', filter=[
         Q('term', country=country),
         Q('term', open=True)
+      ]
+    )
+  else:
+    s = s.query(
+      'bool', filter=[
+        Q('range', opened={ 'lt': end }),
+        Q('bool', should=[
+          ~Q('exists', field='closed'),
+          Q('range', closed={ 'gte': end })
+        ])
       ]
     )
 
@@ -39,10 +51,14 @@ def open_now(country, f=None):
   return s[:0].execute().hits.total
 
 
-def search_distinct(country, f=None, interval='month'):
+def search_distinct(country, start=None, end=None, f=None, interval='month'):
     s = Search(using=elastic, index='people') \
         .query('term', country=country)
 
+    if start is not None:
+      s = s.query('bool', filter=Q('range', date={ 'gte': start }))
+    if end is not None:
+      s = s.query('bool', filter=Q('range', date={ 'lt': end }))
     if f is not None:
         s = s.query('bool', filter=f)
 
@@ -53,10 +69,14 @@ def search_distinct(country, f=None, interval='month'):
     return s[:0].execute()
 
 
-def search_weighted(country, f=None, interval='month'):
+def search_weighted(country, start=None, end=None, f=None, interval='month'):
   s = Search(using=elastic, index='people') \
       .query('term', country=country)
 
+  if start is not None:
+    s = s.query('bool', filter=Q('range', date={ 'gte': start }))
+  if end is not None:
+    s = s.query('bool', filter=Q('range', date={ 'lt': end }))
   if f is not None:
       s = s.query('bool', filter=f)
 
@@ -67,14 +87,14 @@ def search_weighted(country, f=None, interval='month'):
   return s[:0].execute()
 
 
-def df_start(country, f=None, interval='month'):
+def df_start(country, start=None, end=None, f=None, interval='month'):
 
   if f is None:
     f = []
 
   open = open_now(country, f=f)
-  opened = people_opened.df(country, f=f, interval=interval)
-  closed = people_closed.df(country, f=f, interval=interval)
+  opened = people_opened.df(country, start=start, end=end, f=f, interval=interval)
+  closed = people_closed.df(country, start=start, end=end, f=f, interval=interval)
 
   if opened.empty or closed.empty:
     return DataFrame(columns=['start'])
@@ -106,13 +126,13 @@ def df_start(country, f=None, interval='month'):
   return df
 
 
-def df_end(country, f=None, interval='month'):
+def df_end(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
 
   open = open_now(country, f=f)
-  opened = people_opened.df(country, f=f, interval=interval)
-  closed = people_closed.df(country, f=f, interval=interval)
+  opened = people_opened.df(country, start=start, end=end, f=f, interval=interval)
+  closed = people_closed.df(country, start=start, end=end, f=f, interval=interval)
 
   if opened.empty or closed.empty:
     return DataFrame(columns=['end'])
@@ -141,14 +161,14 @@ def df_end(country, f=None, interval='month'):
   return df
 
 
-def df_average(country, f=None, interval='month'):
+def df_average(country, start=None, end=None, f=None, interval='month'):
   return DataFrame(concat(
-    (df_start(country, f=f, interval=interval), df_end(country, f=f, interval=interval)),
+    (df_start(country, start=start, end=end, f=f, interval=interval), df_end(country, start=start, end=end, f=f, interval=interval)),
     axis=1).mean(axis=1)).astype('int64').rename(columns={0: 'average'})
 
 
-def df_distinct(country, f=None, interval='month'):
-  response = search_distinct(country, f=f, interval=interval)
+def df_distinct(country, start=None, end=None, f=None, interval='month'):
+  response = search_distinct(country, start=start, end=end, f=f, interval=interval)
 
   dates = [x.key_as_string for x in response.aggs.stats.dates.buckets]
   obj = {x: { 0 } for x in dates}
@@ -169,8 +189,8 @@ def df_distinct(country, f=None, interval='month'):
   return df
 
 
-def df_weighted(country, f=None, interval='month'):
-  response = search_weighted(country, f=f, interval=interval)
+def df_weighted(country, start=None, end=None, f=None, interval='month'):
+  response = search_weighted(country, start=start, end=end, f=f, interval=interval)
 
   dates = [x.key_as_string for x in response.aggs.stats.date_filter.dates.buckets]
   obj = {x: { 0 } for x in dates}
@@ -195,7 +215,7 @@ def df_weighted(country, f=None, interval='month'):
   return df.astype('int64')
 
 
-def df(country, method='end', f=None, interval='month'):
+def df(country, method='end', start=None, end=None, f=None, interval='month'):
   switcher = {
      'start': df_start,
      'end':  df_end,
@@ -204,4 +224,4 @@ def df(country, method='end', f=None, interval='month'):
      'weighted': df_weighted
    }
 
-  return switcher.get(method)(country, f=f, interval=interval)
+  return switcher.get(method)(country, start=start, end=end, f=f, interval=interval)

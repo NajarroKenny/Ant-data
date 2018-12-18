@@ -8,7 +8,7 @@ Fetches the sync log stored in Elasticsearch
 - Version:      1.0
 
 Notes:
-==========================        
+==========================
 - v1.0: Initial version
 """
 from elasticsearch_dsl import Search, Q
@@ -20,8 +20,8 @@ from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 def search(country=None, f=None):
   s = Search(using=elastic, index='sync_log')
-  
-  if country is not None: 
+
+  if country is not None:
     if country not in COUNTRY_LIST:
       raise Exception(f'{country} is not a valid country')
 
@@ -38,7 +38,7 @@ def search(country=None, f=None):
 def df(country=None, f=None):
   if country is not None and country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
-  
+
   response = search(country, f=f)
 
   obj = {}
@@ -59,7 +59,7 @@ def df(country=None, f=None):
     except:
       instance_type = None
 
-    obj[hit.system_id] = { 
+    obj[hit.system_id] = {
       'country': hit.country,
       'instance_type': instance_type,
       'agent_id': agent_id,
@@ -72,7 +72,7 @@ def df(country=None, f=None):
       'country','instance_type', 'agent_id', 'person_id', 'sync_date'
     ]
   )
-  
+
   if df.empty:
     return df
 
