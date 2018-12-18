@@ -21,7 +21,7 @@ from pandas import DataFrame
 
 
 from ant_data import elastic
-from ant_data.people.people import sync_log
+from ant_data.employees.sync_status import agent_sync_status
 from ant_data.static.AGENT_MAPPING import AGENT_MAPPING
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 from ant_data.static.TIME import TZ
@@ -34,36 +34,23 @@ PLANNED_F = [Q('term', planned=True)]
 ADDITIONAL_F = [Q('term', planned=False)]
 
 def data(country, agent_id, start, end, f=None):
+  
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
 
   if f is None:
     f = []
 
-  f.append(Q('term', agent_id=agent_id))
-
-  if agent_id in AGENT_MAPPING:
-    sf = Q('term', agent_id=AGENT_MAPPING.get(agent_id))
-  else:
-    sf = f
-
-  ls = sync_log(country=country, f=sf)
-  ls = ls['sync_date'].max()
-  ls = '' if (isinstance(ls, float)) else ls
-  sync_threshold = '' #shift_date(end, -1).isoformat() FIXME:
-
-  f.append(Q('range', due={'gte': start, 'lt': end}))
+  f += [
+    Q('term', agent_id=agent_id), Q('range', due={'gte': start, 'lt': end})
+  ]
 
   df_tasks = tasks__types(country, f=f, interval='year').sum(axis=0)
   df_tasks = DataFrame(df_tasks, columns=['tasks'])
   df_tasks.index.name = 'types'
 
   if df_tasks.empty:
-    return {
-      'last_sync': ls,
-      'sync_status': True if ls >= sync_threshold else False,
-      'task_info': df_tasks
-    }
+    return df_tasks
 
   df_visited = tasks__types(country, f=f+VISITED_F, interval='year')
   df_visited = DataFrame(df_visited.sum(axis=0), columns=['visited'])
@@ -84,10 +71,4 @@ def data(country, agent_id, start, end, f=None):
   df = df.fillna(0).replace((np.inf, -np.inf), (0,0))
   df = df.replace(np.nan, 0)
 
-  data = {
-    'last_sync': ls,
-    'sync_status': True if ls >= sync_threshold else False,
-    'task_info': df
-  }
-
-  return data
+  return df
