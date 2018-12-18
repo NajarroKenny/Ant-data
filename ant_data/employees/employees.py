@@ -11,12 +11,16 @@ Notes
 ==========================
 - v1.0: Initial version
 """
+from ant_data.employees import at_tasks as _at_tasks
 from ant_data.employees import at_variable_pay as _at_variable_pay
 from ant_data.employees import hard_client_days as _hard_client_days
 from ant_data.employees import hierarchy as _hierarchy
 from ant_data.employees import roster as _roster
 from ant_data.employees import sync_status as _sync_status
 from elasticsearch_dsl import Q
+
+def at_tasks(country, agent_id, start, end, f=None):
+  return _at_tasks.data(country, agent_id, start, end, f)
 
 def at_variable_pay(agent, start, end):
   return _at_variable_pay.df(agent, start, end)
