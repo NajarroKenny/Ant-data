@@ -59,12 +59,12 @@ def df(country, f=None, **kwargs):
     if df.empty:
         return df
 
-    df.index.name = 'model'
-    df = df.rename(columns={ 0: 'inactive', 1: 'active' })
+    df.index.name = 'modelo'
+    df = df.rename(columns={ 0: 'inactivo', 1: 'activo' })
     df['total'] = df.sum(axis=1)
     df.loc['total'] = df.sum()
     df = df.fillna(0).astype('int64')
-    df['percent'] = df['active'].div(df['total'])
+    df['percentaje'] = df['activo'].div(df['total'])
     df = df.replace((np.nan, -np.nan), (0, 0))
     df = df.replace((np.inf, -np.inf), (0, 0))
     df = df.reset_index()

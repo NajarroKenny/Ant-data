@@ -85,7 +85,8 @@ def df(country, f=None, **kwargs):
 
     df.index.name = 'period'
     df = df.fillna(0).astype('int64')
-    df = df[['black','red','yellow','blue','green']]
+    df = df.rename(columns={ 'black': 'negro', 'red': 'rojo', 'yellow': 'amarillo', 'blue': 'azul', 'green': 'verde' })
+    df = df[['negro','rojo','amarillo','azul','verde']]
     df['total'] = df.sum(axis=1)
 
     return df

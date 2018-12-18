@@ -43,14 +43,15 @@ def df(country, f=None, **kwargs):
 
     obj = {}
     for model in response.aggs.model.buckets:
-        obj[model.key] = { 'urate30': round(model.ur30.value, 4) }
+        obj[model.key] = { 'taza 30': round(model.ur30.value, 4), 'total': model.doc_count }
 
     df = DataFrame.from_dict(obj).T
 
     if df.empty:
         return df
 
-    df.index.name = 'model'
+    df.index.name = 'modelo'
+    df = df[['taza 30', 'total']]
     df = df.reset_index()
 
     return df

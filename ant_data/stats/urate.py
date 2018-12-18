@@ -56,14 +56,14 @@ def df(country, f=None, **kwargs):
 
     if date is None:
         obj = {}
-        obj[30] = { 'average': round(response.aggs.ur30.value, 4) }
-        obj[60] = { 'average': round(response.aggs.ur60.value, 4) }
-        obj[90] = { 'average': round(response.aggs.ur90.value, 4) }
-        obj[180] = { 'average': round(response.aggs.ur180.value, 4) }
-        obj[360] = { 'average': round(response.aggs.ur360.value, 4) }
+        obj[30] = { 'taza': round(response.aggs.ur30.value, 4) }
+        obj[60] = { 'taza': round(response.aggs.ur60.value, 4) }
+        obj[90] = { 'taza': round(response.aggs.ur90.value, 4) }
+        obj[180] = { 'taza': round(response.aggs.ur180.value, 4) }
+        obj[360] = { 'taza': round(response.aggs.ur360.value, 4) }
     else:
         obj = {}
-        obj[30] = { 'average': round(response.aggs.ur30.value, 4) }
+        obj[30] = { 'taza': round(response.aggs.ur30.value, 4) }
 
     df = DataFrame.from_dict(obj).T
 

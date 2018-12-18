@@ -52,7 +52,7 @@ def df(country, f=None, **kwargs):
     if df.empty:
         return df
 
-    df.index.name = 'model'
+    df.index.name = 'modelo'
     df = df.fillna(0).astype('int64')
     df['total'] = df.sum(axis=1)
     df.loc['total'] = df.sum()
