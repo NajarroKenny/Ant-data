@@ -18,7 +18,7 @@ from pandas import DataFrame, Timestamp
 
 from ant_data import elastic
 from ant_data.communities import communities as _communities
-from ant_data.people import people
+from ant_data.employees import employees
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
@@ -27,9 +27,9 @@ def index(country):
     raise Exception(f'{country} is not a valid country')
 
   cm = _communities.community_master_ids()
-  agents = people.agents()
-  coordinators = people.coordinators()
-  supervisors = people.supervisors()
+  agents = employees.agents()
+  coordinators = employees.coordinators()
+  supervisors = employees.supervisors()
 
   docs = []
 
