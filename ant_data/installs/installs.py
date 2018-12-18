@@ -6,7 +6,7 @@ Wrapper for all installs data-fetching functions
 - Create date:  2018-12-08
 - Update date:  2018-12-15
 - Version:      1.2
- 
+
 Notes
 ==========================
 - v1.0: Initial version
@@ -21,32 +21,32 @@ from ant_data.installs import installs_opened as _installs_opened
 from ant_data.installs import installs_opened__type as _installs_opened__type
 
 
-def installs_closed(country, f=None, interval='month'):
-  return _installs_closed.df(country, f=f, interval=interval)
+def installs_closed(country, start=None, end=None, f=None, interval='month'):
+  return _installs_closed.df(country, start=start, end=end, f=f, interval=interval)
 
-def installs_closed__type(country, f=None, interval='month'):
-  return _installs_closed__type.df(country, f=f, interval=interval)
+def installs_closed__type(country, start=None, end=None, f=None, interval='month'):
+  return _installs_closed__type.df(country, start=start, end=end, f=f, interval=interval)
 
 def installs_open(country, method='end',f=None, interval='month'):
   return _installs_open.df(country, method=method, f=f, interval=interval)
 
-def installs_opened(country, f=None, interval='month'):
-  return _installs_opened.df(country, f=f, interval=interval)
+def installs_opened(country, start=None, end=None, f=None, interval='month'):
+  return _installs_opened.df(country, start=start, end=end, f=f, interval=interval)
 
-def installs_opened__type(country, f=None, interval='month'):
-  return _installs_opened__type.df(country, f=f, interval=interval)
+def installs_opened__type(country, start=None, end=None, f=None, interval='month'):
+  return _installs_opened__type.df(country, start=start, end=end, f=f, interval=interval)
 
-def kingos_closed(country, f=None, interval='month'):
+def kingos_closed(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='kingo'))
-  return _installs_closed.df(country, f=f, interval=interval)
+  return _installs_closed.df(country, start=start, end=end, f=f, interval=interval)
 
-def kingos_closed__type(country, f=None, interval='month'):
+def kingos_closed__type(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='kingo'))
-  return _installs_closed__type.df(country, f=f, interval=interval)
+  return _installs_closed__type.df(country, start=start, end=end, f=f, interval=interval)
 
 def kingos_open(country, method='end', f=None, interval='month'):
   if f is None:
@@ -54,29 +54,29 @@ def kingos_open(country, method='end', f=None, interval='month'):
   f.append(Q('term', system_type='kingo'))
   return _installs_open.df(country, method=method, f=f, interval=interval)
 
-def kingos_opened(country, f=None, interval='month'):
+def kingos_opened(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='kingo'))
-  return _installs_opened.df(country, f=f, interval=interval)
+  return _installs_opened.df(country, start=start, end=end, f=f, interval=interval)
 
-def kingos_opened__type(country, f=None, interval='month'):
+def kingos_opened__type(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='kingo'))
-  return _installs_opened__type.df(country, f=f, interval=interval)
+  return _installs_opened__type.df(country, start=start, end=end, f=f, interval=interval)
 
-def pos_closed(country, f=None, interval='month'):
+def pos_closed(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='pos'))
-  return _installs_closed.df(country, f=f, interval=interval)
+  return _installs_closed.df(country, start=start, end=end, f=f, interval=interval)
 
-def pos_closed__type(country, f=None, interval='month'):
+def pos_closed__type(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='pos'))
-  return _installs_closed__type.df(country, f=f, interval=interval)
+  return _installs_closed__type.df(country, start=start, end=end, f=f, interval=interval)
 
 def pos_open(country, method='end', f=None, interval='month'):
   if f is None:
@@ -84,29 +84,29 @@ def pos_open(country, method='end', f=None, interval='month'):
   f.append(Q('term', system_type='pos'))
   return _installs_open.df(country, method=method, f=f, interval=interval)
 
-def pos_opened(country, f=None, interval='month'):
+def pos_opened(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='pos'))
-  return _installs_opened.df(country, f=f, interval=interval)
+  return _installs_opened.df(country, start=start, end=end, f=f, interval=interval)
 
-def pos_opened__type(country, f=None, interval='month'):
+def pos_opened__type(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='pos'))
-  return _installs_opened__type.df(country, f=f, interval=interval)
+  return _installs_opened__type.df(country, start=start, end=end, f=f, interval=interval)
 
-def no_systems_closed(country, f=None, interval='month'):
+def no_systems_closed(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='no_system'))
-  return _installs_closed.df(country, f=f, interval=interval)
+  return _installs_closed.df(country, start=start, end=end, f=f, interval=interval)
 
-def no_systems_closed__type(country, f=None, interval='month'):
+def no_systems_closed__type(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='no_system'))
-  return _installs_closed__type.df(country, f=f, interval=interval)
+  return _installs_closed__type.df(country, start=start, end=end, f=f, interval=interval)
 
 def no_systems_open(country, method='end', f=None, interval='month'):
   if f is None:
@@ -114,14 +114,14 @@ def no_systems_open(country, method='end', f=None, interval='month'):
   f.append(Q('term', system_type='no_system'))
   return _installs_open.df(country, method=method, f=f, interval=interval)
 
-def no_systems_opened(country, f=None, interval='month'):
+def no_systems_opened(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='no_system'))
-  return _installs_opened.df(country, f=f, interval=interval)
+  return _installs_opened.df(country, start=start, end=end, f=f, interval=interval)
 
-def no_systems_opened__type(country, f=None, interval='month'):
+def no_systems_opened__type(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
   f.append(Q('term', system_type='no_system'))
-  return _installs_opened__type.df(country, f=f, interval=interval)
+  return _installs_opened__type.df(country, start=start, end=end, f=f, interval=interval)

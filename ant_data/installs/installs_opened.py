@@ -19,7 +19,7 @@ from pandas import DataFrame, MultiIndex, Series
 from ant_data import elastic
 
 
-def search(country, f=None, interval='month'):
+def search(country, start=None, end=None, f=None, interval='month'):
   s = Search(using=elastic, index='installs') \
     .query(
       'bool', filter=[
@@ -27,6 +27,10 @@ def search(country, f=None, interval='month'):
       ]
     )
 
+  if start is not None:
+    s = s.query('bool', filter=Q('range', opened={ 'gte': start }))
+  if end is not None:
+    s = s.query('bool', filter=Q('range', opened={ 'lt': end }))
   if f is not None:
     s = s.query('bool', filter=f)
 
@@ -36,8 +40,8 @@ def search(country, f=None, interval='month'):
   return s[:0].execute()
 
 
-def df(country, f=None, interval='month'):
-  response = search(country, f=f, interval=interval)
+def df(country, start=None, end=None, f=None, interval='month'):
+  response = search(country,start=start, end=end,  f=f, interval=interval)
 
   obj = {}
   for date in response.aggs.dates.buckets:
