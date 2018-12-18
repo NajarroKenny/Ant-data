@@ -20,11 +20,15 @@ from ant_data import elastic
 from ..static.FINANCE import IVA
 
 
-def search(country, doctype, f=None, interval='month'):
+def search(country, doctype, start=None, end=None, f=None, interval='month'):
   s = Search(using=elastic, index='codes') \
     .query('term', doctype=doctype) \
     .query('bool', filter=Q('term', country=country))
 
+  if start is not None:
+    s = s.query('bool', filter=Q('range', datetime={ 'gte': start }))
+  if end is not None:
+    s = s.query('bool', filter=Q('range', datetime={ 'lt': end }))
   if f is not None:
     s = s.query('bool', filter=f)
 
@@ -40,10 +44,10 @@ def search(country, doctype, f=None, interval='month'):
 
 
 def df(
-  country, doctype, f=None, interval='month', paid=True, free=True, iva=True,
+  country, doctype, start=None, end=None, f=None, interval='month', paid=True, free=True, iva=True,
   commission=True
 ):
-  response = search(country, doctype, f=f, interval=interval)
+  response = search(country, doctype, start=start, end=end, f=f, interval=interval)
 
   obj = {}
 
