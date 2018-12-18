@@ -26,38 +26,38 @@ from ant_data.tasks import tasks_workflow_list as _tasks_workflow_list
 from ant_data.tasks import tasks_workflow_list__agents_types as _tasks_workflow_list__agents_types
 from ant_data.tasks import tasks_workflow_list__types as _tasks_workflow_list__types
 
-def tasks__actions(country, f=None, interval='month'):
-  return _tasks__actions.df(country, f=f, interval=interval)
+def tasks__actions(country, start=None, end=None, f=None, interval='month'):
+  return _tasks__actions.df(country, start=start, end=end, f=f, interval=interval)
 
 def tasks__agents_types(country, start, end, f=None):
   return _tasks__agents_types.df(country, start, end, f=f)
 
-def tasks_effective(country, f=None, interval='month'):
-  return _tasks_effective.df(country, f=f, interval=interval)
+def tasks_effective(country, start=None, end=None, f=None, interval='month'):
+  return _tasks_effective.df(country, start=start, end=end, f=f, interval=interval)
 
 def tasks_effective__agents_types(country, start, end, f=None):
   return _tasks_effective__agents_types.df(country, start, end, f=f)
 
-def tasks_effective__types(country, f=None, interval='month'):
-  return _tasks_effective__types.df(country, f=f, interval=interval)
+def tasks_effective__types(country, start=None, end=None, f=None, interval='month'):
+  return _tasks_effective__types.df(country, start=start, end=end, f=f, interval=interval)
 
-def tasks__planned(country, f=None, interval='month'):
-  return _tasks__planned.df(country, f=f, interval=interval)
+def tasks__planned(country, start=None, end=None, f=None, interval='month'):
+  return _tasks__planned.df(country, start=start, end=end, f=f, interval=interval)
 
-def tasks__status(country, f=None, interval='month'):
-  return _tasks__status.df(country, f=f, interval=interval)
+def tasks__status(country, start=None, end=None, f=None, interval='month'):
+  return _tasks__status.df(country, start=start, end=end, f=f, interval=interval)
 
-def tasks__types(country, f=None, interval='month'):
-  return _tasks__types.df(country, f=f, interval=interval)
+def tasks__types(country, start=None, end=None, f=None, interval='month'):
+  return _tasks__types.df(country, start=start, end=end, f=f, interval=interval)
 
-def tasks__visited(country, f=None, interval='month'):
-  return _tasks__visited.df(country, f=f, interval=interval)
+def tasks__visited(country, start=None, end=None, f=None, interval='month'):
+  return _tasks__visited.df(country, start=start, end=end, f=f, interval=interval)
 
-def tasks_workflow_list(country, workflows, f=None, interval='month'):
-  return _tasks_workflow_list.df(country, workflows, f=f, interval=interval)
+def tasks_workflow_list(country, workflows, start=None, end=None, f=None, interval='month'):
+  return _tasks_workflow_list.df(country, workflows, start=start, end=end, f=f, interval=interval)
 
 def tasks_workflow_list__agents_types(country, workflows, start, end, f=None):
   return _tasks_workflow_list__agents_types.df(country, workflows, start, end, f=f)
 
-def tasks_workflow_list__types(country, workflows, f=None, interval='month'):
-  return _tasks_workflow_list__types.df(country, workflows, f=f, interval=interval)
+def tasks_workflow_list__types(country, workflows, start=None, end=None, f=None, interval='month'):
+  return _tasks_workflow_list__types.df(country, workflows, start=start, end=end, f=f, interval=interval)

@@ -19,7 +19,7 @@ from ant_data import elastic
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
-def search(country, workflows, f=None, interval='month'):
+def search(country, workflows, start=None, end=None, f=None, interval='month'):
     if country not in COUNTRY_LIST:
         raise Exception(f'{country} is not a valid country')
 
@@ -28,6 +28,10 @@ def search(country, workflows, f=None, interval='month'):
         .query('term', doctype='task') \
         .query('has_child', type='history', query=Q('terms', workflow=workflows))
 
+    if start is not None:
+        s = s.query('bool', filter=Q('range', due={ 'gte': start }))
+    if end is not None:
+        s = s.query('bool', filter=Q('range', due={ 'lt': end }))
     if f is not None:
         s = s.query('bool', filter=f)
 
@@ -38,11 +42,11 @@ def search(country, workflows, f=None, interval='month'):
     return s[:0].execute()
 
 
-def df(country, workflows, f=None, interval='month'):
+def df(country, workflows, start=None, end=None, f=None, interval='month'):
     if country not in COUNTRY_LIST:
         raise Exception(f'{country} is not a valid country')
 
-    must = search(country, workflows, f=f, interval=interval)
+    must = search(country, workflows, start=start, end=end, f=f, interval=interval)
 
     obj = {}
     for interval in must.aggs.dates.buckets:
