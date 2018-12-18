@@ -16,6 +16,11 @@ CODE = {
   'SALE': [
     { 'key': True, 'name': 'Venta' },
     { 'key': False, 'name': 'Gratis' }
+  ],
+  'SOURCE': [
+    { 'key': 'ant-mobile', 'name': 'Ant Móvil' },
+    { 'key': 'ant-shopkeeper', 'name': 'Ant Tendero' },
+    { 'key': 'no_source', 'name': 'Desconocido' },
   ]
 }
 
@@ -40,6 +45,13 @@ CREDIT = {
   'SALE': [
     { 'key': True, 'name': 'Venta' },
     { 'key': False, 'name': 'Gratis' }
+  ],
+  'SOURCE': [
+    { 'key': 'ant-mobile', 'name': 'Ant Móvil' },
+    { 'key': 'ant-shopkeeper', 'name': 'Ant Tendero' },
+    { 'key': 'ant-web', 'name': 'Ant Web' },
+    { 'key': 'ant-connector', 'name': 'Ant Connector' },
+    { 'key': 'no_source', 'name': 'Desconocido' },
   ]
 }
 
