@@ -24,12 +24,24 @@ from ant_data.installs import installs_closed, installs_opened
 from ant_data.shared import open_df
 
 
-def search_open_now(country, f=None):
-  s = Search(using=elastic, index='installs') \
-    .query(
+def search_open_now(country, start=None, end=None, f=None):
+  s = Search(using=elastic, index='installs')
+
+  if start is None and end is None:
+    s = s.query(
       'bool', filter=[
-        Q('term', country=country), Q('term', doctype='install'),
+        Q('term', country=country),
         Q('term', open=True)
+      ]
+    )
+  else:
+    s = s.query(
+      'bool', filter=[
+        Q('range', opened={ 'lt': end }),
+        Q('bool', should=[
+          ~Q('exists', field='closed'),
+          Q('range', closed={ 'gte': end })
+        ])
       ]
     )
 
@@ -41,8 +53,8 @@ def search_open_now(country, f=None):
   return s[:0].execute()
 
 
-def df_open_now(country, f=None, interval='month'):
-  response = search_open_now(country, f=f)
+def df_open_now(country, start=None, end=None, f=None, interval='month'):
+  response = search_open_now(country, start=start, end=end, f=f)
 
   obj = {}
 
@@ -63,34 +75,34 @@ def df_open_now(country, f=None, interval='month'):
   return df
 
 
-def df_start(country, f=None, interval='month'):
-  open_now = df_open_now(country, f=f, interval=interval)
+def df_start(country, start=None, end=None, f=None, interval='month'):
+  open_now = df_open_now(country, start=start, end=end, f=f, interval=interval)
   opened = installs_opened.df(country, f=f, interval=interval)
   closed = installs_closed.df(country, f=f, interval=interval)
   df = open_df.open_df(opened, closed, open_now, interval, 'start')
   return df
 
 
-def df_end(country, f=None, interval='month'):
-  open_now = df_open_now(country, f=f, interval=interval)
-  opened = installs_opened.df(country, f=f, interval=interval)
-  closed = installs_closed.df(country, f=f, interval=interval)
+def df_end(country, start=None, end=None, f=None, interval='month'):
+  open_now = df_open_now(country, start=start, end=end, f=f, interval=interval)
+  opened = installs_opened.df(country, start=start, end=end, f=f, interval=interval)
+  closed = installs_closed.df(country, start=start, end=end, f=f, interval=interval)
   df = open_df.open_df(opened, closed, open_now, interval, 'end')
   return df
 
 
-def df_average(country, f=None, interval='month'):
-  start = df_start(country, f=f, interval=interval)
-  end = df_end(country, f=f, interval=interval)
+def df_average(country, start=None, end=None, f=None, interval='month'):
+  start = df_start(country, start=start, end=end, f=f, interval=interval)
+  end = df_end(country, start=start, end=end, f=f, interval=interval)
   df = (start + end) / 2
   return df
 
 
-def df_weighted(country, f=None, interval='month'):
+def df_weighted(country, start=None, end=None, f=None, interval='month'):
   print('Installs do not support method="weighted".')
 
 
-def df(country, method='end', f=None, interval='month'):
+def df(country, method='end', start=None, end=None, f=None, interval='month'):
   switcher = {
      'start': df_start,
      'end':  df_end,
@@ -98,5 +110,5 @@ def df(country, method='end', f=None, interval='month'):
      'weighted': df_weighted
    }
 
-  return switcher.get(method)(country, f=f, interval=interval)
+  return switcher.get(method)(country, start=start, end=end, f=f, interval=interval)
 

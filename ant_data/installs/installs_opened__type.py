@@ -20,10 +20,10 @@ from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 from ant_data.static.TIME import TZ
 
 
-def search(country, f=None, interval='month'):
+def search(country, start=None, end=None, f=None, interval='month'):
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
-      
+
   s = Search(using=elastic, index='installs') \
     .query(
       'bool', filter=[
@@ -31,6 +31,10 @@ def search(country, f=None, interval='month'):
       ]
     )
 
+  if start is not None:
+    s = s.query('bool', filter=Q('range', opened={ 'gte': start }))
+  if end is not None:
+    s = s.query('bool', filter=Q('range', opened={ 'lt': end }))
   if f is not None:
     s = s.query('bool', filter=f)
 
@@ -41,11 +45,11 @@ def search(country, f=None, interval='month'):
   return s[:0].execute()
 
 
-def df(country, f=None, interval='month'):
+def df(country, start=None, end=None, f=None, interval='month'):
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
-  
-  response = search(country, f=f, interval=interval)
+
+  response = search(country, start=start, end=end, f=f, interval=interval)
 
   obj = {}
   for date in response.aggs.dates.buckets:
@@ -56,7 +60,7 @@ def df(country, f=None, interval='month'):
         obj[date.key_as_string][model.key][otype.key] = otype.doc_count
 
   df = DataFrame.from_dict(
-    {(i,j): obj[i][j] for i in obj.keys() for j in obj[i].keys()}, 
+    {(i,j): obj[i][j] for i in obj.keys() for j in obj[i].keys()},
     orient='index', dtype='int64'
   )
 
@@ -69,6 +73,6 @@ def df(country, f=None, interval='month'):
   df.index = df.index.set_names('model', level=1)
   df['total'] = df.sum(axis=1)
   df = df.reset_index().set_index('date')
-  
+
   return df
 
