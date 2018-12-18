@@ -47,7 +47,7 @@ def df(
   country, doctype, start=None, end=None, f=None, interval='month', paid=True, free=True, iva=True,
   commission=True
 ):
-  response = search(country, start=start, end=end, doctype, f=f, interval=interval)
+  response = search(country, doctype, start=start, end=end, f=f, interval=interval)
 
   obj = {}
 
