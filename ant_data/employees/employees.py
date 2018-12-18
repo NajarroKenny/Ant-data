@@ -15,6 +15,7 @@ from ant_data.employees import at_variable_pay as _at_variable_pay
 from ant_data.employees import hard_client_days as _hard_client_days
 from ant_data.employees import hierarchy as _hierarchy
 from ant_data.employees import roster as _roster
+from ant_data.employees import sync_status as _sync_status
 from elasticsearch_dsl import Q
 
 def at_variable_pay(agent, start, end):
@@ -43,3 +44,15 @@ def person(id):
 
 def supervisors():
   return _roster.supervisors()
+
+def agent_sync_status(country, agent_id, date=None, threshold=1):
+  return _sync_status.agent_sync_status(country, agent_id, date, threshold)
+
+def coordinator_agent_sync_status(country, coordinator_id, date=None, threshold=1):
+  return _sync_status.coordinator_agent_sync_status(country, coordinator_id, date, threshold)
+
+def sk_sync_status(country, person_id, threshold=1, date=None):
+  return _sync_status.sk_sync_status(country, person_id, threshold, date)
+
+def coordinator_sk_sync_status(country, coordinator_id, date=None, threshold=1):
+  return _sync_status.coordinator_sk_sync_status(country, coordinator_id, date, threshold)
