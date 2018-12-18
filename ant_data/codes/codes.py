@@ -21,9 +21,9 @@ from ant_data import elastic
 from ..static.FINANCE import IVA
 
 
-def search(country, f=None, interval='month'):
+def search(country, doctype, f=None, interval='month'):
   s = Search(using=elastic, index='codes') \
-    .query('term', doctype='credit') \
+    .query('term', doctype=doctype) \
     .query('bool', filter=Q('term', country=country))
 
   if f is not None:
@@ -41,10 +41,10 @@ def search(country, f=None, interval='month'):
 
 
 def df(
-  country, f=None, interval='month', paid=True, free=True, iva=True,
+  country, doctype, f=None, interval='month', paid=True, free=True, iva=True,
   commission=True
 ):
-  response = search(country, f=f, interval=interval)
+  response = search(country, doctype, f=f, interval=interval)
 
   dates = [x.key_as_string for x in response.aggs.dates.buckets]
   obj = {x: { 'paid': 0, 'free': 0, 'commission':0 } for x in dates}

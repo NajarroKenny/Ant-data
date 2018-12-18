@@ -20,9 +20,9 @@ from ant_data import elastic
 from ..static.FINANCE import IVA
 
 
-def search(country, f=None, interval='month'):
+def search(country, doctype, f=None, interval='month'):
   s = Search(using=elastic, index='codes') \
-    .query('term', doctype='credit') \
+    .query('term', doctype=doctype) \
     .query('bool', filter=Q('term', country=country))
 
   if f is not None:
@@ -31,7 +31,7 @@ def search(country, f=None, interval='month'):
   s.aggs.bucket(
     'dates', 'date_histogram', field='datetime', interval=interval,
     min_doc_count=1
-  ).bucket('plans', 'terms', field='plan') \
+  ).bucket('sources', 'terms', field='source') \
   .bucket('sales', 'terms', field='sale', min_doc_count=0) \
   .metric('value', 'sum', field='value', missing=0) \
   .metric('commission', 'sum', field='commission', missing=0)
@@ -40,23 +40,23 @@ def search(country, f=None, interval='month'):
 
 
 def df(
-  country, f=None, interval='month', paid=True, free=True, iva=True,
+  country, doctype, f=None, interval='month', paid=True, free=True, iva=True,
   commission=True
 ):
-  response = search(country, f=f, interval=interval)
+  response = search(country, doctype, f=f, interval=interval)
 
   obj = {}
 
   for date in response.aggs.dates.buckets:
     obj[date.key_as_string] = {}
 
-    for plan in date.plans.buckets:
+    for source in date.sources.buckets:
       f = 0
       p = 0
       i = 0
       c = 0
 
-      for sale in plan.sales.buckets:
+      for sale in source.sales.buckets:
         if sale.key_as_string == 'true':
           p += sale.value.value
         elif sale.key_as_string == 'false':
@@ -73,7 +73,7 @@ def df(
       value += f if free else 0
       value += c if commission else 0
 
-      obj[date.key_as_string][plan.key] = value
+      obj[date.key_as_string][source.key] = value
 
   df = DataFrame.from_dict(obj, orient='index')
 

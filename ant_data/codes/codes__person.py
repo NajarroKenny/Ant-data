@@ -20,9 +20,9 @@ from ant_data import elastic
 from ..static.FINANCE import IVA
 
 
-def search(country, f=None, interval='month'):
+def search(country, doctype, f=None, interval='month'):
   s = Search(using=elastic, index='codes') \
-    .query('term', doctype='credit') \
+    .query('term', doctype=doctype) \
     .query('bool', filter=Q('term', country=country))
 
   if f is not None:
@@ -34,31 +34,13 @@ def search(country, f=None, interval='month'):
   )
 
   s.aggs['dates'] \
-    .bucket('no_to', 'filter', filter=Q('bool',
-      must_not=[
-        Q('term', plan='dist'),
-        Q('exists', field='to.person_id')
-      ]
-    )) \
+    .bucket('agent', 'filter', filter=Q('exists', field='agent_id')) \
     .bucket('sales', 'terms', field='sale', min_doc_count=0) \
     .metric('value', 'sum', field='value', missing=0) \
     .metric('commission', 'sum', field='commission', missing=0)
 
   s.aggs['dates'] \
-    .bucket('no_from', 'filter', filter=Q('bool',
-      must_not=[
-        Q('term', source='ant-web'),
-        Q('term', source='ant-connector'),
-        Q('exists', field='from.person_id')
-      ]
-    )) \
-    .bucket('sales', 'terms', field='sale', min_doc_count=0) \
-    .metric('value', 'sum', field='value', missing=0) \
-    .metric('commission', 'sum', field='commission', missing=0)
-
-  s.aggs['dates'] \
-    .bucket('good_to', 'filter', filter=Q('exists', field='to.person_id')) \
-    .bucket('good_from', 'filter', filter=Q('exists', field='from.person_id')) \
+    .bucket('shopkeeper', 'filter', filter=~Q('exists', field='agent_id')) \
     .bucket('sales', 'terms', field='sale', min_doc_count=0) \
     .metric('value', 'sum', field='value', missing=0) \
     .metric('commission', 'sum', field='commission', missing=0)
@@ -67,10 +49,10 @@ def search(country, f=None, interval='month'):
 
 
 def df(
-  country, f=None, interval='month', paid=True, free=True, iva=True,
+  country, doctype, f=None, interval='month', paid=True, free=True, iva=True,
   commission=True
 ):
-  response = search(country, f=f, interval=interval)
+  response = search(country, doctype, f=f, interval=interval)
 
   obj = {}
 
@@ -82,7 +64,7 @@ def df(
     i = 0
     c = 0
 
-    for sale in date.good_to.good_from.sales.buckets:
+    for sale in date.agent.sales.buckets:
       if sale.key_as_string == 'true':
         p += sale.value.value
       elif sale.key_as_string == 'false':
@@ -99,8 +81,8 @@ def df(
     value += f if free else 0
     value += c if commission else 0
 
-    obj[date.key_as_string]['good'] = obj[date.key_as_string].get('good', 0)
-    obj[date.key_as_string]['good'] += value
+    obj[date.key_as_string]['agent'] = obj[date.key_as_string].get('agent', 0)
+    obj[date.key_as_string]['agent'] += value
 
   for date in response.aggs.dates.buckets:
     obj[date.key_as_string] = obj.get(date.key_as_string, {})
@@ -110,7 +92,7 @@ def df(
     i = 0
     c = 0
 
-    for sale in date.no_to.sales.buckets:
+    for sale in date.shopkeeper.sales.buckets:
       if sale.key_as_string == 'true':
         p += sale.value.value
       elif sale.key_as_string == 'false':
@@ -127,36 +109,8 @@ def df(
     value += f if free else 0
     value += c if commission else 0
 
-    obj[date.key_as_string]['no_to'] = obj[date.key_as_string].get('no_to', 0)
-    obj[date.key_as_string]['no_to'] += value
-
-  for date in response.aggs.dates.buckets:
-    obj[date.key_as_string] = obj.get(date.key_as_string, {})
-
-    f = 0
-    p = 0
-    i = 0
-    c = 0
-
-    for sale in date.no_from.sales.buckets:
-      if sale.key_as_string == 'true':
-        p += sale.value.value
-      elif sale.key_as_string == 'false':
-        f += sale.value.value
-      c += sale.commission.value
-
-    # IVA
-    i = IVA[country] * p
-    p = (1 - IVA[country]) * p
-
-    value = 0
-    value += p if paid else 0
-    value += i if iva else 0
-    value += f if free else 0
-    value += c if commission else 0
-
-    obj[date.key_as_string]['no_from'] = obj[date.key_as_string].get('no_from', 0)
-    obj[date.key_as_string]['no_from'] += value
+    obj[date.key_as_string]['shopkeeper'] = obj[date.key_as_string].get('shopkeeper', 0)
+    obj[date.key_as_string]['shopkeeper'] += value
 
   df = DataFrame.from_dict(obj, orient='index')
 
