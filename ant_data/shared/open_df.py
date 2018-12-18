@@ -15,7 +15,8 @@ def open_df(opened, closed, open_now, interval, method):
     'day': 'D'
   }
   start_date = min(opened.index.min(), closed.index.min())
-  end_date = Timestamp.now().date().isoformat()
+  end_date = max(opened.index.max(), closed.index.max())
+
   idx = date_range(start_date, end_date, freq=intervals[interval])
 
   # Merge opened and closed into one df, with separate columns
