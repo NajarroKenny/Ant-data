@@ -80,16 +80,16 @@ def df_open_now(country, start=None, end=None, f=None, interval='month'):
 
 def df_start(country, start=None, end=None, f=None, interval='month'):
   open_now = df_open_now(country, start=start, end=end, f=f, interval=interval)
-  opened = systems_opened.df(country, f=f, interval=interval)
-  closed = systems_closed.df(country, f=f, interval=interval)
+  opened = systems_opened.df(country, start=start, end=end, f=f, interval=interval)
+  closed = systems_closed.df(country, start=start, end=end, f=f, interval=interval)
   df = open_df.open_df(opened, closed, open_now, interval, 'start')
   return df
 
 
 def df_end(country, start=None, end=None, f=None, interval='month'):
   open_now = df_open_now(country, start=start, end=end, f=f, interval=interval)
-  opened = systems_opened.df(country, f=f, interval=interval)
-  closed = systems_closed.df(country, f=f, interval=interval)
+  opened = systems_opened.df(country, start=start, end=end, f=f, interval=interval)
+  closed = systems_closed.df(country, start=start, end=end, f=f, interval=interval)
   df = open_df.open_df(opened, closed, open_now, interval, 'end')
   return df
 
