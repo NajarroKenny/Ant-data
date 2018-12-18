@@ -45,14 +45,14 @@ def person(id):
 def supervisors():
   return _roster.supervisors()
 
-def agent_sync_status(country, agent_id, date=None, threshold=1):
+def agent_sync_status(country, agent_id, date=None, threshold=0):
   return _sync_status.agent_sync_status(country, agent_id, date, threshold)
 
-def coordinator_agent_sync_status(country, coordinator_id, date=None, threshold=1):
+def coordinator_agent_sync_status(country, coordinator_id, date=None, threshold=0):
   return _sync_status.coordinator_agent_sync_status(country, coordinator_id, date, threshold)
 
-def sk_sync_status(country, person_id, threshold=1, date=None):
+def sk_sync_status(country, person_id, threshold=0, date=None):
   return _sync_status.sk_sync_status(country, person_id, threshold, date)
 
-def coordinator_sk_sync_status(country, coordinator_id, date=None, threshold=1):
+def coordinator_sk_sync_status(country, coordinator_id, date=None, threshold=0):
   return _sync_status.coordinator_sk_sync_status(country, coordinator_id, date, threshold)

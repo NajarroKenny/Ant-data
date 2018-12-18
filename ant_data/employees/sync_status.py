@@ -20,7 +20,7 @@ from ant_data.shopkeepers import community_shopkeepers
 from ant_data.static.AGENT_MAPPING import AGENT_MAPPING
 
 
-def agent_sync_status(country, agent_id, date=None, threshold=1):
+def agent_sync_status(country, agent_id, date=None, threshold=0):
   if date is None:
     date = local_date_str(country)
 
@@ -36,7 +36,7 @@ def agent_sync_status(country, agent_id, date=None, threshold=1):
   return [ls, sync_status, sync_threshold]
       
 
-def coordinator_agent_sync_status(country, coordinator_id, date=None, threshold=1):
+def coordinator_agent_sync_status(country, coordinator_id, date=None, threshold=0):
   info = hierarchy.info(coordinator_id)
   
   if date is None:
@@ -66,7 +66,7 @@ def coordinator_agent_sync_status(country, coordinator_id, date=None, threshold=
 
   return df
 
-def sk_sync_status(country, person_id, threshold=1, date=None):
+def sk_sync_status(country, person_id, date=None, threshold=0):
   if date is None:
     date = local_date_str(country)
 
@@ -79,7 +79,7 @@ def sk_sync_status(country, person_id, threshold=1, date=None):
   return [ls, sync_status, sync_threshold]
   
 
-def coordinator_sk_sync_status(country, coordinator_id, date=None, threshold=1):
+def coordinator_sk_sync_status(country, coordinator_id, date=None, threshold=0):
   info = hierarchy.info(coordinator_id)
   
   if date is None:
