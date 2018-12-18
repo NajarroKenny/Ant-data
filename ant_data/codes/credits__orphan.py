@@ -34,13 +34,24 @@ def search(country, f=None, interval='month'):
   )
 
   s.aggs['dates'] \
-    .bucket('no_to', 'filter', filter=~Q('exists', field='to.person_id')) \
+    .bucket('no_to', 'filter', filter=Q('bool',
+      must_not=[
+        Q('term', plan='dist'),
+        Q('exists', field='to.person_id')
+      ]
+    )) \
     .bucket('sales', 'terms', field='sale', min_doc_count=0) \
     .metric('value', 'sum', field='value', missing=0) \
     .metric('commission', 'sum', field='commission', missing=0)
 
   s.aggs['dates'] \
-    .bucket('no_from', 'filter', filter=~Q('exists', field='from.person_id')) \
+    .bucket('no_from', 'filter', filter=Q('bool',
+      must_not=[
+        Q('term', source='ant-web'),
+        Q('term', source='ant-connector'),
+        Q('exists', field='from.person_id')
+      ]
+    )) \
     .bucket('sales', 'terms', field='sale', min_doc_count=0) \
     .metric('value', 'sum', field='value', missing=0) \
     .metric('commission', 'sum', field='commission', missing=0)
