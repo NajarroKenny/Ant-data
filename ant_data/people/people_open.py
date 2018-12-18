@@ -3,7 +3,7 @@ People Open
 ========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate reports on open people. The 'open' count is done
-in five different ways: 'start', 'end', 'average', 'distinct', and 'weighted'
+in five different ways: 'start', 'end', 'average' and 'weighted'
 
 - Create date:  2018-12-04
 - Update date:  2018-12-13
@@ -51,38 +51,34 @@ def open_now(country, start=None, end=None, f=None):
   return s[:0].execute().hits.total
 
 
-def search_distinct(country, start=None, end=None, f=None, interval='month'):
-    s = Search(using=elastic, index='people') \
-        .query('term', country=country)
-
-    if start is not None:
-      s = s.query('bool', filter=Q('range', date={ 'gte': start }))
-    if end is not None:
-      s = s.query('bool', filter=Q('range', date={ 'lt': end }))
-    if f is not None:
-        s = s.query('bool', filter=f)
-
-    s.aggs.bucket('stats', 'children', type='stat') \
-        .bucket('dates', 'date_histogram', field='date', interval=interval, min_doc_count=1) \
-        .metric('count', 'cardinality', field='person_id')
-
-    return s[:0].execute()
-
-
 def search_weighted(country, start=None, end=None, f=None, interval='month'):
   s = Search(using=elastic, index='people') \
       .query('term', country=country)
 
-  if start is not None:
-    s = s.query('bool', filter=Q('range', date={ 'gte': start }))
-  if end is not None:
-    s = s.query('bool', filter=Q('range', date={ 'lt': end }))
   if f is not None:
       s = s.query('bool', filter=f)
 
-  s.aggs.bucket('stats', 'children', type='stat') \
-      .bucket('date_filter', 'filter', Q('range', date={'lt': 'now/d'})) \
-      .bucket('dates', 'date_histogram', field='date', interval=interval, min_doc_count=1)
+  s.aggs.bucket('stats', 'children', type='stat')
+
+  if start is not None and end is not None:
+    s.aggs['stats'] \
+      .bucket('date_filter', 'filter', Q('range', date={
+        'gte': start, 'lt': end
+      }))
+  elif start is not None:
+    s.aggs['stats'] \
+      .bucket('date_filter', 'filter', Q('range', date={
+        'gte': start, 'lt': 'now/d'
+      }))
+  elif end is not None:
+    s.aggs['stats'] \
+      .bucket('date_filter', 'filter', Q('range', date={'lt': end}))
+  else:
+    s.aggs['stats'] \
+      .bucket('date_filter', 'filter', Q('range', date={'lt': 'now/d'}))
+
+  s.aggs['stats']['date_filter'] \
+    .bucket('dates', 'date_histogram', field='date', interval=interval, min_doc_count=1)
 
   return s[:0].execute()
 
@@ -167,28 +163,6 @@ def df_average(country, start=None, end=None, f=None, interval='month'):
     axis=1).mean(axis=1)).astype('int64').rename(columns={0: 'average'})
 
 
-def df_distinct(country, start=None, end=None, f=None, interval='month'):
-  response = search_distinct(country, start=start, end=end, f=f, interval=interval)
-
-  dates = [x.key_as_string for x in response.aggs.stats.dates.buckets]
-  obj = {x: { 0 } for x in dates}
-
-  for date in response.aggs.stats.dates.buckets:
-    obj[date.key_as_string] = { date.count.value }
-
-  df = DataFrame.from_dict(
-    obj, orient='index', dtype='int64', columns=['distinct']
-  )
-
-  if df.empty:
-    return df
-
-  df.index.name = 'date'
-  df = df.reindex(df.index.astype('datetime64')).sort_index()
-
-  return df
-
-
 def df_weighted(country, start=None, end=None, f=None, interval='month'):
   response = search_weighted(country, start=start, end=end, f=f, interval=interval)
 
@@ -220,7 +194,6 @@ def df(country, method='end', start=None, end=None, f=None, interval='month'):
      'start': df_start,
      'end':  df_end,
      'average': df_average,
-     'distinct': df_distinct,
      'weighted': df_weighted
    }
 

@@ -90,16 +90,11 @@ def df_weighted(country, f=None, interval='month'):
   print('Installs do not support method="weighted".')
 
 
-def df_distinct(country, f=None, interval='month'):
-  print('Installs do not support method="distinct".')
-
-
 def df(country, method='end', f=None, interval='month'):
   switcher = {
      'start': df_start,
      'end':  df_end,
      'average': df_average,
-     'distinct': df_distinct,
      'weighted': df_weighted
    }
 

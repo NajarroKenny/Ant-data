@@ -29,7 +29,7 @@ def df(country, start=None, end=None, f=None, interval='month'):
     if country not in COUNTRY_LIST:
       raise Exception(f'{country} is not a valid country')
 
-    df = twl.df(country, WORKFLOW_LIST, start=start, end=end, f, interval)
+    df = twl.df(country, WORKFLOW_LIST, start=start, end=end, f=f, interval=interval)
     df = df.rename(columns={ 'should': 'effective', 'must_not': 'not_effective' })
 
     return df

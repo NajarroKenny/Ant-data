@@ -19,7 +19,7 @@ from ant_data import elastic
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
-def search(country, start=None, end=None, f=None, f=None, interval='month'):
+def search(country, start=None, end=None, f=None, interval='month'):
     if country not in COUNTRY_LIST:
         raise Exception(f'{country} is not a valid country')
 
@@ -40,11 +40,11 @@ def search(country, start=None, end=None, f=None, f=None, interval='month'):
     return s[:0].execute()
 
 
-def df(country, start=None, end=None, f=None, f=None, interval='month'):
+def df(country, start=None, end=None, f=None, interval='month'):
     if country not in COUNTRY_LIST:
         raise Exception(f'{country} is not a valid country')
 
-    response = search(country, start=start, end=end, f=None, f=f, interval=interval)
+    response = search(country, start=start, end=end, f=f, interval=interval)
 
     obj = {}
     for interval in response.aggs.dates.buckets:

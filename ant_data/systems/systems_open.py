@@ -3,7 +3,7 @@ Systems Open by Model
 ========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate reports on systems open by model. The 'open' count is done
-in five different ways: 'start', 'end', 'average', 'distinct', and 'weighted'
+in five different ways: 'start', 'end', 'average', and 'weighted'
 
 - Create date:  2018-12-06
 - Update date:  2018-12-13
@@ -38,44 +38,6 @@ def search_open_now(country, f=None):
     s = s.query('bool', filter=f)
 
   s.aggs.bucket('models', 'terms', field='model')
-
-  return s[:0].execute()
-
-
-def search_distinct(country, f=None, interval='month'):
-  s = Search(using=elastic, index='systems') \
-    .query('term', country=country)
-
-  if f is not None:
-    s = s.query('bool', filter=f)
-
-  s.aggs.bucket(
-    'models', 'terms', field='model'
-  ).bucket('stats', 'children', type='stat') \
-  .bucket('date_range', 'filter', Q('range', date={'lte': 'now'})) \
-  .bucket(
-      'dates', 'date_histogram', field='date', interval=interval,
-      min_doc_count=1
-  ).metric('count', 'cardinality', field='system_id', precision_threshold=40000)
-
-  return s[:0].execute()
-
-
-def search_weighted(country, f=None, interval='month'):
-  s = Search(using=elastic, index='systems') \
-    .query('term', country=country)
-
-  if f is not None:
-    s = s.query('bool', filter=f)
-
-  s.aggs.bucket(
-      'models', 'terms', field='model'
-  ).bucket('stats', 'children', type='stat') \
-  .bucket('date_range', 'filter', Q('range', date={'lt': 'now/d'})) \
-  .bucket(
-      'dates', 'date_histogram', field='date', interval=interval,
-      min_doc_count=1
-  )
 
   return s[:0].execute()
 
@@ -131,16 +93,11 @@ def df_weighted(country, f=None, interval='month'):
   print('Systems do not support method="weighted".')
 
 
-def df_distinct(country, f=None, interval='month'):
-  print('Systems do not support method="distinct".')
-
-
 def df(country, method='end', f=None, interval='month'):
   switcher = {
      'start': df_start,
      'end':  df_end,
      'average': df_average,
-     'distinct': df_distinct,
      'weighted': df_weighted
    }
 

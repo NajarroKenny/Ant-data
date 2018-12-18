@@ -29,4 +29,4 @@ def df(country, start=None, end=None, f=None, interval='month'):
     if country not in COUNTRY_LIST:
       raise Exception(f'{country} is not a valid country')
 
-    return twlt.df(country, WORKFLOW_LIST, start=start, end=end, f, interval)
+    return twlt.df(country, WORKFLOW_LIST, start=start, end=end, f=f, interval=interval)
