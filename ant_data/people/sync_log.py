@@ -28,13 +28,15 @@ def search(country=None, agent_id=None, person_id=None, f=None):
     if country not in COUNTRY_LIST:
       raise Exception(f'{country} is not a valid country')
     
-    s=s.query('term', country=country)
+    s = s.query('term', country=country)
 
   if agent_id is not None:
-    s = s.query('term', agent_id=agent_id)
+    agent_id = agent_id if isinstance(agent_id, list) else [agent_id]
+    s = s.filter('terms', agent_id=agent_id)
   
   if person_id is not None:
-    s = s.query('term', person_id=person_id)
+    person_id = person_id if isinstance(person_id, list) else [person_id]
+    s = s.filter('terms', person_id=person_id)
     
   if f is not None:
     s = s.query('bool', filter=f)
