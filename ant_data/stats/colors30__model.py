@@ -54,6 +54,9 @@ def df(country, f=None, **kwargs):
 
     df.index.name = 'modelo'
     df = df.fillna(0).astype('int64')
+    for x in ['black', 'red', 'yellow', 'blue', 'green']:
+        if x not in df:
+            df[x] = 0
     df = df.rename(columns={ 'black': 'negro', 'red': 'rojo', 'yellow': 'amarillo', 'blue': 'azul', 'green': 'verde' })
     df = df[['negro','rojo','amarillo','azul','verde']]
     df['total'] = df.sum(axis=1)
