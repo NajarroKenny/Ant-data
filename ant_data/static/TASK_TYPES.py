@@ -4,5 +4,6 @@ TASK_TYPES = {
   'follow-up': 'Seguimiento',
   'install': 'Instalación',
   'sk-closure': 'Recogida Tendero',
-  'sk-follow-up': 'Seguimiento Tendero'
+  'sk-follow-up': 'Seguimiento Tendero',
+  'total': 'Total'
 }
