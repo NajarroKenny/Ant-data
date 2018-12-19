@@ -1,7 +1,7 @@
 """
 Community Master
 ============================
-Leverages Google Sheet's API to fetch Kingo's Community Master and save it as a 
+Leverages Google Sheet's API to fetch Kingo's Community Master and save it as a
 csv to ant_data/google/community_master.csv
 
 - Create date:  2018-12-14
@@ -9,7 +9,7 @@ csv to ant_data/google/community_master.csv
 - Version:      1.1
 
 Notes:
-============================      
+============================
 - v1.0: Initial version
 """
 from googleapiclient.discovery import build
@@ -23,7 +23,7 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly'
 
 # The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = '1rKNutCZRrLRyUOgYo0DyRvQt41VKAClhnMcmzAO4ptk'
-RANGE_NAME = 'Maestro para Tableau!A2:H10000'
+RANGE_NAME = 'MAESTRO VERSION FINAL!A2:F10000'
 
 FNAME = 'community_master.csv'
 
@@ -44,8 +44,8 @@ def main():
                                 range=RANGE_NAME).execute()
     values = result.get('values', [])
 
-    df = DataFrame(values, columns=['community', 'municipality', 'department', 'concat', 'at', 'cs', 'ss', 'clients'])
-    df = df.set_index('concat')
+    df = DataFrame(values, columns=['community_id', 'community', 'municipality', 'department', 'concat', 'at'])
+    df = df.set_index('community_id')
 
     df.to_csv(FNAME, sep=',')
 
