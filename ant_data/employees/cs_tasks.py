@@ -45,60 +45,55 @@ def data(country, coordinator_id, start, end, f=None):
   if f is None:
     f = []
 
-  f += [
-    Q('range', due={'gte': start, 'lt': end}),
-    Q('terms', agent_id = agent_list)    
-  ]
+  f += [Q('terms', agent_id = agent_list)]
 
-  df_tasks = tasks__agents_types(country, start, end, f)
-  df_tasks = DataFrame(df_tasks['total'])
-  df_tasks = df_tasks.rename(columns={'total': 'tasks'})
-  df_tasks.index.name = 'agent_id'
+  df_tasks = tasks__types(country, start=start, end=end, f=f, interval='year').sum(axis=0)
+  df_tasks = DataFrame(df_tasks, columns=['tasks'])
+  df_tasks.index.name = 'types'
 
   if df_tasks.empty:
     return df_tasks
 
-  df_visited = tasks__agents_types(country, start, end, f=f+VISITED_F)
-  df_visited = DataFrame(df_visited['total'])
-  df_visited = df_visited.rename(columns={'total': 'visited'})
-  df_visited.index.name = 'agent_id'
-  df_effective = tasks_effective__agents_types(country, start, end, f=f+VISITED_F)
-  df_effective = DataFrame(df_effective['total'])
-  df_effective = df_effective.rename(columns={'total': 'effective'})
-  df_effective.index.name = 'agent_id'
-  
-  df = df_tasks.merge(df_visited, on='agent_id', how='left')
-  df = df.merge(df_effective, on='agent_id', how='left')
+  df_tasks = tasks__types(country, start=start, end=end, f=f, interval='year').sum(axis=0)
+  df_tasks = DataFrame(df_tasks, columns=['tasks'])
+  df_tasks.index.name = 'types'
+
+  if df_tasks.empty:
+    return df_tasks
+
+  df_visited = tasks__types(country, start=start, end=end, f=f+VISITED_F, interval='year')
+  df_visited = DataFrame(df_visited.sum(axis=0), columns=['visited'])
+  df_visited.index.name = 'types'
+  df_effective = tasks_effective__types(country, start=start, end=end, f=f+VISITED_F, interval='year')
+  df_effective = DataFrame(df_effective.sum(axis=0), columns=['effective'])
+  df_effective.index.name = 'types'
+  df_additional = tasks__types(country, start=start, end=end, f=f+ADDITIONAL_F, interval='year')
+  df_additional = DataFrame(df_additional.sum(axis=0), columns=['additional'])
+  df_additional.index.name = 'types'
+
+  df = df_tasks.merge(df_visited, on='types', how='left')
+  df = df.merge(df_effective, on='types', how='left')
+  df = df.merge(df_additional, on='types', how='left')
   df = df.fillna(0).astype('int64')
   df['% visitadas'] = df['visited'].div(df['tasks'])
   df['% efectivas'] = df['effective'].div(df['visited'])
   df = df.fillna(0).replace((np.inf, -np.inf), (0,0))
   df = df.replace(np.nan, 0)
-  df.index.name = 'Agente'
-  df.loc['Total'] = df.sum(axis=0)
-  df.at['Total', '% visitadas'] = df.at['Total', 'visited']/df.at['Total', 'tasks'] if df.at['Total', 'tasks'] !=0 else 0
-  df.at['Total', '% efectivas'] = df.at['Total', 'effective']/df.at['Total', 'visited'] if df.at['Total', 'visited'] !=0 else 0
-  
+  df.index.name = 'Tipo de tarea'
+
   df = df.rename(
     index=TASK_TYPES, 
     columns= {
       'tasks': 'Tareas Asignadas',
       'visited': 'Asignadas Visitadas',
-      'effective': 'Visitas Efectivas'
+      'effective': 'Visitas Efectivas',
+      'additional': 'Tareas Adicionales'
     }
   )
 
   df = df[[
     'Tareas Asignadas', 'Asignadas Visitadas', '% visitadas', 
-    'Visitas Efectivas', '% efectivas'
+    'Visitas Efectivas', '% efectivas', 'Tareas Adicionales'
   ]]
-  
-  df = df.astype(
-    {
-      'Tareas Asignadas': 'int64', 
-      'Asignadas Visitadas': 'int64',
-      'Visitas Efectivas': 'int64'
-    }
-  )
 
   return df

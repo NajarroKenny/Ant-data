@@ -94,7 +94,7 @@ def df(country, workflows, start=None, end=None, f=None, interval='month'):
 
     df.index = df.index.astype('datetime64')
     df.index.name = 'date'
-    df = df.fillna(0).astype('int64')
+    df = df.fillna(0).astype('int64').sort_index()
     df['total'] = df.sum(axis=1)
 
     return df
