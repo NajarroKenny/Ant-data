@@ -22,14 +22,9 @@ from ant_data.employees import employees
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
-def index(country):
+def index(country, cm, agents, coordinators, supervisors):
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
-
-  cm = _communities.community_master_ids()
-  agents = employees.agents()
-  coordinators = employees.coordinators()
-  supervisors = employees.supervisors()
 
   docs = []
 
