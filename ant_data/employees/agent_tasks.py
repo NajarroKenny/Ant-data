@@ -26,6 +26,16 @@ from ant_data.tasks import additional_tasks, assigned_tasks, effective_tasks
 VISITED_F = [Q('has_child', type='history', query=Q())]
 
 
+def task_vp_structure(perc_effective):
+  if perc_effective < 0.50:
+    return 0
+  elif perc_effective < 0.75:
+    return 200
+  elif perc_effective < 0.85:
+    return 700
+  else:
+    return 1000
+
 def assigned(start, end, f=None):
   """Creates assigned task DF by merging separate tasks DF"""
   df_assigned = assigned_tasks.df(start=start, end=end, f=f)
@@ -61,12 +71,14 @@ def data(start, end, agent_id, f=None):
   df_additional = additional_tasks.df(start=start, end=end, f=g)  
   
   vp_assigned = df_assigned.at['total', 'asignadas'] \
-  + df_additional['conteo'].get('instalalación adicional', 0)
-  vp_effective = df_assigned.at['total', 'asignadas'] \
-  + df_additional['conteo'].get('instalalación adicional', 0)
+  + df_additional.at['instalación adicional', 'conteo'] if 'instalación adicional' \
+  in df_additional.index else df_assigned.at['total', 'asignadas']
+  vp_effective = df_assigned.at['total', 'efectivas'] \
+  + df_additional.at['instalación adicional', 'conteo'] if 'instalación adicional' \
+  in df_additional.index else df_assigned.at['total', 'asignadas']
   
   vp_effective_perc = 0 if vp_assigned == 0 else vp_effective/vp_assigned
-  vp_payment = 1000*vp_effective_perc
+  vp_payment = task_vp_structure(vp_effective_perc)
 
   obj = {
     'asignadas': vp_assigned,
