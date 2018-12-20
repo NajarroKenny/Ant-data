@@ -16,7 +16,6 @@ from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
 from ant_data import elastic
-from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
 def search_additionals(start=None, end=None, f=None):

@@ -17,7 +17,7 @@ from pandas import DataFrame, Series
 
 from ant_data import elastic
 from ant_data.static.TASK_TYPES import SALE_VALUES
-from ant_data.tasks import tasks_assigned
+from ant_data.tasks import assigned_tasks
 
 
 WORKFLOW_LIST=[
@@ -152,7 +152,7 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
       tipo = 'Sin Tipo'
     obj[tipo] = obj.get(tipo, 0) + df.at[remark, 'effective']
 
-  df = DataFrame.from_dict(obj, orient='index', columns=['Tareas Efectivas'])
+  df = DataFrame.from_dict(obj, orient='index', columns=['Efectivas'])
   df = df.astype('int64')
 
   if not all and 'Sin Tipo' in df.index:
@@ -166,9 +166,9 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
 
 def df(start=None, end=None, f=None, all=False):
   # Successful non-sale workflows
-  df = tasks_assigned.df(workflow=WORKFLOW_LIST, start=start, end=end, f=f, all=all)
+  df = assigned_tasks.df(workflow=WORKFLOW_LIST, start=start, end=end, f=f, all=all)
   if not df.empty:
-    df = df.rename(columns={'Tareas': 'Tareas Efectivas'})
+    df = df.rename(columns={'Asignadas': 'Efectivas'})
 
   # Successful sales
   df_sale = df_effective_sale(start, end, f, all)
@@ -177,6 +177,6 @@ def df(start=None, end=None, f=None, all=False):
     return df
 
   for element in df.index:
-    df.loc[element] += df_sale['Tareas Efectivas'].get(element, 0)
+    df.loc[element] += df_sale['Efectivas'].get(element, 0)
 
   return df
