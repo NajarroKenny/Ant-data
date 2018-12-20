@@ -92,7 +92,7 @@ def df(start=None, end=None, f=None):
         'venta a tendero': additional_shopkeepers
         }
 
-    df = DataFrame.from_dict(obj, orient='index', columns=['Conteo']).sort_index()
+    df = DataFrame.from_dict(obj, orient='index', columns=['conteo']).sort_index()
 
     if df.empty:
         return df

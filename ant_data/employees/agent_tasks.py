@@ -26,20 +26,13 @@ from ant_data.tasks import additional_tasks, assigned_tasks, effective_tasks
 VISITED_F = [Q('has_child', type='history', query=Q())]
 
 
-def data(start, end, agent_id, f=None):
-
-  if f is None:
-    f = []
-
-  f += [Q('term', agent_id=agent_id)]
-
+def assigned(start, end, f=None):
+  """Creates assigned task DF by merging separate tasks DF"""
   df_assigned = assigned_tasks.df(start=start, end=end, f=f)
 
   df_visited = assigned_tasks.df(start=start, end=end, f=f+VISITED_F)
   df_visited = df_visited.rename(columns={'asignadas': 'visitadas'})
   df_effective = effective_tasks.df(start=start, end=end, f=f+VISITED_F)
-
-  df_additional = additional_tasks.df(start=start, end=end, f=f)
 
   df = df_assigned.merge(df_visited, on='tipo de tarea', how='left')
   df = df.merge(df_effective, on='tipo de tarea', how='left')
@@ -55,8 +48,38 @@ def data(start, end, agent_id, f=None):
     'efectivas', '% efectivas'
   ]]
 
+  return df
+
+
+def data(start, end, agent_id, f=None):
+  "Combines assigned tasks, additional tasks, and task variable pay information"
+  g = [] if f is None else f[:]
+
+  g += [Q('term', agent_id=agent_id)]
+
+  df_assigned = assigned(start=start, end=end, f=g)
+  df_additional = additional_tasks.df(start=start, end=end, f=g)  
+  
+  vp_assigned = df_assigned.at['total', 'asignadas'] \
+  + df_additional['conteo'].get('instalalación adicional', 0)
+  vp_effective = df_assigned.at['total', 'asignadas'] \
+  + df_additional['conteo'].get('instalalación adicional', 0)
+  
+  vp_effective_perc = 0 if vp_assigned == 0 else vp_effective/vp_assigned
+  vp_payment = 1000*vp_effective_perc
+
+  obj = {
+    'asignadas': vp_assigned,
+    'efectivas': vp_effective,
+    '% efectivas': vp_effective_perc,
+    'pago': vp_payment
+  }
+
+  df_task_vp = DataFrame(obj, index=[0])
+
   return {
-    'assigned': df,
-    'additional': df_additional
+    'assigned': df_assigned,
+    'additional': df_additional,
+    'task_vp': df_task_vp
   }
 
