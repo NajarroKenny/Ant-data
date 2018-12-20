@@ -87,18 +87,18 @@ def df(start=None, end=None, f=None):
     additional_shopkeepers = search_additional_shopkeepers(start, end, f).hits.total
 
     obj = {
-        'Tarea Adicional': additionals,
-        'Instalación Adicional': additional_installations,
-        'Venta a Tendero': additional_shopkeepers
+        'tarea adicional': additionals,
+        'instalación adicional': additional_installations,
+        'venta a tendero': additional_shopkeepers
         }
 
-    df = DataFrame.from_dict(obj, orient='index', columns=['Conteo'])
+    df = DataFrame.from_dict(obj, orient='index', columns=['Conteo']).sort_index()
 
     if df.empty:
         return df
 
-    df.loc['Tareas'] = df.sum()
-    df.index.name = 'Acción Realizada'
+    df.loc['total'] = df.sum()
+    df.index.name = 'acción realizada'
 
     return df
 

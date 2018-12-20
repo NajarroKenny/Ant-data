@@ -111,19 +111,19 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
       remark.startswith('gestion 2') or
       remark.startswith('gestion 3')
     ):
-      tipo = 'Gestión'
+      tipo = 'gestión'
     elif remark.startswith('ticket'):
-      tipo = 'Ticket'
+      tipo = 'ticket'
     elif remark.startswith('verificacion'):
-      tipo = 'Verificación'
+      tipo = 'verificación'
     elif remark.startswith('tendero venta'):
-      tipo = 'Tendero Venta'
+      tipo = 'tendero Venta'
     elif remark.startswith('tendero sync'):
-      tipo = 'Tendero Sync'
+      tipo = 'tendero Sync'
     elif remark.startswith('kingo basico'):
-      tipo = 'Swap K7 o Venta >= 1 semana'
+      tipo = 'swap k7 o venta >= 1 semana'
     elif remark.startswith('kingo tv'):
-      tipo = 'Swap a Kingo TV'
+      tipo = 'swap a kingo tv'
     elif (
       remark.startswith('tecnica') or
       remark.startswith('promocion precio') or
@@ -131,7 +131,7 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
       remark.startswith('cliente activo') or
       remark.startswith('asignacion especial tecnica')
     ):
-      tipo = 'Técnica'
+      tipo = 'técnica'
     # elif remark.startswith('instalacion k7'): FIXME:
     #     tipo = 'Instalación Kingo Básico'
     # elif remark.startswith('instalacion k15'):
@@ -149,17 +149,17 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
     # elif remark.startswith('preventa kingo hogar'):
     #     tipo = 'Preventa Kingo Hogar'
     else:
-      tipo = 'Sin Tipo'
+      tipo = 'sin tipo'
     obj[tipo] = obj.get(tipo, 0) + df.at[remark, 'effective']
 
-  df = DataFrame.from_dict(obj, orient='index', columns=['Efectivas'])
-  df = df.astype('int64')
+  df = DataFrame.from_dict(obj, orient='index', columns=['efectivas'])
+  df = df.astype('int64').sort_index()
 
-  if not all and 'Sin Tipo' in df.index:
-        df = df.drop('Sin Tipo')
-
-  df.loc['Total'] = df.sum()
-  df.index.name = 'Tipo de Tarea'
+  if not all and 'sin tipo' in df.index:
+        df = df.drop('sin tipo')
+  
+  df.loc['total'] = df.sum()
+  df.index.name = 'tipo de tarea'
 
   return df
 
@@ -168,7 +168,7 @@ def df(start=None, end=None, f=None, all=False):
   # Successful non-sale workflows
   df = assigned_tasks.df(workflow=WORKFLOW_LIST, start=start, end=end, f=f, all=all)
   if not df.empty:
-    df = df.rename(columns={'Asignadas': 'Efectivas'})
+    df = df.rename(columns={'asignadas': 'efectivas'})
 
   # Successful sales
   df_sale = df_effective_sale(start, end, f, all)
@@ -177,6 +177,6 @@ def df(start=None, end=None, f=None, all=False):
     return df
 
   for element in df.index:
-    df.loc[element] += df_sale['Efectivas'].get(element, 0)
+    df.loc[element] += df_sale['efectivas'].get(element, 0)
 
   return df

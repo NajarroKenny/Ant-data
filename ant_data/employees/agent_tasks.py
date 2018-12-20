@@ -35,27 +35,24 @@ def data(start, end, agent_id, f=None):
 
   df_assigned = assigned_tasks.df(start=start, end=end, f=f)
 
-  if df_assigned.empty:
-    return df_assigned
-
   df_visited = assigned_tasks.df(start=start, end=end, f=f+VISITED_F)
-  df_visited = df_visited.rename(columns={'Asignadas': 'Asignadas Visitadas'})
+  df_visited = df_visited.rename(columns={'asignadas': 'visitadas'})
   df_effective = effective_tasks.df(start=start, end=end, f=f+VISITED_F)
 
   df_additional = additional_tasks.df(start=start, end=end, f=f)
 
-  df = df_assigned.merge(df_visited, on='Tipo de Tarea', how='left')
-  df = df.merge(df_effective, on='Tipo de Tarea', how='left')
+  df = df_assigned.merge(df_visited, on='tipo de tarea', how='left')
+  df = df.merge(df_effective, on='tipo de tarea', how='left')
   df = df.fillna(0).astype('int64')
 
-  df['% visitadas'] = df['Asignadas Visitadas'].div(df['Asignadas'])
-  df['% efectivas'] = df['Efectivas'].div(df['Asignadas Visitadas'])
+  df['% visitadas'] = df['visitadas'].div(df['asignadas'])
+  df['% efectivas'] = df['efectivas'].div(df['visitadas'])
   df = df.fillna(0).replace((np.inf, -np.inf), (0,0))
   df = df.replace(np.nan, 0)
 
   df = df[[
-    'Asignadas', 'Asignadas Visitadas', '% visitadas',
-    'Efectivas', '% efectivas'
+    'asignadas', 'visitadas', '% visitadas',
+    'efectivas', '% efectivas'
   ]]
 
   return {
