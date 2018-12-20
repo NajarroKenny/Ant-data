@@ -12,8 +12,8 @@ from ant_data.static import CODES
 
 
 
-def df(agent, start, end):
-  communities = hierarchy.communities(agent)
+def df(hierarchy_id, agent, start, end):
+  communities = hierarchy.agent_communities(agent, hierarchy_id=hierarchy_id)
   installs = hierarchy.installs(agent, start, end)
 
   # client ids

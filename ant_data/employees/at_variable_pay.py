@@ -10,9 +10,9 @@ from ant_data.shared import helpers
 
 def df(hierarchy_id, agent, start, end):
   # breakpoint()
-  communities = hierarchy.communities(hierarchy_id, agent)
-  clients = hierarchy.clients(communities, end)
-  codes = hierarchy.codes(communities, start, end)
+  communities = hierarchy.agent_communities(agent, hierarchy_id=hierarchy_id)
+  clients = hierarchy.clients(communities=communities, date=end)
+  codes = hierarchy.codes(start, end, communities=communities)
   client_ids = [ client['person_id'] for client in clients ]
   hard_days = hard_paid_days.df(client_ids, start, end)
 

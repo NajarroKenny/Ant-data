@@ -47,7 +47,7 @@ def data(country, coordinator_id, start, end, f=None):
 
   f += [
     Q('range', due={'gte': start, 'lt': end}),
-    Q('terms', agent_id = agent_list)    
+    Q('terms', agent_id = agent_list)
   ]
 
   df_tasks = tasks__agents(country, start, end, f)
@@ -74,9 +74,9 @@ def data(country, coordinator_id, start, end, f=None):
   df.loc['Total'] = df.sum(axis=0)
   df.at['Total', '% visitadas'] = df.at['Total', 'visited']/df.at['Total', 'tasks'] if df.at['Total', 'tasks'] !=0 else 0
   df.at['Total', '% efectivas'] = df.at['Total', 'effective']/df.at['Total', 'visited'] if df.at['Total', 'visited'] !=0 else 0
-  
+
   df = df.rename(
-    index=TASK_TYPES, 
+    index=TASK_TYPES,
     columns= {
       'tasks': 'Tareas Asignadas',
       'visited': 'Asignadas Visitadas',
@@ -86,13 +86,13 @@ def data(country, coordinator_id, start, end, f=None):
   )
 
   df = df[[
-    'Tareas Asignadas', 'Asignadas Visitadas', '% visitadas', 
+    'Tareas Asignadas', 'Asignadas Visitadas', '% visitadas',
     'Visitas Efectivas', '% efectivas', 'Tareas Adicionales'
   ]]
-  
+
   df = df.astype(
     {
-      'Tareas Asignadas': 'int64', 
+      'Tareas Asignadas': 'int64',
       'Asignadas Visitadas': 'int64',
       'Visitas Efectivas': 'int64',
       'Tareas Adicionales': 'int64'
