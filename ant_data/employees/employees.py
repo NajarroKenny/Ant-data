@@ -6,14 +6,15 @@ Wrapper for all employee data-fetching functions
 - Create date:  2018-12-17
 - Update date:  2018-12-17
 - Version:      1.0
- 
+
 Notes
 ==========================
 - v1.0: Initial version
 """
 from ant_data.employees import at_tasks as _at_tasks
 from ant_data.employees import at_variable_pay as _at_variable_pay
-from ant_data.employees import hard_client_days as _hard_client_days
+from ant_data.employees import hard_days as _hard_days
+from ant_data.employees import hard_paid_days as _hard_paid_days
 from ant_data.employees import hierarchy as _hierarchy
 from ant_data.employees import roster as _roster
 from ant_data.employees import sync_status as _sync_status
@@ -25,8 +26,12 @@ def at_tasks(country, agent_id, start, end, f=None):
 def at_variable_pay(agent, start, end):
   return _at_variable_pay.df(agent, start, end)
 
-def hard_client_days(agent, start, end):
-  return _hard_client_days.df(agent, start, end)
+def hard_days(agent, start, end):
+  return _hard_days.df(agent, start, end)
+
+def hard_paid_days(agent, start, end):
+  return _hard_paid_days.df(agent, start, end)
+
 
 def communities(agent):
   return _hierarchy.communities(agent)

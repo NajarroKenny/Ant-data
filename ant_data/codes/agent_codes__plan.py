@@ -22,7 +22,7 @@ from ..static.FINANCE import IVA
 
 
 def df(
-  country, doctype, agents, start=None, end=None, f=None, interval='month', paid=True, free=True, iva=True,
+  doctype, country, agents, start=None, end=None, f=None, interval='month', paid=True, free=True, iva=True,
   commission=True
 ):
   if f is None:
@@ -30,7 +30,6 @@ def df(
   if not isinstance(agents, list):
     agents = [agents]
   f.append(Q('terms', agent_id=agents))
-  print(f)
 
   return codes__plan.df(country, doctype, start=start, end=end, f=f, interval=interval)
 

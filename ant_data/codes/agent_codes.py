@@ -22,7 +22,7 @@ from ..static.FINANCE import IVA
 
 
 def df(
-  country, doctype, agents, start=None, end=None, f=None, interval='month', paid=True, free=True, iva=True,
+  doctype, country, agents, start=None, end=None, f=None, interval='month', paid=True, free=True, iva=True,
   commission=True
 ):
   if f is None:

@@ -3,17 +3,18 @@ from pandas import DataFrame, Series
 import numpy as np
 
 from ant_data import elastic
-from ant_data.employees import hierarchy, hard_client_days
+from ant_data.employees import hierarchy, hard_paid_days
 from ant_data.static import CODES
 from ant_data.shared import helpers
 
 
-def df(agent, start, end):
-  communities = hierarchy.communities(agent)
-  clients = hierarchy.clients(agent, 'at', end)
-  codes = hierarchy.codes(agent, start, end)
+def df(hierarchy_id, agent, start, end):
+  # breakpoint()
+  communities = hierarchy.communities(hierarchy_id, agent)
+  clients = hierarchy.clients(communities, end)
+  codes = hierarchy.codes(communities, start, end)
   client_ids = [ client['person_id'] for client in clients ]
-  hard_days = hard_client_days.df(client_ids, start, end)
+  hard_days = hard_paid_days.df(client_ids, start, end)
 
   code_map = {}
   for code in codes:
@@ -67,14 +68,25 @@ def df(agent, start, end):
   if df.empty:
     return df
 
-  df['Activo Mes Anterior'] = df['Parque']
-  df.at['Inactivo', 'Activo Mes Anterior'] = 0
+  df['Activo'] = df['Parque']
+  df.at['Inactivo', 'Activo'] = 0
+  df.at['Activo < 7', 'Activo'] = 0
   df.loc['Total'] = df.sum()
-  df['% Activo Mes Anterior'] = 100*round(df.at['Total', 'Activo Mes Anterior'] / df.at['Total', 'Parque'],3)
-  factors = [ 8, 4, 8, 4, 4, 2, 0, 0 ]
-  df['Pago x Actividad'] = df['% Activo Mes Anterior'] * Series(factors,index=keys)
-  df.at['Total', 'Pago x Actividad'] = df['Pago x Actividad'].sum()
-  df.index.name = 'Cuadrantes Mes Anterior'
+  df['% Activo'] = 100*round(df.at['Total', 'Activo'] / df.at['Total', 'Parque'],3)
+  if df.at['Total', '% Activo'] > 85:
+    factors = [ 12, 6, 12, 6, 8, 4, 0, 0 ]
+  elif df.at['Total', '% Activo'] > 75:
+    factors = [ 8, 4, 8, 4, 4, 2, 0, 0 ]
+  elif df.at['Total', '% Activo'] > 50:
+    factors = [ 4, 2, 4, 2, 2, 1, 0, 0 ]
+  elif df.at['Total', '% Activo'] > 40:
+    factors = [ 2, 1, 2, 1, 1, 0.5, 0, 0 ]
+  else:
+    factors = [ 0, 0, 0, 0, 0, 0, 0, 0 ]
+
+  df['Pago'] = df['Activo'] * Series(factors,index=keys)
+  df.at['Total', 'Pago'] = df['Pago'].sum()
+  df.index.name = 'Cuadrantes'
   df = df.reset_index()
 
   return df

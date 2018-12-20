@@ -5,7 +5,7 @@ from pandas import DataFrame, Series
 import numpy as np
 
 from ant_data import elastic
-from ant_data.employees import hierarchy, hard_client_days
+from ant_data.employees import hierarchy, hard_paid_days
 from ant_data.static import CODES
 
 
@@ -35,9 +35,9 @@ def df(agent, start, end):
   month2_dt = end_dt - relativedelta(months=2)
   month3_dt = end_dt - relativedelta(months=3)
 
-  hard_days1 = hard_client_days.df(client_ids, month1_dt, end_dt)
-  hard_days2 = hard_client_days.df(client_ids, month2_dt, month1_dt)
-  hard_days3 = hard_client_days.df(client_ids, month3_dt, month2_dt)
+  hard_days1 = hard_paid_days.df(client_ids, month1_dt, end_dt)
+  hard_days2 = hard_paid_days.df(client_ids, month2_dt, month1_dt)
+  hard_days3 = hard_paid_days.df(client_ids, month3_dt, month2_dt)
 
   obj = {}
   for client in clients:
