@@ -1,9 +1,8 @@
 """
-Task Workflow List Types
+Task Types
 ============================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
-Warehouse to generate a report on task workflows based on a given action list
-by types.
+Warehouse to generate a report on task types.
 
 - Create date:  2018-12-19
 - Update date:
@@ -20,15 +19,10 @@ from ant_data import elastic
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
-def search_must(country, workflows, start=None, end=None, f=None):
-    if country not in COUNTRY_LIST:
-        raise Exception(f'{country} is not a valid country')
-
+def search(start=None, end=None, f=None):
     s = Search(using=elastic, index='tasks') \
-        .query('term', country=country) \
         .query('term', doctype='task') \
-        .query('term', planned=True) \
-        .query('has_child', type='history', query=Q('terms', workflow=workflows))
+        .query('term', planned=True)
 
     if start is not None:
         s = s.query('bool', filter=Q('range', due={ 'gte': start }))
@@ -41,17 +35,22 @@ def search_must(country, workflows, start=None, end=None, f=None):
 
     return s[:0].execute()
 
-def df(country, workflows, start=None, end=None, f=None, all=False):
-    if country not in COUNTRY_LIST:
-        raise Exception(f'{country} is not a valid country')
 
-    response = search_must(country, workflows, start=start, end=end, f=f)
+def df(start=None, end=None, f=None, workflow=None, all=False):
+    """Assigned tasks, by type"""
+
+    if f is None:
+        f = []
+    if workflow is not None:
+        f.append(Q('has_child', type='history', query=Q('terms', workflow=workflow)))
+
+    response = search(start=start, end=end, f=f)
 
     obj = {}
 
     for remark in response.aggs.remarks.buckets:
         if (
-            remark.key.startswith('gestion') or 
+            remark.key.startswith('gestion') or
             remark.key.startswith('gestion 2') or
             remark.key.startswith('gestion 3')
         ):
@@ -96,7 +95,7 @@ def df(country, workflows, start=None, end=None, f=None, all=False):
             tipo = 'Sin Tipo'
         obj[tipo] = obj.get(tipo, 0) + remark.doc_count
 
-    df = DataFrame.from_dict(obj, orient='index', columns=['Tareas'])
+    df = DataFrame.from_dict(obj, orient='index', columns=['Tareas Asignadas'])
 
     if df.empty:
         return df
