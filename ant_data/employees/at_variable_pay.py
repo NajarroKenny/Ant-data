@@ -17,7 +17,7 @@ def df(start, end, communities=None, agent_id=None, hierarchy_id=None):
 
   new_old = helpers.shift_date_str(end, days=-105) # FIXME:check with Chino
 
-  keys = ['activo Compra Tendero >= 15', 'activo Compra Tendero >= 7', 'activo Nuevo >= 15', 'activo Nuevo >= 10', 'activo >= 15', 'activo >= 7', 'activo < 7', 'inactivo']
+  keys = ['activo compra tendero >= 15', 'activo compra tendero >= 7', 'activo nuevo >= 15', 'activo nuevo >= 10', 'activo >= 15', 'activo >= 7', 'activo < 7', 'inactivo']
   obj = {}
   for key in keys:
     obj[key] = 0
@@ -30,9 +30,9 @@ def df(start, end, communities=None, agent_id=None, hierarchy_id=None):
 
     if opened < new_old:
       if shopkeeper_days >= 15: # FIXME:check with Chino
-        cat = 'activo Compra Tendero >= 15'
+        cat = 'activo compra tendero >= 15'
       elif shopkeeper_days >= 7: # FIXME:check with Chino
-        cat = 'activo Compra Tendero >= 7'
+        cat = 'activo compra tendero >= 7'
       elif days >= 15:
         cat = 'activo >= 15'
       elif days >= 7:
@@ -43,9 +43,9 @@ def df(start, end, communities=None, agent_id=None, hierarchy_id=None):
         cat = 'inactivo'
     else:
       if days >= 15:
-        cat = 'activo Nuevo >= 15'
+        cat = 'activo nuevo >= 15'
       elif days >= 10:
-        cat = 'activo Nuevo >= 10'
+        cat = 'activo nuevo >= 10'
       elif days > 0:
         cat = 'activo < 7'
       else:

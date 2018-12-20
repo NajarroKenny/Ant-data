@@ -109,7 +109,7 @@ def df(country, f=None, **kwargs):
     df = df.rename(columns={ 0: 'inactive=o', 1: 'activo' })
     df['total'] = df.sum(axis=1)
     df = df.fillna(0).astype('int64')
-    df['percentaje'] = df['activo'].div(df['total'])
+    df['% activo'] = df['activo'].div(df['total'])
     df = df.replace((np.nan, -np.nan), (0, 0))
     df = df.replace((np.inf, -np.inf), (0, 0))
     df = df.reset_index()
