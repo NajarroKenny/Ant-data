@@ -184,7 +184,7 @@ def agent_installs(agent, start, end):
   return installs
 
 
-def client_dos(communities=None, hierarchy_id=None, agent_id=None, date=None):
+def client_docs(communities=None, hierarchy_id=None, agent_id=None, date=None):
   """Client docs from array of communities or agent_id.
 
   An agent_id is used to get a list of communities from the hierarchy.

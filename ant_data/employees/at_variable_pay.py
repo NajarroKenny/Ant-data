@@ -3,28 +3,17 @@ from pandas import DataFrame, Series
 import numpy as np
 
 from ant_data import elastic
-from ant_data.employees import hierarchy, hard_paid_days
+from ant_data.employees import hierarchy, hard_paid_days, hard_shopkeeper_days
 from ant_data.static import CODES
 from ant_data.shared import helpers
 
 
-def df(hierarchy_id, agent, start, end):
+def df(start, end, communities=None, agent_id=None, hierarchy_id=None):
   # breakpoint()
-  communities = hierarchy.agent_communities(agent, hierarchy_id=hierarchy_id)
-  clients = hierarchy.clients(communities=communities, date=end)
-  codes = hierarchy.codes(start, end, communities=communities)
+  clients = hierarchy.client_docs(communities=communities, agent_id=agent_id, hierarchy_id=hierarchy_id, date=end)
   client_ids = [ client['person_id'] for client in clients ]
-  hard_days = hard_paid_days.df(client_ids, start, end)
-
-  code_map = {}
-  for code in codes:
-    client_id = code['to']['person_id']
-    code_map[client_id] = code_map.get(client_id, { 'shopkeeper': 0, 'agent': 0 })
-    if 'person_type' in code['from'] and code['from']['person_type'] == 'client':
-      code_map[client_id]['shopkeeper'] += CODES.CODE_PLANS[code['plan']]
-    else:
-      code_map[client_id]['agent'] += CODES.CODE_PLANS[code['plan']]
-
+  shopkeeper_days = hard_shopkeeper_days.df(client_ids, start, end)
+  paid_days = hard_paid_days.df(client_ids, start, end)
 
   new_old = helpers.shift_date_str(end, days=-105) # FIXME:check with Chino
 
@@ -36,12 +25,13 @@ def df(hierarchy_id, agent, start, end):
   for client in clients:
     client_id = client['person_id']
     opened = client['opened']
-    days = hard_days.loc[client_id]['active']
+    days = paid_days.loc[client_id]['active']
+    shopkeeper_days = paid_days.loc[client_id]['active']
 
     if opened < new_old:
-      if code_map.get(client_id, { 'shopkeeper': 0 })['shopkeeper'] >= 15:
+      if shopkeeper_days >= 15: # FIXME:check with Chino
         cat = 'Activo Compra Tendero >= 15'
-      elif code_map.get(client_id, { 'shopkeeper': 0 })['shopkeeper'] >= 7:
+      elif shopkeeper_days >= 7: # FIXME:check with Chino
         cat = 'Activo Compra Tendero >= 7'
       elif days >= 15:
         cat = 'Activo >= 15'
