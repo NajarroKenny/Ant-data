@@ -15,7 +15,7 @@ def df(start, end, communities=None, agent_id=None, hierarchy_id=None):
   shopkeeper_days = hard_shopkeeper_days.df(client_ids, start, end)
   paid_days = hard_paid_days.df(client_ids, start, end)
 
-  new_old = helpers.shift_date_str(end, days=-105) # FIXME:check with Chino
+  new_old = helpers.shift_date_str(end, days=-90)
 
   keys = ['activo compra tendero >= 15', 'activo compra tendero >= 7', 'activo nuevo >= 15', 'activo nuevo >= 10', 'activo >= 15', 'activo >= 7', 'activo < 7', 'inactivo']
   obj = {}
@@ -26,12 +26,12 @@ def df(start, end, communities=None, agent_id=None, hierarchy_id=None):
     client_id = client['person_id']
     opened = client['opened']
     days = paid_days.loc[client_id]['active']
-    shopkeeper_days = paid_days.loc[client_id]['active']
+    days_shopkeeper = shopkeeper_days.loc[client_id]['active']
 
     if opened < new_old:
-      if shopkeeper_days >= 15: # FIXME:check with Chino
+      if days >= 15 and days_shopkeeper >= 8:
         cat = 'activo compra tendero >= 15'
-      elif shopkeeper_days >= 7: # FIXME:check with Chino
+      elif days >= 7 and days_shopkeeper >= 4:
         cat = 'activo compra tendero >= 7'
       elif days >= 15:
         cat = 'activo >= 15'
