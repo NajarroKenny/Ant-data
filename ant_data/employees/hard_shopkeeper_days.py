@@ -5,7 +5,7 @@ from ant_data import elastic
 
 
 def df(client_ids, start, end):
-  """Count of active days, ignoring sync status."""
+  """Count of shopkeeper active days, ignoring sync status."""
 
   s = Search(using=elastic, index='people') \
     .query('ids', type='_doc', values=client_ids)
@@ -15,7 +15,7 @@ def df(client_ids, start, end):
   s.aggs.bucket('clients', 'terms', field='person_id', size=10000) \
     .bucket('stats', 'children', type='stat') \
     .bucket('date_range', 'filter', filter=Q('range', date={ 'gte': start, 'lt': end })) \
-    .bucket('active', 'terms', field='active')
+    .bucket('active', 'terms', field='active_shopkeeper')
 
   response = s[:0].execute()
 

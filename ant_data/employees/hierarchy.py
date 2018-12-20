@@ -22,6 +22,8 @@ from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
 def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
+  """Index a hierarchy"""
+
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
 
@@ -98,6 +100,8 @@ def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
 
 
 def hierarchy_list(country):
+  """Last 100 hierarchy_ids from the hierarchy index."""
+
   s = Search(using=elastic, index='hierarchy') \
     .query('term', country=country)
 
@@ -114,6 +118,8 @@ def hierarchy_list(country):
 
 
 def latest_hierarchy(end=None):
+  """The latest hierarchy (<= optional end parameter)."""
+
   s = Search(using=elastic, index='hierarchy')
 
   if end is not None:
@@ -132,8 +138,10 @@ def latest_hierarchy(end=None):
 
 
 def agent_info(agent, hierarchy_id=None):
+  """Agent information from the hierarchy"""
+
   if hierarchy_id == None:
-    hierarchy_id = latest_hierarchy(country)
+    hierarchy_id = latest_hierarchy()
 
   s = Search(using=elastic, index='hierarchy') \
     .query('ids', values=[f'{hierarchy_id}_{agent}'])
@@ -146,8 +154,10 @@ def agent_info(agent, hierarchy_id=None):
 
 
 def agent_communities(agent, hierarchy_id=None):
+  """Array of communities for an agent from the hierarchy."""
+
   if hierarchy_id == None:
-    hierarchy_id = latest_hierarchy(country)
+    hierarchy_id = latest_hierarchy()
 
   s = Search(using=elastic, index='hierarchy') \
     .query('ids', values=[f'{hierarchy_id}_{agent}'])
@@ -160,6 +170,8 @@ def agent_communities(agent, hierarchy_id=None):
 
 
 def agent_installs(agent, start, end):
+  """Installations created by an agent."""
+
   s = Search(using=elastic, index='installs') \
     .query('term', doctype='install') \
     .query('term', agent_id=agent) \
@@ -172,7 +184,12 @@ def agent_installs(agent, start, end):
   return installs
 
 
-def clients(communities=None, hierarchy_id=None, agent_id=None, date=None):
+def client_dos(communities=None, hierarchy_id=None, agent_id=None, date=None):
+  """Client docs from array of communities or agent_id.
+
+  An agent_id is used to get a list of communities from the hierarchy.
+  """
+
   if communities == None:
     communities = agent_communities(agent_id, hierarchy_id=hierarchy_id)
   if date is None:
@@ -200,7 +217,46 @@ def clients(communities=None, hierarchy_id=None, agent_id=None, date=None):
   return clients
 
 
+def client_ids(communities=None, hierarchy_id=None, agent_id=None, date=None):
+  """Client ids from array of communities or agent_id.
+
+  An agent_id is used to get a list of communities from the hierarchy.
+  """
+
+  if communities == None:
+    communities = agent_communities(agent_id, hierarchy_id=hierarchy_id)
+  if date is None:
+    date = dt.datetime.today().strftime('%Y-%m-%d')
+
+  s = Search(using=elastic, index='people') \
+    .query('term', doctype='client') \
+    .query('terms', community__community_id=communities) \
+    .query('bool', must=[
+      Q('range', opened={ 'lt': date }),
+      Q('bool', should=[
+        Q('term', open=True),
+        Q('range', closed={ 'gt': date })
+      ]),
+      Q('bool', should=[
+        ~Q('exists', field='pos_open'),
+        Q('range', pos_closed={ 'lt': date })
+      ])
+    ]) \
+    .source([ 'person_id' ])
+
+  client_ids = []
+  for hit in s.scan():
+    client_ids.append(hit.person_id)
+
+  return client_ids
+
+
 def codes(start, end, communities=None, hierarchy_id=None, agent_id=None):
+  """Codes from array of communities or agent_id.
+
+  An agent_id is used to get a list of communities from the hierarchy.
+  """
+
   if communities == None:
     communities = agent_communities(agent_id, hierarchy_id=hierarchy_id)
 
