@@ -17,7 +17,7 @@ def df(start, end, communities=None, agent_id=None, hierarchy_id=None):
 
   new_old = helpers.shift_date_str(end, days=-105) # FIXME:check with Chino
 
-  keys = ['Activo Compra Tendero >= 15', 'Activo Compra Tendero >= 7', 'Activo Nuevo >= 15', 'Activo Nuevo >= 10', 'Activo >= 15', 'Activo >= 7', 'Activo < 7', 'Inactivo']
+  keys = ['activo Compra Tendero >= 15', 'activo Compra Tendero >= 7', 'activo Nuevo >= 15', 'activo Nuevo >= 10', 'activo >= 15', 'activo >= 7', 'activo < 7', 'inactivo']
   obj = {}
   for key in keys:
     obj[key] = 0
@@ -30,53 +30,53 @@ def df(start, end, communities=None, agent_id=None, hierarchy_id=None):
 
     if opened < new_old:
       if shopkeeper_days >= 15: # FIXME:check with Chino
-        cat = 'Activo Compra Tendero >= 15'
+        cat = 'activo Compra Tendero >= 15'
       elif shopkeeper_days >= 7: # FIXME:check with Chino
-        cat = 'Activo Compra Tendero >= 7'
+        cat = 'activo Compra Tendero >= 7'
       elif days >= 15:
-        cat = 'Activo >= 15'
+        cat = 'activo >= 15'
       elif days >= 7:
-        cat = 'Activo >= 7'
+        cat = 'activo >= 7'
       elif days > 0:
-        cat = 'Activo < 7'
+        cat = 'activo < 7'
       else:
-        cat = 'Inactivo'
+        cat = 'inactivo'
     else:
       if days >= 15:
-        cat = 'Activo Nuevo >= 15'
+        cat = 'activo Nuevo >= 15'
       elif days >= 10:
-        cat = 'Activo Nuevo >= 10'
+        cat = 'activo Nuevo >= 10'
       elif days > 0:
-        cat = 'Activo < 7'
+        cat = 'activo < 7'
       else:
-        cat = 'Inactivo'
+        cat = 'inactivo'
 
     obj[cat] += 1
 
-  df = DataFrame([obj[key] for key in keys ], index=keys, columns=['Parque'])
+  df = DataFrame([obj[key] for key in keys ], index=keys, columns=['parque'])
 
   if df.empty:
     return df
 
-  df['Activo'] = df['Parque']
-  df.at['Inactivo', 'Activo'] = 0
-  df.at['Activo < 7', 'Activo'] = 0
-  df.loc['Total'] = df.sum()
-  df['% Activo'] = 100*round(df.at['Total', 'Activo'] / df.at['Total', 'Parque'],3)
-  if df.at['Total', '% Activo'] > 85:
+  df['activo'] = df['parque']
+  df.at['inactivo', 'activo'] = 0
+  df.at['activo < 7', 'activo'] = 0
+  df.loc['total'] = df.sum()
+  df['% activo'] = df.at['total', 'activo'] / df.at['total', 'parque']
+  if df.at['total', '% activo'] > 0.85:
     factors = [ 12, 6, 12, 6, 8, 4, 0, 0 ]
-  elif df.at['Total', '% Activo'] > 75:
+  elif df.at['total', '% activo'] > 0.75:
     factors = [ 8, 4, 8, 4, 4, 2, 0, 0 ]
-  elif df.at['Total', '% Activo'] > 50:
+  elif df.at['total', '% activo'] > 0.50:
     factors = [ 4, 2, 4, 2, 2, 1, 0, 0 ]
-  elif df.at['Total', '% Activo'] > 40:
+  elif df.at['total', '% activo'] > 0.40:
     factors = [ 2, 1, 2, 1, 1, 0.5, 0, 0 ]
   else:
     factors = [ 0, 0, 0, 0, 0, 0, 0, 0 ]
 
-  df['Pago'] = df['Activo'] * Series(factors,index=keys)
-  df.at['Total', 'Pago'] = df['Pago'].sum()
-  df.index.name = 'Cuadrantes'
+  df['pago'] = df['activo'] * Series(factors, index=keys)
+  df.at['total', 'pago'] = df['pago'].sum()
+  df.index.name = 'cuadrantes'
   df = df.reset_index()
 
   return df
