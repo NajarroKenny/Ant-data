@@ -204,7 +204,7 @@ def client_docs(communities=None, hierarchy_id=None, agent_id=None, date=None):
         Q('term', open=True),
         Q('range', closed={ 'gt': date })
       ]),
-      Q('bool', should=[ # FIXME: use kingo_open
+      Q('bool', should=[ # FIXME: P1 use kingo_open
         ~Q('exists', field='pos_open'),
         Q('range', pos_closed={ 'lt': date })
       ])
