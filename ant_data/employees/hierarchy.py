@@ -117,13 +117,13 @@ def hierarchy_list(country):
   return ids
 
 
-def latest_hierarchy(end=None):
+def latest_hierarchy(date=None):
   """The latest hierarchy (<= optional end parameter)."""
 
   s = Search(using=elastic, index='hierarchy')
 
-  if end is not None:
-    s = s.query('range', hierarchy_id={ 'lte': end })
+  if date is not None:
+    s = s.query('range', hierarchy_id={ 'lte': date })
 
   s.aggs \
     .bucket('hierarchy_id', 'terms', field='hierarchy_id', order={ '_key': 'desc' }, size=1)
@@ -137,7 +137,7 @@ def latest_hierarchy(end=None):
   return ids[0] if len(ids) == 1 else ''
 
 
-def agent_info(agent, hierarchy_id=None):
+def agent_info(agent, hierarchy_id=None, date=None):
   """Agent information from the hierarchy"""
 
   if hierarchy_id == None:
@@ -153,11 +153,11 @@ def agent_info(agent, hierarchy_id=None):
     return None
 
 
-def agent_communities(agent, hierarchy_id=None):
+def agent_communities(agent, hierarchy_id=None, date=None):
   """Array of communities for an agent from the hierarchy."""
 
   if hierarchy_id == None:
-    hierarchy_id = latest_hierarchy()
+    hierarchy_id = latest_hierarchy(date)
 
   s = Search(using=elastic, index='hierarchy') \
     .query('ids', values=[f'{hierarchy_id}_{agent}'])
