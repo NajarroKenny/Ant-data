@@ -132,7 +132,7 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
       remark.startswith('asignacion especial tecnica')
     ):
       tipo = 'técnica'
-    # elif remark.startswith('instalacion k7'): FIXME:
+    # elif remark.startswith('instalacion k7'): TODO:P1 check with Chino
     #     tipo = 'Instalación Kingo Básico'
     # elif remark.startswith('instalacion k15'):
     #     tipo = 'Instalación Kingo Luz'
@@ -157,7 +157,7 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
 
   if not all and 'sin tipo' in df.index:
         df = df.drop('sin tipo')
-  
+
   df.loc['total'] = df.sum()
   df.index.name = 'tipo de tarea'
 

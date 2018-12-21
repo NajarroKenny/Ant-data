@@ -18,35 +18,37 @@ from ant_data import elastic
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
+# FIXME:P2 doesn't need country
 def search(country=None, agent_id=None, person_id=None, f=None):
   if agent_id is not None and person_id is not None:
     raise Exception(f'Cannot pass both agent_id and person_id')
 
   s = Search(using=elastic, index='sync_log')
-  
+
   if country is not None:
     if country not in COUNTRY_LIST:
       raise Exception(f'{country} is not a valid country')
-    
+
     s = s.query('term', country=country)
 
   if agent_id is not None:
     agent_id = agent_id if isinstance(agent_id, list) else [agent_id]
     s = s.filter('terms', agent_id=agent_id)
-  
+
   if person_id is not None:
     person_id = person_id if isinstance(person_id, list) else [person_id]
     s = s.filter('terms', person_id=person_id)
-    
+
   if f is not None:
     s = s.query('bool', filter=f)
 
   return s.scan()
 
+# FIXME:P2 doesn't need country
 def df(country=None, agent_id=None, person_id=None, f=None):
   if agent_id is not None and person_id is not None:
     raise Exception(f'Cannot pass both agent_id and person_id')
-  
+
   if country is not None and country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
 

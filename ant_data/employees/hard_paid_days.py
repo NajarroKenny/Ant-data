@@ -10,7 +10,7 @@ def df(client_ids, start, end):
   s = Search(using=elastic, index='people') \
     .query('ids', type='_doc', values=client_ids)
 
-  #TODO: use partitions to get all the results
+  #TODO:P1 use partitions to get all the results
   # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-bucket-terms-aggregation.html#_filtering_values_with_partitions
   s.aggs.bucket('clients', 'terms', field='person_id', size=10000) \
     .bucket('stats', 'children', type='stat') \

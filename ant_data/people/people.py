@@ -124,5 +124,6 @@ def no_persons_days__cohort(country, start=None, end=None, f=None, interval='mon
   f.append(Q('term', doctype='no_person'))
   return _days__cohort.df(country, start=start, end=end, f=f, interval=interval)
 
-def sync_log(country=None, agent_id=None, person_id=None, f=None): # FIXME:
+# FIXME:P2 doesn't need country
+def sync_log(country=None, agent_id=None, person_id=None, f=None):
   return _sync_log.df(country, agent_id, person_id, f)

@@ -19,7 +19,7 @@ from ant_data.shared.helpers import local_date_str, shift_date_str
 from ant_data.shopkeepers import community_shopkeepers
 from ant_data.static.AGENT_MAPPING import AGENT_MAPPING
 
-# TODO: ant id to email mapping in ES
+# TODO:P1 ant id to email mapping in ES
 
 def agent_sync_status(country, agent_id, date=None, threshold=0):
   if date is None:

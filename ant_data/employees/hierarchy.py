@@ -171,7 +171,7 @@ def agent_communities(agent_id, hierarchy_id=None, date=None):
 
 def agent_installs(agent_id, start, end, pos=False):
   """Installations created by an agent.
-  
+
   pos is used to search only for Shopkeepers"""
 
   s = Search(using=elastic, index='installs') \
@@ -187,11 +187,11 @@ def agent_installs(agent_id, start, end, pos=False):
     installs.append(hit.to_dict())
 
   return installs
-  
+
 
 def agent_install_count(agent_id, start, end, pos=False):
   """Installations created by an agent.
-  
+
   pos is used to search only for Shopkeepers"""
   s = Search(using=elastic, index='installs') \
     .query('term', doctype='install') \
@@ -224,7 +224,7 @@ def client_docs(communities=None, hierarchy_id=None, agent_id=None, date=None):
         Q('term', open=True),
         Q('range', closed={ 'gt': date })
       ]),
-      Q('bool', should=[ # FIXME: P1 use kingo_open
+      Q('bool', should=[ # FIXME:P1 use kingo_open
         ~Q('exists', field='pos_open'),
         Q('range', pos_closed={ 'lt': date })
       ])

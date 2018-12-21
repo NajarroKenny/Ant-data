@@ -128,6 +128,6 @@ def end_interval_dt(date, interval):
 
     return date
 
-# FIXME:
+# TODO:P2
 def convert_timestamp_local(timestamp):
     pass

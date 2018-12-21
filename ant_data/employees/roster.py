@@ -18,7 +18,7 @@ import pandas as pd
 from pandas import concat,DataFrame
 
 
-def agents(): # FIXME: country FIXME: information should be in ES
+def agents(): # FIXME:P1 country parameter FIXME:P1 information should be in ES
   """Array of roster information for agents."""
 
   path = '../static/roster_agents.csv'
@@ -26,7 +26,7 @@ def agents(): # FIXME: country FIXME: information should be in ES
   df = pd.read_csv(filepath, index_col='agent_id').replace(np.nan, '')
   return df
 
-def supervisors(): # FIXME: country FIXME: information should be in ES
+def supervisors(): # FIXME:P1 country parameter FIXME:P1 information should be in ES
   """Array of roster information for supervisors."""
 
   path = '../static/roster_supervisors.csv'
@@ -34,7 +34,7 @@ def supervisors(): # FIXME: country FIXME: information should be in ES
 
   return pd.read_csv(filepath, index_col='supervisor_id')
 
-def coordinators(): # FIXME: country FIXME: information should be in ES
+def coordinators(): # FIXME:P1 country parameter FIXME:P1 information should be in ES
   """Array of roster information for coordinators."""
 
   path = '../static/roster_coordinators.csv'
@@ -42,7 +42,7 @@ def coordinators(): # FIXME: country FIXME: information should be in ES
 
   return pd.read_csv(filepath, index_col='coordinator_id')
 
-def person(id): # FIXME: information should be in ES
+def person(id): # FIXME:P1 information should be in ES
   """Find roster information for an in."""
 
   path = '../static/roster_agents.csv'

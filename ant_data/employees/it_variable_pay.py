@@ -122,7 +122,7 @@ def df(date, agent_id, hierarchy_id=None):
     if (percent_sk_active >= 0.75):
       active_park_payment = 800
 
-  payments = { # FIXME: P1 get real formula
+  payments = {
       'Kingo Básico': {
         'activo >= 15': {
           'mes 1': 5,
@@ -195,7 +195,6 @@ def df(date, agent_id, hierarchy_id=None):
   df[list(df)[2:]] = df[list(df)[2:]].astype('int64')
 
   df2 = DataFrame([[percent_active, percent_sk_active, active_park_payment]], columns=['% activo','% tendero','pago'], index=[0])
-  print(df2)
 
   return {
     'df1': df,
