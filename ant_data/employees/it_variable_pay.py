@@ -140,45 +140,11 @@ def df(date, agent_id, hierarchy_id=None):
           'mes 3': 0
         }
       },
-      'Kingo - Luz': {
+      'Kingo Luz': {
         'activo >= 15': {
           'mes 1': 15,
           'mes 2': 25,
           'mes 3': 30
-        },
-        'activo >= 10': {
-          'mes 1': 5,
-          'mes 2': 5,
-          'mes 3': 5
-        },
-        'inactivo': {
-          'mes 1': 0,
-          'mes 2': 0,
-          'mes 3': 0
-        }
-      },
-      'Kingo - Basico': {
-        'activo >= 15': {
-          'mes 1': 5,
-          'mes 2': 15,
-          'mes 3': 20
-        },
-        'activo >= 10': {
-          'mes 1': 5,
-          'mes 2': 5,
-          'mes 3': 5
-        },
-        'inactivo': {
-          'mes 1': 0,
-          'mes 2': 0,
-          'mes 3': 0
-        }
-      },
-      'Kingo 15': {
-        'activo >= 15': {
-          'mes 1': 5,
-          'mes 2': 15,
-          'mes 3': 20
         },
         'activo >= 10': {
           'mes 1': 5,
