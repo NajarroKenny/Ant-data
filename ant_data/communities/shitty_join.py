@@ -57,3 +57,6 @@ def df_join_ids():
   cm.to_csv('community_master_join.csv', sep=',')
 
   return cm
+
+  if __name__=='__main__'
+    df_join_ids()
