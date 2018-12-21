@@ -137,14 +137,14 @@ def latest_hierarchy(date=None):
   return ids[0] if len(ids) == 1 else ''
 
 
-def agent_info(agent, hierarchy_id=None, date=None):
+def agent_info(agent_id, hierarchy_id=None, date=None):
   """Agent information from the hierarchy"""
 
   if hierarchy_id == None:
-    hierarchy_id = latest_hierarchy()
+    hierarchy_id = latest_hierarchy(date)
 
   s = Search(using=elastic, index='hierarchy') \
-    .query('ids', values=[f'{hierarchy_id}_{agent}'])
+    .query('ids', values=[f'{hierarchy_id}_{agent_id}'])
   response = s[:1].execute()
 
   if response.hits.total == 1:
@@ -153,14 +153,14 @@ def agent_info(agent, hierarchy_id=None, date=None):
     return None
 
 
-def agent_communities(agent, hierarchy_id=None, date=None):
+def agent_communities(agent_id, hierarchy_id=None, date=None):
   """Array of communities for an agent from the hierarchy."""
 
   if hierarchy_id == None:
     hierarchy_id = latest_hierarchy(date)
 
   s = Search(using=elastic, index='hierarchy') \
-    .query('ids', values=[f'{hierarchy_id}_{agent}'])
+    .query('ids', values=[f'{hierarchy_id}_{agent_id}'])
 
   response = s[0:1].execute()
   if response.hits.total == 1:
@@ -169,19 +169,39 @@ def agent_communities(agent, hierarchy_id=None, date=None):
     return []
 
 
-def agent_installs(agent, start, end):
-  """Installations created by an agent."""
+def agent_installs(agent_id, start, end, pos=False):
+  """Installations created by an agent.
+  
+  pos is used to search only for Shopkeepers"""
 
   s = Search(using=elastic, index='installs') \
     .query('term', doctype='install') \
-    .query('term', agent_id=agent) \
+    .query('term', agent_id=agent_id) \
     .query('range', opened={ 'gte': start, 'lt': end })
+
+  if pos:
+    s = s.query('term', system_type='pos')
 
   installs = []
   for hit in s.scan():
     installs.append(hit.to_dict())
 
   return installs
+  
+
+def agent_install_count(agent_id, start, end, pos=False):
+  """Installations created by an agent.
+  
+  pos is used to search only for Shopkeepers"""
+  s = Search(using=elastic, index='installs') \
+    .query('term', doctype='install') \
+    .query('term', agent_id=agent_id) \
+    .query('range', opened={ 'gte': start, 'lt': end })
+
+  if pos:
+    s = s.query('term', system_type='pos')
+
+  return s[:0].execute()
 
 
 def client_docs(communities=None, hierarchy_id=None, agent_id=None, date=None):
