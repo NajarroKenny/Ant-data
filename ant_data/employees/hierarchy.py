@@ -219,14 +219,10 @@ def client_docs(communities=None, hierarchy_id=None, agent_id=None, date=None):
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
-      Q('range', opened={ 'lt': date }),
+      Q('range', kingo_opened={ 'lt': date }),
       Q('bool', should=[
-        Q('term', open=True),
-        Q('range', closed={ 'gt': date })
-      ]),
-      Q('bool', should=[ # FIXME:P1 use kingo_open
-        ~Q('exists', field='pos_open'),
-        Q('range', pos_closed={ 'lt': date })
+        Q('term', kingo_open=True),
+        Q('range', kingo_closed={ 'gt': date })
       ])
     ])
 
@@ -252,14 +248,10 @@ def client_ids(communities=None, hierarchy_id=None, agent_id=None, date=None):
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
-      Q('range', opened={ 'lt': date }),
+      Q('range', kingo_opened={ 'lt': date }),
       Q('bool', should=[
-        Q('term', open=True),
-        Q('range', closed={ 'gt': date })
-      ]),
-      Q('bool', should=[
-        ~Q('exists', field='pos_open'),
-        Q('range', pos_closed={ 'lt': date })
+        Q('term', kingo_open=True),
+        Q('range', kingo_closed={ 'gt': date })
       ])
     ]) \
     .source([ 'person_id' ])
@@ -269,6 +261,66 @@ def client_ids(communities=None, hierarchy_id=None, agent_id=None, date=None):
     client_ids.append(hit.person_id)
 
   return client_ids
+
+
+def shopkeeper_ids(communities=None, hierarchy_id=None, agent_id=None, date=None):
+  """Client ids from array of communities or agent_id.
+
+  An agent_id is used to get a list of communities from the hierarchy.
+  """
+
+  if communities == None:
+    communities = agent_communities(agent_id, hierarchy_id=hierarchy_id)
+  if date is None:
+    date = dt.datetime.today().strftime('%Y-%m-%d')
+
+  s = Search(using=elastic, index='people') \
+    .query('term', doctype='client') \
+    .query('terms', community__community_id=communities) \
+    .query('bool', must=[
+      Q('range', pos_opened={ 'lt': date }),
+      Q('bool', should=[
+        Q('term', pos_open=True),
+        Q('range', pos_closed={ 'gt': date })
+      ])
+    ]) \
+    .source([ 'person_id' ])
+
+  client_ids = []
+  for hit in s.scan():
+    client_ids.append(hit.person_id)
+
+  return client_ids
+
+
+def shopkeeper_docs(communities=None, hierarchy_id=None, agent_id=None, date=None):
+  """Client docs from array of communities or agent_id.
+
+  An agent_id is used to get a list of communities from the hierarchy.
+  """
+
+  if communities == None:
+    communities = agent_communities(agent_id, hierarchy_id=hierarchy_id)
+  if date is None:
+    date = dt.datetime.today().strftime('%Y-%m-%d')
+
+  s = Search(using=elastic, index='people') \
+    .query('term', doctype='client') \
+    .query('terms', community__community_id=communities) \
+    .query('bool', must=[
+      Q('range', pos_opened={ 'lt': date }),
+      Q('bool', should=[
+        Q('term', pos_open=True),
+        Q('range', pos_closed={ 'gt': date })
+      ])
+    ])
+
+  clients = []
+  for hit in s.scan():
+    clients.append(hit.to_dict())
+
+  return clients
+
 
 
 def codes(start, end, communities=None, hierarchy_id=None, agent_id=None):

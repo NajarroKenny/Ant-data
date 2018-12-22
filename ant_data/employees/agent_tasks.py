@@ -1,4 +1,3 @@
-# TODO: Create tasks version script that generates aggregate on range
 """
 AT Tasks
 ==========================
@@ -68,15 +67,15 @@ def data(start, end, agent_id, f=None):
   g += [Q('term', agent_id=agent_id)]
 
   df_assigned = assigned(start=start, end=end, f=g)
-  df_additional = additional_tasks.df(start=start, end=end, f=g)  
-  
+  df_additional = additional_tasks.df(start=start, end=end, f=g)
+
   vp_assigned = df_assigned.at['total', 'asignadas'] \
   + df_additional.at['instalación adicional', 'conteo'] if 'instalación adicional' \
   in df_additional.index else df_assigned.at['total', 'asignadas']
   vp_effective = df_assigned.at['total', 'efectivas'] \
   + df_additional.at['instalación adicional', 'conteo'] if 'instalación adicional' \
   in df_additional.index else df_assigned.at['total', 'asignadas']
-  
+
   vp_effective_perc = 0 if vp_assigned == 0 else vp_effective/vp_assigned
   vp_payment = task_vp_structure(vp_effective_perc)
 
