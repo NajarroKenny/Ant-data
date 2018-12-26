@@ -1,14 +1,36 @@
+
+"""
+IT variable pay
+==========================
+Calculates the variable pay component for ITs
+
+- Create date:  2018-12-15
+- Update date:  2018-12-26
+- Version:      1.1
+
+Notes:
+==========================
+- v1.0: Initial version
+- v1.1: Elasticsearch index names as parameters in config.ini
+"""
+import configparser
 import datetime as dt
+
 from dateutil.relativedelta import relativedelta
 from elasticsearch_dsl import Search, Q, A
 from pandas import DataFrame, Series
 import pandas as pd
 import numpy as np
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
 from ant_data.shared import helpers
 from ant_data.employees import hierarchy, hard_paid_days, hard_shopkeeper_days
 from ant_data.static import CODES
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
+
 
 def df(date, agent_id, hierarchy_id=None):
   month1 = helpers.shift_date_str(date, months=-1)
@@ -23,7 +45,7 @@ def df(date, agent_id, hierarchy_id=None):
     client_ids.append(install['person_id'])
 
   # client search
-  s = Search(using=elastic, index='people') \
+  s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
     .query('ids', type='_doc', values=client_ids)
 
   # clients

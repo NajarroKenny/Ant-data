@@ -5,21 +5,28 @@ Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on task types.
 
 - Create date:  2018-12-19
-- Update date:
+- Update date:  2018-12-26
 - Version:      1.0
 
 Notes:
 ============================
 - v1.0: Initial version
+- v1.1: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def search_additionals(start=None, end=None, f=None):
-    s = Search(using=elastic, index='tasks') \
+    s = Search(using=elastic, index=CONFIG['ES']['TASKS']) \
         .query('term', doctype='task') \
         .query('bool', should=[
             Q('term', planned=False), ~Q('exists', field='planned')
@@ -37,7 +44,7 @@ def search_additionals(start=None, end=None, f=None):
 
 
 def search_additional_installations(start=None, end=None, f=None):
-    s = Search(using=elastic, index='tasks') \
+    s = Search(using=elastic, index=CONFIG['ES']['TASKS']) \
         .query('term', doctype='task') \
         .query('bool', should=[
             Q('term', planned=False), ~Q('exists', field='planned')
@@ -55,7 +62,7 @@ def search_additional_installations(start=None, end=None, f=None):
 
 
 def search_additional_shopkeepers(start=None, end=None, f=None):
-    s = Search(using=elastic, index='tasks') \
+    s = Search(using=elastic, index=CONFIG['ES']['TASKS']) \
         .query('term', doctype='task') \
         .query('bool', should=[
             Q('term', planned=False), ~Q('exists', field='planned')

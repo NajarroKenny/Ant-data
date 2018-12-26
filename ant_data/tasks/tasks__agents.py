@@ -5,25 +5,32 @@ Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on tasks by agents in a given time range.
 
 - Create date:  2018-12-15
-- Update date:
-- Version:      1.0
+- Update date:  2018-12-26
+- Version:      1.1
 
 Notes:
 ============================
 - v1.0: Initial version
+- v1.1: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def search(country, start, end, f=None):
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
 
-  s = Search(using=elastic, index='tasks') \
+  s = Search(using=elastic, index=CONFIG['ES']['TASKS']) \
     .query('term', country=country) \
     .query('term', doctype='task') \
     .query('range', due={'gte': start, 'lt': end})

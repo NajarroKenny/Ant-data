@@ -5,20 +5,27 @@ Index hierarchy
 Indexes roster and community master information in hierarchy index
 
 - Create date:  2018-12-15
-- Update date:
-- Version:      1.0
+- Update date:  2018-12-26
+- Version:      1.1
 
 Notes:
 ==========================
 - v1.0: Initial version
+- v1.1: Elasticsearch index names as parameters in config.ini
 """
+import configparser
 import datetime as dt
+
 from elasticsearch_dsl import Search, Q
 from elasticsearch.helpers import bulk
 from pandas import DataFrame, Timestamp
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
@@ -102,7 +109,7 @@ def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
 def hierarchy_list(country):
   """Last 100 hierarchy_ids from the hierarchy index."""
 
-  s = Search(using=elastic, index='hierarchy') \
+  s = Search(using=elastic, index=CONFIG['ES']['HIERARCHY']) \
     .query('term', country=country)
 
   s.aggs \
@@ -120,7 +127,7 @@ def hierarchy_list(country):
 def latest_hierarchy(date=None):
   """The latest hierarchy (<= optional end parameter)."""
 
-  s = Search(using=elastic, index='hierarchy')
+  s = Search(using=elastic, index=CONFIG['ES']['HIERARCHY'])
 
   if date is not None:
     s = s.query('range', hierarchy_id={ 'lte': date })
@@ -143,7 +150,7 @@ def agent_info(agent_id, hierarchy_id=None, date=None):
   if hierarchy_id == None:
     hierarchy_id = latest_hierarchy(date)
 
-  s = Search(using=elastic, index='hierarchy') \
+  s = Search(using=elastic, index=CONFIG['ES']['HIERARCHY']) \
     .query('ids', values=[f'{hierarchy_id}_{agent_id}'])
   response = s[:1].execute()
 
@@ -159,7 +166,7 @@ def agent_communities(agent_id, hierarchy_id=None, date=None):
   if hierarchy_id == None:
     hierarchy_id = latest_hierarchy(date)
 
-  s = Search(using=elastic, index='hierarchy') \
+  s = Search(using=elastic, index=CONFIG['ES']['HIERARCHY']) \
     .query('ids', values=[f'{hierarchy_id}_{agent_id}'])
 
   response = s[0:1].execute()
@@ -174,7 +181,7 @@ def agent_installs(agent_id, start, end, pos=False):
 
   pos is used to search only for Shopkeepers"""
 
-  s = Search(using=elastic, index='installs') \
+  s = Search(using=elastic, index=CONFIG['ES']['INSTALLS']) \
     .query('term', doctype='install') \
     .query('term', agent_id=agent_id) \
     .query('range', opened={ 'gte': start, 'lt': end })
@@ -193,7 +200,7 @@ def agent_install_count(agent_id, start, end, pos=False):
   """Installations created by an agent.
 
   pos is used to search only for Shopkeepers"""
-  s = Search(using=elastic, index='installs') \
+  s = Search(using=elastic, index=CONFIG['ES']['INSTALLS']) \
     .query('term', doctype='install') \
     .query('term', agent_id=agent_id) \
     .query('range', opened={ 'gte': start, 'lt': end })
@@ -215,7 +222,7 @@ def client_docs(communities=None, hierarchy_id=None, agent_id=None, date=None):
   if date is None:
     date = dt.datetime.today().strftime('%Y-%m-%d')
 
-  s = Search(using=elastic, index='people') \
+  s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
@@ -244,7 +251,7 @@ def client_ids(communities=None, hierarchy_id=None, agent_id=None, date=None):
   if date is None:
     date = dt.datetime.today().strftime('%Y-%m-%d')
 
-  s = Search(using=elastic, index='people') \
+  s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
@@ -274,7 +281,7 @@ def shopkeeper_ids(communities=None, hierarchy_id=None, agent_id=None, date=None
   if date is None:
     date = dt.datetime.today().strftime('%Y-%m-%d')
 
-  s = Search(using=elastic, index='people') \
+  s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
@@ -304,7 +311,7 @@ def shopkeeper_docs(communities=None, hierarchy_id=None, agent_id=None, date=Non
   if date is None:
     date = dt.datetime.today().strftime('%Y-%m-%d')
 
-  s = Search(using=elastic, index='people') \
+  s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
@@ -332,7 +339,7 @@ def codes(start, end, communities=None, hierarchy_id=None, agent_id=None):
   if communities == None:
     communities = agent_communities(agent_id, hierarchy_id=hierarchy_id)
 
-  s = Search(using=elastic, index='codes') \
+  s = Search(using=elastic, index=CONFIG['ES']['CODES']) \
     .query('term', doctype='code') \
     .query('terms', to__community__community_id=communities) \
     .query('range', datetime={

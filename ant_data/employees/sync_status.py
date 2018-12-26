@@ -5,24 +5,31 @@ Sync Status
 Calculates different sync status of agents and shopkeepers, as well as the
 overall sync status for a given coordinator
 
-- Create date:  2018-12-26
-- Update date:
-- Version:      1.1
+- Create date:  2018-12-12
+- Update date:  2018-12-26
+- Version:      1.2
 
 Notes:
 ==========================
 - v1.0: Initial version
 - v1.1: Replace AGENT_MAPPING.py dependency with Elasticsearch query. Added
         docstrings
+- v1.2: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search
 from pandas import DataFrame
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
 from ant_data.employees import agent_mapping, hierarchy
 from ant_data.people import sync_log
 from ant_data.shared.helpers import local_date_str, shift_date_str
 from ant_data.shopkeepers import community_shopkeepers
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def agent_sync_status(agent_id, date=None, threshold=0):
@@ -120,7 +127,7 @@ def sk_sync_status(person_id, date=None, threshold=0):
       boolean and sync_threshold the ISO8601 date that determines synced/not 
       synced.
   """
-  s = Search(using=elastic, index='people') \
+  s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
     .query('term', doctype='client') \
     .query('term', person_id=person_id)
   

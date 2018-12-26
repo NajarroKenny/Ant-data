@@ -5,20 +5,27 @@ Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on task effectiveness by types.
 
 - Create date:  2018-12-21
-- Update date:
-- Version:      1.0
+- Update date:  2018-12-26
+- Version:      1.2
 
 Notes:
 ============================
 - v1.0: Initial version
 - v1.1: Better handling of empty cases
+- v1.2: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
 from ant_data.static.TASK_TYPES import SALE_VALUES
 from ant_data.tasks import assigned_tasks
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 WORKFLOW_LIST=[
@@ -38,7 +45,7 @@ def search_sale_values(start=None, end=None, f=None):
 
   g += [Q('term', planned=True)]
 
-  s = Search(using=elastic, index='tasks') \
+  s = Search(using=elastic, index=CONFIG['ES']['TASKS']) \
     .query('term', doctype='history') \
     .query('term', workflow='sale') \
     .query('has_parent', parent_type='task', query=Q('bool', filter=g))
@@ -47,7 +54,7 @@ def search_sale_values(start=None, end=None, f=None):
 
 def search_sale_tasks(start=None, end=None, f=None):
   """Searches for task docs that have a history with workflow==sale"""
-  s = Search(using=elastic, index='tasks') \
+  s = Search(using=elastic, index=CONFIG['ES']['TASKS']) \
     .query('term', doctype='task') \
     .query('term', planned=True) \
     .query('has_child', type='history', query=Q('term', workflow='sale'))

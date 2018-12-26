@@ -5,16 +5,23 @@ Script that returns a dataframe with the agent mapping read from Elasticsearch
 
 - Create date:  2018-12-26
 - Update date:  2018-12-26
-- Version:      1.0
+- Version:      1.1
 
 Notes:
 ==========================        
 - v1.0: Initial version
+- v1.1: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search
 from pandas import DataFrame
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def df(f=None):
@@ -27,7 +34,7 @@ def df(f=None):
   Returns:
     Pandas Dataframe with index = and columns = []
   """
-  s = Search(using=elastic, index='agent_mapping')
+  s = Search(using=elastic, index=CONFIG['ES']['AGENT_MAPPING'])
     
   if f is not None:
     s = s.query('bool', filter=f)

@@ -5,18 +5,25 @@ Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on task types.
 
 - Create date:  2018-12-21
-- Update date:
-- Version:      1.1
+- Update date:  2018-12-26
+- Version:      1.2
 
 Notes:
 ============================
 - v1.0: Initial version
 - v1.1: Better handling of empty cases
+- v1.2: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def search(start=None, end=None, f=None):
@@ -32,7 +39,7 @@ def search(start=None, end=None, f=None):
     Returns:
         elasticsearch_dsl aggregation results buckets
     """
-    s = Search(using=elastic, index='tasks') \
+    s = Search(using=elastic, index=CONFIG['ES']['TASKS']) \
         .query('term', doctype='task') \
         .query('term', planned=True)
 

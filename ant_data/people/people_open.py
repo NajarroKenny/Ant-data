@@ -6,8 +6,8 @@ Warehouse to generate reports on open people. The 'open' count is done
 in five different ways: 'start', 'end', 'average' and 'weighted'
 
 - Create date:  2018-12-04
-- Update date:  2018-12-13
-- Version:      1.3
+- Update date:  2018-12-26
+- Version:      1.4
 
 Notes:
 ==========================
@@ -15,17 +15,24 @@ Notes:
 - v1.1: Updated with standards from v1.1 of systems_open
 - v1.2: Removed has_parent and unnecessary date filtering
 - v1.3: Major clean up, rewrite open calculations, remove doctype filtering
+- v1.4: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search, Q
 from numpy import diff
 from pandas import concat, DataFrame, offsets, Series, Timestamp
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
 from ant_data.people import people_closed, people_opened
 
 
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
+
+
 def open_now(country, start=None, end=None, f=None):
-  s = Search(using=elastic, index='people')
+  s = Search(using=elastic, index=CONFIG['ES']['PEOPLE'])
 
   if start is None and end is None:
     s = s.query(
@@ -52,7 +59,7 @@ def open_now(country, start=None, end=None, f=None):
 
 
 def search_weighted(country, start=None, end=None, f=None, interval='month'):
-  s = Search(using=elastic, index='people') \
+  s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
       .query('term', country=country)
 
   if f is not None:

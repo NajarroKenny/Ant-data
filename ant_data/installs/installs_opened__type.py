@@ -5,26 +5,33 @@ Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on installs opened by model and Open type
 
 - Create date:  2018-12-15
-- Update date:  2018-12-15
+- Update date:  2018-12-26
 - Version:      1.0
 
 Notes:
 ============================
 - v1.0: Initial version based on systems_opened
+- v1.1: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, MultiIndex, Series
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 from ant_data.static.TIME import TZ
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def search(country, start=None, end=None, f=None, interval='month'):
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
 
-  s = Search(using=elastic, index='installs') \
+  s = Search(using=elastic, index=CONFIG['ES']['INSTALLS']) \
     .query(
       'bool', filter=[
         Q('term', country=country), Q('term', doctype='install')

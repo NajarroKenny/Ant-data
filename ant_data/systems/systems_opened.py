@@ -5,8 +5,8 @@ Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on systems opened by model
 
 - Create date:  2018-12-06
-- Update date:  2018-12-13
-- Version:      1.3
+- Update date:  2018-12-26
+- Version:      1.4
 
 Notes:
 ==========================
@@ -14,15 +14,22 @@ Notes:
         with all date x model combinations to guarantee dates are not sparse.
 - v1.1: Put filter on closed date < now. Added get method to df_open_now
 - v1.3: Major clean up, rewrite open calculations, remove doctype filtering
+- v1.4: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, MultiIndex, Series
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def search(country, start=None, end=None, f=None, interval='month'):
-  s = Search(using=elastic, index='systems') \
+  s = Search(using=elastic, index=CONFIG['ES']['SYSTEMS']) \
     .query(
       'bool', filter=[
         Q('term', country=country)

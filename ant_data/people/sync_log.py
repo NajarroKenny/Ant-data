@@ -5,18 +5,25 @@ Fetches the sync log stored in Elasticsearch
 
 - Create date:  2018-12-11
 - Update date:  2018-12-26
-- Version:      1.0
+- Version:      1.2
 
 Notes:
 ==========================
 - v1.0: Initial version
 - v1.1: Removed country dependency
+- v1.2: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def search(agent_id=None, person_id=None, f=None):
@@ -39,7 +46,7 @@ def search(agent_id=None, person_id=None, f=None):
   if agent_id is not None and person_id is not None:
     raise Exception(f'Cannot pass both agent_id and person_id')
 
-  s = Search(using=elastic, index='sync_log')
+  s = Search(using=elastic, index=CONFIG['ES']['SYNC_LOG'])
 
   if agent_id is not None:
     agent_id = agent_id if isinstance(agent_id, list) else [agent_id]

@@ -5,23 +5,30 @@ Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on credits by plan
 
 - Create date:  2018-11-30
-- Update date:  2018-12-07
-- Version:      1.1
+- Update date:  2018-12-26
+- Version:      1.2
 
 Notes:
 ==========================
 - v1.0: Initial version
 - v1.1: Updated with standard based on v1.1 of systems_opened
+- v1.2: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
 from ..static.FINANCE import IVA
 
 
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
+
+
 def search(country, doctype, start=None, end=None, f=None, interval='month'):
-  s = Search(using=elastic, index='codes') \
+  s = Search(using=elastic, index=CONFIG['ES']['CODES']) \
     .query('term', doctype=doctype) \
     .query('bool', filter=Q('term', country=country))
 

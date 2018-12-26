@@ -5,22 +5,29 @@ Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on installs opened by model
 
 - Create date:  2018-12-07
-- Update date:  2018-12-13
-- Version:      1.3
+- Update date:  2018-12-26
+- Version:      1.4
 
 Notes:
 ==========================
 - v1.0: Initial version based on systems_opened
 - v1.3: Major clean up, rewrite open calculations, remove doctype filtering
+- v1.4: Elasticsearch index names as parameters in config.ini
 """
+import configparser
+
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, MultiIndex, Series
 
-from ant_data import elastic
+from ant_data import elastic, ROOT_DIR
+
+
+CONFIG = configparser.ConfigParser()
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def search(country, start=None, end=None, f=None, interval='month'):
-  s = Search(using=elastic, index='installs') \
+  s = Search(using=elastic, index=CONFIG['ES']['INSTALLS']) \
     .query(
       'bool', filter=[
         Q('term', country=country), Q('term', doctype='install')
