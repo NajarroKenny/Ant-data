@@ -17,16 +17,14 @@ Notes:
 """
 import configparser
 import os
-import sys
 
 from elasticsearch import Elasticsearch
 
 
 ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(ROOT_DIR)
 
 CONFIG = configparser.ConfigParser()
-CONFIG.read(sys.path[-1]+'/config.ini')
+CONFIG.read(ROOT_DIR + '/config.ini')
 
 if CONFIG['ES']['HOST'] != '' and CONFIG['ES']['PORT'] != '':
   print(f"Elasticsearch host is {CONFIG['ES']['HOST']}")
