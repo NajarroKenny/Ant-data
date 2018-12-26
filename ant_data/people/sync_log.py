@@ -20,6 +20,22 @@ from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 
 
 def search(agent_id=None, person_id=None, f=None):
+  """Searches the latest sync date of each system associated with an agent or 
+  shopkeeper, but NOT both. If no ID parameter is passed, it fetches the entire 
+  sync log.
+
+  Args:
+    agent_id (str, optional): ID of Agent for whom to fetch the last sync date.
+      Defaults to None.
+    person_id (str, optional): ID of the Shopkeeper for whom to fetch the last
+      sync date. Defaults to None.
+    f (list, optional): List of additional filters to pass to the query. The
+      list is composed of Elasticserach DSL Q boolean objects. Defaults to None 
+
+  Returns:
+    elasticsearch_dsl scan object
+  """
+
   if agent_id is not None and person_id is not None:
     raise Exception(f'Cannot pass both agent_id and person_id')
 
@@ -40,6 +56,22 @@ def search(agent_id=None, person_id=None, f=None):
 
 
 def df(agent_id=None, person_id=None, f=None):
+  """Returns a DataFrame with the latest sync date of each system associated
+  with an agent or shopkeeper, but NOT both. If no ID is passed, it returns the
+  entire sync log.
+
+  Args:
+    agent_id (str, optional): ID of Agent for whom to fetch the last sync date.
+      Defaults to None.
+    person_id (str, optional): ID of the Shopkeeper for whom to fetch the last
+      sync date. Defaults to None.
+    f (list, optional): List of additional filters to pass to the query. The
+      list is composed of Elasticserach DSL Q boolean objects. Defaults to None 
+
+  Returns:
+    DataFrame: Pandas DataFrame with index = 'system_id' and the following 
+    columns = 'country', 'instance_type', 'agent_id', 'person_id', 'sync_date'
+  """
   if agent_id is not None and person_id is not None:
     raise Exception(f'Cannot pass both agent_id and person_id')
 

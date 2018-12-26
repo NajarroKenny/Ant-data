@@ -1,7 +1,9 @@
+#TODO: Add functions for supervisors
 """
-Coordinator Sync Status
+Sync Status
 ==========================
-Calculates the sync status of agents and shopkeepers for a given cs
+Calculates different sync status of agents and shopkeepers, as well as the
+overall sync status for a given coordinator
 
 - Create date:  2018-12-26
 - Update date:
@@ -10,7 +12,8 @@ Calculates the sync status of agents and shopkeepers for a given cs
 Notes:
 ==========================
 - v1.0: Initial version
-- v1.0: Replace AGENT_MAPPING.py dependency with Elasticsearch query
+- v1.1: Replace AGENT_MAPPING.py dependency with Elasticsearch query. Added
+        docstrings
 """
 from elasticsearch_dsl import Search
 from pandas import DataFrame
@@ -23,6 +26,20 @@ from ant_data.shopkeepers import community_shopkeepers
 
 
 def agent_sync_status(agent_id, date=None, threshold=0):
+  """Determines the sync status of an individual agent.
+
+  Args:
+    agent_id (str): Agent ID
+    date (str, optional): ISO8601 date to use as a reference to determine the
+      sync status. Defaults to the country's current date.
+    threshold (int, optional): Number of days from the reference to determine
+      the sync status. Defaults to 0.
+
+  Returns:
+    list: [ls, sync_status, sync_threshold] where ls = last sync, sync_status a 
+      boolean and sync_threshold the ISO8601 date that determines synced/not 
+      synced.
+  """
   info = hierarchy.agent_info(agent_id)
   country = info['country']
   agent_map = agent_mapping.df()
@@ -44,6 +61,19 @@ def agent_sync_status(agent_id, date=None, threshold=0):
 
 
 def coordinator_agent_sync_status(coordinator_id, date=None, threshold=0):
+  """Determines the sync status of all agents under a coordinator.
+
+  Args:
+    coordinator_id (str): Coordinator ID
+    date (str, optional): ISO8601 date to use as a reference to determine the
+      sync status. Defaults to the country's current date.
+    threshold (int, optional): Number of days from the reference to determine
+      the sync status. Defaults to 0.
+
+  Returns:
+    dict: { 'coordinator_id', 'count', 'synced', 'perc_synced' } where
+      perc_synced = synced/count.
+  """
   info = hierarchy.agent_info(coordinator_id)
   country = info['country']
   agent_map = agent_mapping.df()
@@ -76,6 +106,20 @@ def coordinator_agent_sync_status(coordinator_id, date=None, threshold=0):
   return df
 
 def sk_sync_status(person_id, date=None, threshold=0):
+  """Determines the sync status of an individual shopkeeper
+
+  Args:
+    person_id (str): Shopkeeper ID
+    date (str, optional): ISO8601 date to use as a reference to determine the
+      sync status. Defaults to the country's current date.
+    threshold (int, optional): Number of days from the reference to determine
+      the sync status. Defaults to 0.
+
+  Returns:
+    list: [ls, sync_status, sync_threshold] where ls = last sync, sync_status a 
+      boolean and sync_threshold the ISO8601 date that determines synced/not 
+      synced.
+  """
   s = Search(using=elastic, index='people') \
     .query('term', doctype='client') \
     .query('term', person_id=person_id)
@@ -97,6 +141,19 @@ def sk_sync_status(person_id, date=None, threshold=0):
 
 
 def coordinator_sk_sync_status(coordinator_id, date=None, threshold=0):
+  """Determines the sync status of all agents under a coordinator.
+
+  Args:
+    coordinator_id (str): Coordinator ID
+    date (str, optional): ISO8601 date to use as a reference to determine the
+      sync status. Defaults to the country's current date.
+    threshold (int, optional): Number of days from the reference to determine
+      the sync status. Defaults to 0.
+
+  Returns:
+    dict: { 'coordinator_id', 'count', 'synced', 'perc_synced' } where
+      perc_synced = synced/count.
+  """
   info = hierarchy.agent_info(coordinator_id)
   country = info['country']
 
