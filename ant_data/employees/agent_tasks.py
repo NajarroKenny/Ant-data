@@ -6,7 +6,7 @@ Warehouse to generate a report on AT tasks.
 
 - Create date:  2018-12-11
 - Update date:
-- Version:      1.0
+- Version:      1.1
 
 Notes:
 ==========================
@@ -17,7 +17,6 @@ import numpy as np
 from pandas import DataFrame
 
 from ant_data import elastic
-from ant_data.static.AGENT_MAPPING import AGENT_MAPPING
 from ant_data.static.TIME import TZ
 from ant_data.tasks import additional_tasks, assigned_tasks, effective_tasks
 

@@ -3,31 +3,35 @@ Coordinator Sync Status
 ==========================
 Calculates the sync status of agents and shopkeepers for a given cs
 
-- Create date:  2018-12-17
+- Create date:  2018-12-26
 - Update date:
-- Version:      1.0
+- Version:      1.1
 
 Notes:
 ==========================
 - v1.0: Initial version
+- v1.0: Replace AGENT_MAPPING.py dependency with Elasticsearch query
 """
 from pandas import DataFrame
 
-from ant_data.employees import hierarchy
+from ant_data.employees import agent_mapping, hierarchy
 from ant_data.people import sync_log
 from ant_data.shared.helpers import local_date_str, shift_date_str
 from ant_data.shopkeepers import community_shopkeepers
-from ant_data.static.AGENT_MAPPING import AGENT_MAPPING
+
 
 # TODO:P1 ant id to email mapping in ES
 
 def agent_sync_status(country, agent_id, date=None, threshold=0):
+  agent_map = agent_mapping.df()
+  
   if date is None:
     date = local_date_str(country)
 
   agent_id = (
-    AGENT_MAPPING.get(agent_id) if agent_id in AGENT_MAPPING else agent_id
+    agent_map.loc[agent_id].squeeze() if agent_id in agent_map.index else agent_id
   )
+  
   ls = sync_log.df(country=country, agent_id=agent_id)
   ls = ls['sync_date'].max()
   ls = '' if (isinstance(ls, float)) else ls
@@ -38,13 +42,14 @@ def agent_sync_status(country, agent_id, date=None, threshold=0):
 
 
 def coordinator_agent_sync_status(country, coordinator_id, date=None, threshold=0):
-  info = hierarchy.info(coordinator_id)
+  info = hierarchy.agent_info(coordinator_id)
+  agent_map = agent_mapping.df()
 
   if date is None:
     date = local_date_str(country)
 
   agent_list = [
-    AGENT_MAPPING.get(x) if x in AGENT_MAPPING else x for x in info['agent_id']]
+    agent_map.loc[x].squeeze() if x in agent_map.index else x for x in info['agent_id']]
 
   ls = sync_log.df(country=country, agent_id=agent_list)
   ls = DataFrame(ls.groupby('agent_id').max()['sync_date'].fillna(''))
@@ -81,7 +86,7 @@ def sk_sync_status(country, person_id, date=None, threshold=0):
 
 
 def coordinator_sk_sync_status(country, coordinator_id, date=None, threshold=0):
-  info = hierarchy.info(coordinator_id)
+  info = hierarchy.agent_info(coordinator_id)
 
   if date is None:
     date = local_date_str(country)

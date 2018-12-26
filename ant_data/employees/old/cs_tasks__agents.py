@@ -18,7 +18,6 @@ from pandas import DataFrame
 
 from ant_data import elastic
 from ant_data.employees import hierarchy
-from ant_data.static.AGENT_MAPPING import AGENT_MAPPING
 from ant_data.static.GEOGRAPHY import COUNTRY_LIST
 from ant_data.static.TASK_TYPES import TASK_TYPES
 from ant_data.static.TIME import TZ
