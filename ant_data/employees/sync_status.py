@@ -12,17 +12,19 @@ Notes:
 - v1.0: Initial version
 - v1.0: Replace AGENT_MAPPING.py dependency with Elasticsearch query
 """
+from elasticsearch_dsl import Search
 from pandas import DataFrame
 
+from ant_data import elastic
 from ant_data.employees import agent_mapping, hierarchy
 from ant_data.people import sync_log
 from ant_data.shared.helpers import local_date_str, shift_date_str
 from ant_data.shopkeepers import community_shopkeepers
 
 
-# TODO:P1 ant id to email mapping in ES
-
-def agent_sync_status(country, agent_id, date=None, threshold=0):
+def agent_sync_status(agent_id, date=None, threshold=0):
+  info = hierarchy.agent_info(agent_id)
+  country = info['country']
   agent_map = agent_mapping.df()
   
   if date is None:
@@ -32,7 +34,7 @@ def agent_sync_status(country, agent_id, date=None, threshold=0):
     agent_map.loc[agent_id].squeeze() if agent_id in agent_map.index else agent_id
   )
   
-  ls = sync_log.df(country=country, agent_id=agent_id)
+  ls = sync_log.df(agent_id=agent_id)
   ls = ls['sync_date'].max()
   ls = '' if (isinstance(ls, float)) else ls
   sync_threshold = shift_date_str(date, days=-threshold)
@@ -41,8 +43,9 @@ def agent_sync_status(country, agent_id, date=None, threshold=0):
   return [ls, sync_status, sync_threshold]
 
 
-def coordinator_agent_sync_status(country, coordinator_id, date=None, threshold=0):
+def coordinator_agent_sync_status(coordinator_id, date=None, threshold=0):
   info = hierarchy.agent_info(coordinator_id)
+  country = info['country']
   agent_map = agent_mapping.df()
 
   if date is None:
@@ -51,7 +54,7 @@ def coordinator_agent_sync_status(country, coordinator_id, date=None, threshold=
   agent_list = [
     agent_map.loc[x].squeeze() if x in agent_map.index else x for x in info['agent_id']]
 
-  ls = sync_log.df(country=country, agent_id=agent_list)
+  ls = sync_log.df(agent_id=agent_list)
   ls = DataFrame(ls.groupby('agent_id').max()['sync_date'].fillna(''))
   ls['sync_status'] = ls['sync_date'].apply(
     lambda x: True if x >= shift_date_str(date, days=-threshold) else False
@@ -72,11 +75,19 @@ def coordinator_agent_sync_status(country, coordinator_id, date=None, threshold=
 
   return df
 
-def sk_sync_status(country, person_id, date=None, threshold=0):
+def sk_sync_status(person_id, date=None, threshold=0):
+  s = Search(using=elastic, index='people') \
+    .query('term', doctype='client') \
+    .query('term', person_id=person_id)
+  
+  res = s[:10000].execute()
+
+  country = max([hit.country for hit in res.hits])
+
   if date is None:
     date = local_date_str(country)
 
-  ls = sync_log.df(country=country, person_id=person_id)
+  ls = sync_log.df(person_id=person_id)
   ls = ls['sync_date'].max()
   ls = '' if (isinstance(ls, float)) else ls
   sync_threshold = shift_date_str(date, days=-threshold)
@@ -85,8 +96,9 @@ def sk_sync_status(country, person_id, date=None, threshold=0):
   return [ls, sync_status, sync_threshold]
 
 
-def coordinator_sk_sync_status(country, coordinator_id, date=None, threshold=0):
+def coordinator_sk_sync_status(coordinator_id, date=None, threshold=0):
   info = hierarchy.agent_info(coordinator_id)
+  country = info['country']
 
   if date is None:
     date = local_date_str(country)

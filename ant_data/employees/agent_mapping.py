@@ -32,7 +32,7 @@ def df(f=None):
   if f is not None:
     s = s.query('bool', filter=f)
 
-  hits = s.execute()
+  hits = s[:10000].execute()
   obj = {}
 
   for hit in hits:
