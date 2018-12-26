@@ -1,5 +1,5 @@
 """
-Task Types
+Assigned tasks Agent
 ============================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on task types.
@@ -18,13 +18,14 @@ from pandas import DataFrame, Series
 from ant_data import elastic
 
 
-def search(agent_id=None, start=None, end=None, f=None):
+def search_additionals(start=None, end=None, f=None):
     s = Search(using=elastic, index='tasks') \
         .query('term', doctype='task') \
-        .query('term', planned=True)
-    if agent_id is not None:
-        agent_list = agent_id if isinstance(agent_id, list) else [agent_id]
-        s = s.query('terms' , agent_id=agent_list)
+        .query('bool', should=[
+            Q('term', planned=False), ~Q('exists', field='planned')
+         ]) \
+        .exclude('has_child', type='history', query=Q('term', workflow='install'))
+
     if start is not None:
         s = s.query('bool', filter=Q('range', due={ 'gte': start }))
     if end is not None:
@@ -32,79 +33,72 @@ def search(agent_id=None, start=None, end=None, f=None):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    s.aggs.bucket('agents', 'terms' field='agent_id', size=10000, min_doc_count=1) \
-        .bucket('remarks', 'terms', field='remarks', size=10000, min_doc_count=1)
+    return s[:0].execute()
+
+
+def search_additional_installations(start=None, end=None, f=None):
+    s = Search(using=elastic, index='tasks') \
+        .query('term', doctype='task') \
+        .query('bool', should=[
+            Q('term', planned=False), ~Q('exists', field='planned')
+         ]) \
+        .query('has_child', type='history', query=Q('term', workflow='install'))
+
+    if start is not None:
+        s = s.query('bool', filter=Q('range', due={ 'gte': start }))
+    if end is not None:
+        s = s.query('bool', filter=Q('range', due={ 'lt': end }))
+    if f is not None:
+        s = s.query('bool', filter=f)
 
     return s[:0].execute()
 
 
-def df(start=None, end=None, f=None, workflow=None, all=False):
-    """Assigned tasks, by type"""
-    g = [] if f is None else f[:]
+def search_additional_shopkeepers(start=None, end=None, f=None):
+    s = Search(using=elastic, index='tasks') \
+        .query('term', doctype='task') \
+        .query('bool', should=[
+            Q('term', planned=False), ~Q('exists', field='planned')
+         ]) \
+        .query('term', model='Kingo Shopkeeper')
 
-    if workflow is not None:
-        g.append(Q('has_child', type='history', query=Q('terms', workflow=workflow)))
+    if start is not None:
+        s = s.query('bool', filter=Q('range', due={ 'gte': start }))
+    if end is not None:
+        s = s.query('bool', filter=Q('range', due={ 'lt': end }))
+    if f is not None:
+        s = s.query('bool', filter=f)
 
-    response = search(start=start, end=end, f=g)
+    return s[:0].execute()
 
-    obj = {}
 
-    for remark in response.aggs.remarks.buckets:
-        if (
-            remark.key.startswith('gestion') or
-            remark.key.startswith('gestion 2') or
-            remark.key.startswith('gestion 3')
-        ):
-            tipo = 'Gestión'
-        elif remark.key.startswith('ticket'):
-            tipo = 'Ticket'
-        elif remark.key.startswith('verificacion'):
-            tipo = 'Verificación'
-        elif remark.key.startswith('tendero venta'):
-            tipo = 'Tendero Venta'
-        elif remark.key.startswith('tendero sync'):
-            tipo = 'Tendero Sync'
-        elif remark.key.startswith('kingo basico'):
-            tipo = 'Swap K7 o Venta >= 1 semana'
-        elif remark.key.startswith('kingo tv'):
-            tipo = 'Swap a Kingo TV'
-        elif (
-            remark.key.startswith('tecnica') or
-            remark.key.startswith('promocion precio') or
-            remark.key.startswith('corregir') or
-            remark.key.startswith('cliente activo') or
-            remark.key.startswith('asignacion especial tecnica')
-        ):
-            tipo = 'Técnica'
-        elif remark.key.startswith('instalacion k7'):
-            tipo = 'Instalación Kingo Básico'
-        elif remark.key.startswith('instalacion k15'):
-            tipo = 'Instalación Kingo Luz'
-        elif remark.key.startswith('instalacion ktv'):
-            tipo = 'Instalación Kingo TV'
-        elif remark.key.startswith('instalacion k100+'):
-            tipo = 'Instalación Kingo Hogar'
-        elif (
-            remark.key.startswith('preventa kingo tv') or
-            remark.key.startswith('preventa: k15 tv') or
-            remark.key.startswith('preventa: kingo tv')
-        ):
-            tipo = 'Preventa Kingo TV'
-        elif remark.key.startswith('preventa kingo hogar'):
-            tipo = 'Preventa Kingo Hogar'
-        else:
-            tipo = 'Sin Tipo'
-        obj[tipo] = obj.get(tipo, 0) + remark.doc_count
+def df(start=None, end=None, f=None):
+    """Additional tasks.
 
-    df = DataFrame.from_dict(obj, orient='index', columns=['Asignadas'])
+    1. Generic additionals tasks
+    2. Additonal installations
+    3. Additional shopkeeper tasks
+    """
+
+    additionals = search_additionals(start, end, f).hits.total
+    additional_installations = search_additional_installations(
+        start, end, f
+    ).hits.total
+    additional_shopkeepers = search_additional_shopkeepers(start, end, f).hits.total
+
+    obj = {
+        'tarea adicional': additionals,
+        'instalación adicional': additional_installations,
+        'venta a tendero': additional_shopkeepers
+        }
+
+    df = DataFrame.from_dict(obj, orient='index', columns=['Conteo']).sort_index()
 
     if df.empty:
         return df
 
-    if not all and 'Sin Tipo' in df.index:
-        df = df.drop('Sin Tipo')
-
-    df.index.name = 'Tipo de Tarea'
-    df.loc['Total'] = df.sum()
+    df.loc['total'] = df.sum()
+    df.index.name = 'acción realizada'
 
     return df
+

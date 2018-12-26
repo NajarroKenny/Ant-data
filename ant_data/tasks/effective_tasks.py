@@ -4,13 +4,14 @@ Tasks effective types
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on task effectiveness by types.
 
-- Create date:  2018-12-19
+- Create date:  2018-12-21
 - Update date:
 - Version:      1.0
 
 Notes:
 ============================
 - v1.0: Initial version
+- v1.1: Better handling of empty cases
 """
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
@@ -24,7 +25,9 @@ WORKFLOW_LIST=[
   'active-code', 'install', 'pickup', 'register', 'swap', 'visit-install'
 ]
 
+
 def search_sale_values(start=None, end=None, f=None):
+  """Searches all history docs with workflow==sale to calculate its sale value"""
   g = [] if f is None else f[:]
 
   if start is not None:
@@ -43,6 +46,7 @@ def search_sale_values(start=None, end=None, f=None):
   return s.scan()
 
 def search_sale_tasks(start=None, end=None, f=None):
+  """Searches for task docs that have a history with workflow==sale"""
   s = Search(using=elastic, index='tasks') \
     .query('term', doctype='task') \
     .query('term', planned=True) \
@@ -62,7 +66,8 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
 
   Effective means sale is sufficient for a given task type.
   """
-
+  df = DataFrame(columns=['efectivas'])
+  
   def is_effective(row):
     if row[1].startswith('gestion 3') and row[0] >= 14:
       return True
@@ -84,7 +89,8 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
       obj[task_id] = obj.get(task_id, 0)  + amount
 
   if obj == {}:
-    return DataFrame()
+    df.loc['total'] = df.sum()
+    return df.astype('int64')
 
   df_sv = DataFrame.from_dict(obj, orient='index')
   df_sv.index.name = 'task_id'
@@ -94,7 +100,8 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
   obj = { hit.task_id: hit.remarks for hit in hits }
 
   if obj == {}:
-    return DataFrame()
+    df.loc['total'] = df.sum()
+    return df.astype('int64')
 
   df_g = DataFrame.from_dict(obj, orient='index')
   df_g.index.name = 'task_id'
@@ -156,7 +163,7 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
   df = df.astype('int64').sort_index()
 
   if not all and 'sin tipo' in df.index:
-        df = df.drop('sin tipo')
+    df = df.drop('sin tipo')
 
   df.loc['total'] = df.sum()
   df.index.name = 'tipo de tarea'
@@ -167,8 +174,8 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
 def df(start=None, end=None, f=None, all=False):
   # Successful non-sale workflows
   df = assigned_tasks.df(workflow=WORKFLOW_LIST, start=start, end=end, f=f, all=all)
-  if not df.empty:
-    df = df.rename(columns={'asignadas': 'efectivas'})
+  
+  df = df.rename(columns={'asignadas': 'efectivas'})
 
   # Successful sales
   df_sale = df_effective_sale(start, end, f, all)

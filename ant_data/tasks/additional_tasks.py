@@ -1,16 +1,18 @@
+#TODO: Review if the additional searches don't overlap
 """
 Task Types
 ============================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on task types.
 
-- Create date:  2018-12-19
+- Create date:  2018-12-21
 - Update date:
 - Version:      1.0
 
 Notes:
 ============================
 - v1.0: Initial version
+- v1.1: Better handling of empty cases
 """
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
@@ -19,6 +21,7 @@ from ant_data import elastic
 
 
 def search_additionals(start=None, end=None, f=None):
+    """Searches generic additional tasks"""
     s = Search(using=elastic, index='tasks') \
         .query('term', doctype='task') \
         .query('bool', should=[
@@ -33,10 +36,11 @@ def search_additionals(start=None, end=None, f=None):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    return s[:0].execute()
+    return s[:0].execute().hits.total
 
 
 def search_additional_installations(start=None, end=None, f=None):
+    "Searches additional installations based on workflow type==install"
     s = Search(using=elastic, index='tasks') \
         .query('term', doctype='task') \
         .query('bool', should=[
@@ -51,10 +55,11 @@ def search_additional_installations(start=None, end=None, f=None):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    return s[:0].execute()
+    return s[:0].execute().hits.total
 
 
 def search_additional_shopkeepers(start=None, end=None, f=None):
+    """Searches additional shopkeeper tasks based on model"""
     s = Search(using=elastic, index='tasks') \
         .query('term', doctype='task') \
         .query('bool', should=[
@@ -69,7 +74,7 @@ def search_additional_shopkeepers(start=None, end=None, f=None):
     if f is not None:
         s = s.query('bool', filter=f)
 
-    return s[:0].execute()
+    return s[:0].execute().hits.total
 
 
 def df(start=None, end=None, f=None):
@@ -79,12 +84,11 @@ def df(start=None, end=None, f=None):
     2. Additonal installations
     3. Additional shopkeeper tasks
     """
-
-    additionals = search_additionals(start, end, f).hits.total
+    additionals = search_additionals(start, end, f)
     additional_installations = search_additional_installations(
         start, end, f
-    ).hits.total
-    additional_shopkeepers = search_additional_shopkeepers(start, end, f).hits.total
+    )
+    additional_shopkeepers = search_additional_shopkeepers(start, end, f)
 
     obj = {
         'tarea adicional': additionals,
@@ -93,9 +97,6 @@ def df(start=None, end=None, f=None):
         }
 
     df = DataFrame.from_dict(obj, orient='index', columns=['conteo']).sort_index()
-
-    if df.empty:
-        return df
 
     df.loc['total'] = df.sum()
     df.index.name = 'acción realizada'

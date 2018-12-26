@@ -4,13 +4,14 @@ Task Types
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on task types.
 
-- Create date:  2018-12-19
+- Create date:  2018-12-21
 - Update date:
-- Version:      1.0
+- Version:      1.1
 
 Notes:
 ============================
 - v1.0: Initial version
+- v1.1: Better handling of empty cases
 """
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
@@ -19,6 +20,18 @@ from ant_data import elastic
 
 
 def search(start=None, end=None, f=None):
+    """Searches planned task documents in a date range and classifies them by
+    type using their remarks
+
+    Args:
+        start (str, optional): Start date in ISO8601 format. Defaults to None.
+        end (str, optional): End date in ISO8601 format. Defaults to None.
+        f(list, optional): List of additional query filters to passed. Filters
+            must be elasticsearch_dsl Q objects.
+
+    Returns:
+        elasticsearch_dsl aggregation results buckets
+    """
     s = Search(using=elastic, index='tasks') \
         .query('term', doctype='task') \
         .query('term', planned=True)
@@ -94,14 +107,12 @@ def df(start=None, end=None, f=None, workflow=None, all=False):
         obj[tipo] = obj.get(tipo, 0) + remark.doc_count
 
     df = DataFrame.from_dict(obj, orient='index', columns=['asignadas']).sort_index()
-
-    if df.empty:
-        return df
+    df.index.name = 'tipo de tarea'
 
     if not all and 'sin tipo' in df.index:
         df = df.drop('sin tipo')
 
     df.loc['total'] = df.sum()
-    df.index.name = 'tipo de tarea'
+    df = df.astype('int64')
     
     return df

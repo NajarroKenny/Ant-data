@@ -65,7 +65,7 @@ def df(country, f=None, **kwargs):
     df.loc['total'] = df.sum()
     df = df.fillna(0).astype('int64')
     df['% activo'] = df['activo'].div(df['total'])
-    df = df.replace((np.nan, -np.nan), (0, 0))
+    df = df.replace(np.nan, 0)
     df = df.replace((np.inf, -np.inf), (0, 0))
     df = df.reset_index()
 
