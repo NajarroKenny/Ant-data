@@ -34,7 +34,7 @@ if CONFIG['ES']['HOST'] != '' and CONFIG['ES']['PORT'] != '':
     timeout = float(CONFIG['ES']['TIMEOUT'])
   )
 
-elif CONFIG['ES']['HOST'] != '':
+elif CONFIG['ES']['TIMEOUT'] != '':
   print(f"Elasticsearch timeout is {CONFIG['ES']['TIMEOUT']}")
   elastic = Elasticsearch(timeout = float(CONFIG['ES']['TIMEOUT']))
 
