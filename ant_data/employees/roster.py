@@ -111,7 +111,7 @@ def supervisors(country):
   return df
 
 
-def person(country, id): # FIXME:P1 information should be in ES
+def person(country, id):
   """Find roster information for an individual.
   
   Args:
