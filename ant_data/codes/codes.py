@@ -81,7 +81,9 @@ def df(
   df = DataFrame.from_dict(obj, orient='index')
 
   if df.empty:
-    return DataFrame(columns=['free', 'paid', 'iva', 'commission', 'total'])
+    df = DataFrame(columns=['free', 'paid', 'iva', 'commission', 'total'])
+    df.index.name = 'date'
+    return df
 
   df.index.name = 'date'
   df = df.reindex(df.index.astype('datetime64')).sort_index()
