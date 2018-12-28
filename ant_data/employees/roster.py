@@ -50,7 +50,7 @@ def agents(country):
   hits = [x.to_dict() for x in res.hits]
   
   df = DataFrame(hits)
-  df = df.set_index('agent_id')
+  df = df.set_index('agent_id').replace(np.nan, '')
   
   return df
 

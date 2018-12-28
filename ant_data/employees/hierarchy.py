@@ -6,12 +6,13 @@ Indexes roster and community master information in hierarchy index
 
 - Create date:  2018-12-15
 - Update date:  2018-12-26
-- Version:      1.1
+- Version:      1.2
 
 Notes:
 ==========================
 - v1.0: Initial version
 - v1.1: Elasticsearch index names as parameters in config.ini
+- v1.2: Add full roster information 
 """
 import configparser
 import datetime as dt
@@ -46,20 +47,29 @@ def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
       agent_ids = list(filter(None, set(agent_ids)))
       community_ids = cm[cm['agent_id'].isin(agent_ids)]['community_id'].tolist()
       community_ids = list(filter(None, set(community_ids)))
+  
     doc = {
         "_index": "hierarchy",
         "_type": "_doc",
         "_id": f'{hierarchy_id}_{key}',
         "hierarchy_id": hierarchy_id,
         "country": country,
+        "department": agent['department'],
+        "municipality": agent['municipality'],
+        "name": agent['name'],
+        "phone": agent['phone'],
+        "role": agent['role'],
         "doctype": agent['role_id'],
         "agent_id": key,
+        "start_date": agent['start_date'],
+        "coordinator": agent['coordinator'],
         "coordinator_id": agent['coordinator_id'],
+        "supervisor": agent['supervisor'],
         "supervisor_id": agent['supervisor_id'],
         "community_id": community_ids
       }
     docs.append(doc)
-
+  
   for row in coordinators.iterrows():
     (key, coordinator) = row
     agent_ids = agents[agents['coordinator_id']==key].index.tolist()
@@ -72,10 +82,17 @@ def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
       "_id": f'{hierarchy_id}_{key}',
       "hierarchy_id": hierarchy_id,
       "country": country,
+      "name": coordinator['name'],
+      "phone": coordinator['phone'],
+      "region": coordinator['region'],
+      "role": coordinator['role'],
       "doctype": coordinator['role_id'],
       "agent_id": agent_ids,
+      "start_date": coordinator['start_date'],
       "coordinator_id": key,
+      "supervisor": coordinator['supervisor'],
       "supervisor_id": coordinator['supervisor_id'],
+      "system_id": coordinator['system_id'],
       "community_id": community_ids
     }
     docs.append(doc)
@@ -95,13 +112,20 @@ def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
         "hierarchy_id": hierarchy_id,
         "country": country,
         "doctype": supervisor['role_id'],
+        "manager": supervisor['manager'],
+        "manager_id": supervisor['manager_id'],
+        "name": supervisor['name'],
         "agent_id": agent_ids,
+        "phone": supervisor['phone'],
+        "region": supervisor['region'],
+        "role": supervisor['role'],
+        "start_date": supervisor['start_date'],
+        "system_id": supervisor['system_id'],
         "coordinator_id": coordinator_ids,
         "supervisor_id": key,
         "community_id": community_ids
       }
     docs.append(doc)
-
 
   bulk(elastic, docs)
 
