@@ -1,23 +1,23 @@
 TASK_TYPES = {
-  '': 'Sin Tipo',
-  'closure': 'Recogida',
-  'follow-up': 'Seguimiento',
-  'install': 'Instalación',
-  'sk-closure': 'Recogida Tendero',
-  'sk-follow-up': 'Seguimiento Tendero',
-  'total': 'Total'
+  '': 'sin tipo',
+  'closure': 'recogida',
+  'follow-up': 'seguimiento',
+  'install': 'instalación',
+  'sk-closure': 'recogida tendero',
+  'sk-follow-up': 'seguimiento tendero',
+  'total': 'total'
 }
 
 ADDITIONAL_TASK_TYPES = {
-  'active-code': 'Saldo activo',
-  'install': 'Instalación',
-  'pickup': 'Recogido',
-  'register': 'Registro',
-  'sale': 'Venta',
-  'shopkeeper-pickup': 'Tendero recogido',
-  'shopkeeper-sync': 'Sincronización de tendero',
-  'shopkeeper-visit': 'Visita a tendero',
-  'swap': 'Cambio',
+  'active-code': 'saldo activo',
+  'install': 'instalación',
+  'pickup': 'recogido',
+  'register': 'registro',
+  'sale': 'venta',
+  'shopkeeper-pickup': 'tendero recogido',
+  'shopkeeper-sync': 'sincronización de tendero',
+  'shopkeeper-visit': 'visita a tendero',
+  'swap': 'cambio',
   'visit-install': 'visit-install'
 }
 

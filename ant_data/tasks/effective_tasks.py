@@ -5,14 +5,15 @@ Provides functions to fetch and parse data from Kingo's ElasticSearch Data
 Warehouse to generate a report on task effectiveness by types.
 
 - Create date:  2018-12-21
-- Update date:  2018-12-26
-- Version:      1.2
+- Update date:  2018-12-28
+- Version:      1.3
 
 Notes:
 ============================
 - v1.0: Initial version
 - v1.1: Better handling of empty cases
 - v1.2: Elasticsearch index names as parameters in config.ini
+- v1.3: Revised task types on df_effective_sale
 """
 import configparser
 
@@ -146,22 +147,14 @@ def df_effective_sale(start=None, end=None, f=None, all=False):
       remark.startswith('asignacion especial tecnica')
     ):
       tipo = 'técnica'
-    # elif remark.startswith('instalacion k7'): TODO:P1 check with Chino
-    #     tipo = 'Instalación Kingo Básico'
-    # elif remark.startswith('instalacion k15'):
-    #     tipo = 'Instalación Kingo Luz'
-    # elif remark.startswith('instalacion ktv'):
-    #     tipo = 'Instalación Kingo TV'
-    # elif remark.startswith('instalacion k100+'):
-    #     tipo = 'Instalación Kingo Hogar'
-    # elif (
-    #     remark.startswith('preventa kingo tv') or
-    #     remark.startswith('preventa: k15 tv') or
-    #     remark.startswith('preventa: kingo tv')
-    # ):
-    #     tipo = 'Preventa Kingo TV'
-    # elif remark.startswith('preventa kingo hogar'):
-    #     tipo = 'Preventa Kingo Hogar'
+    elif (
+        remark.startswith('preventa kingo tv') or
+        remark.startswith('preventa: k15 tv') or
+        remark.startswith('preventa: kingo tv')
+    ):
+        tipo = 'Preventa Kingo TV'
+    elif remark.startswith('preventa kingo hogar'):
+        tipo = 'Preventa Kingo Hogar'
     else:
       tipo = 'sin tipo'
     obj[tipo] = obj.get(tipo, 0) + df.at[remark, 'effective']
