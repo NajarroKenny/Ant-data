@@ -2,16 +2,17 @@
 Client dayss
 ==========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
-Warehouse to generate a report on client dayss.
+Warehouse to generate a report on client days.
 
 - Create date:  2018-12-11
-- Update date:  2018-12-26
-- Version:      1.1
+- Update date:  2018-12-28
+- Version:      1.2
 
 Notes:
 ==========================
 - v1.0: Initial version
 - v1.1: Elasticsearch index names as parameters in config.ini
+- v1.2: Add filter to only include clients with kingo_open = True
 """
 import configparser
 import datetime as dt
@@ -31,7 +32,8 @@ def search(country, f=None, date=None):
     if date is None:
         s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
             .query('term', country=country) \
-            .query('term', doctype='client')
+            .query('term', doctype='client') \
+            .query('term', kingo_open=True)
 
         if f is not None:
             s = s.query('bool', filter=f)
@@ -52,7 +54,8 @@ def search(country, f=None, date=None):
             .query('term', country=country) \
             .query('term', doctype='stat') \
             .query('term', date=date) \
-            .query('has_parent', parent_type='person', query=Q('term', doctype='client'))
+            .query('has_parent', parent_type='person', query=Q('term', doctype='client')) \
+            .query('has_parent', parent_type='person', query=Q('term', kingo_open=True))
 
         ranges = [
             { 'to': 1 },
