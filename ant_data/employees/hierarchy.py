@@ -250,8 +250,8 @@ def client_docs(communities=None, hierarchy_id=None, agent_id=None, date=None):
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
-      Q('range', kingo_opened={ 'lt': date }),
-      Q('bool', should=[ # TODO:P2 double check Peter didn't fuck this up!
+      Q('range', kingo_opened={ 'lte': date }), #TODO:P2 check this makes sense
+      Q('bool', should=[ 
         Q('term', kingo_open=True),
         Q('range', kingo_closed={ 'gt': date })
       ])
@@ -279,8 +279,8 @@ def client_ids(communities=None, hierarchy_id=None, agent_id=None, date=None):
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
-      Q('range', kingo_opened={ 'lt': date }),
-      Q('bool', should=[ # TODO:P2 double check Peter didn't fuck this up!
+      Q('range', kingo_opened={ 'lte': date }), #TODO:P2 check this makes sense
+      Q('bool', should=[
         Q('term', kingo_open=True),
         Q('range', kingo_closed={ 'gt': date })
       ])
@@ -309,8 +309,8 @@ def shopkeeper_ids(communities=None, hierarchy_id=None, agent_id=None, date=None
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
-      Q('range', pos_opened={ 'lt': date }),
-      Q('bool', should=[ # TODO:P2 double check Peter didn't fuck this up!
+      Q('range', pos_opened={ 'lte': date }), #TODO:P2 check this makes sense
+      Q('bool', should=[
         Q('term', pos_open=True),
         Q('range', pos_closed={ 'gt': date })
       ])
@@ -339,8 +339,8 @@ def shopkeeper_docs(communities=None, hierarchy_id=None, agent_id=None, date=Non
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
-      Q('range', pos_opened={ 'lt': date }),
-      Q('bool', should=[ # TODO:P2 double check Peter didn't fuck this up!
+      Q('range', pos_opened={ 'lte': date }), #TODO:P2 check this makes sense
+      Q('bool', should=[
         Q('term', pos_open=True),
         Q('range', pos_closed={ 'gt': date })
       ])
