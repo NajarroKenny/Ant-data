@@ -5,7 +5,7 @@ Index hierarchy
 Indexes roster and community master information in hierarchy index
 
 - Create date:  2018-12-15
-- Update date:  2019-01-01
+- Update date:  2019-01-02
 - Version:      1.3
 
 Notes:

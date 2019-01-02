@@ -18,7 +18,6 @@ import numpy as np
 from pandas import DataFrame
 
 from ant_data import elastic
-from ant_data.static.TIME import TZ
 from ant_data.tasks import additional_tasks, assigned_tasks, effective_tasks
 
 
