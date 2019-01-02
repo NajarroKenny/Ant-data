@@ -64,7 +64,6 @@ def search(client_ids, start, end, after_key=None, obj={}):
   
   if 'after_key' in dir(response.aggs.comp):
     after_key = response.aggs.comp.after_key.clients
-    print(f'After key = {after_key}')
     for client in response.aggs.comp.buckets:
       obj[client.key.clients] = {}
       for active in client.stats.date_range.active.buckets:
