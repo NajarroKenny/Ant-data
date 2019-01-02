@@ -1,17 +1,18 @@
 """
-AT Tasks
+Coodrinator
 ==========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
-Warehouse to generate a report on AT tasks.
+Warehouse to generate a report on Coordinator tasks.
 
-- Create date:  2018-12-11
-- Update date:  2018-12-28
+- Create date:  2018-12-18
+- Update date:  2019-01-02
 - Version:      1.2
 
 Notes:
 ==========================
 - v1.0: Initial version
-- v1.2: Add additional tasks and additional variable pay tasks to data function
+- v1.1: g/f pattern to avoid side effects
+- v1.2: Cleanup and use latest task functions
 """
 from copy import deepcopy
 
@@ -20,13 +21,12 @@ import numpy as np
 from pandas import DataFrame
 
 from ant_data import elastic
-from ant_data.tasks import additional_tasks, assigned_tasks, effective_tasks
-
+from ant_data.employees import hierarchy
+from ant_data.tasks import additional_tasks__agents, assigned_tasks__agents, effective_tasks__agents
 
 VISITED_F = [Q('has_child', type='history', query=Q())]
 
-
-def task_vp_structure(perc_effective):
+def task_vp_structure(perc_effective): #TODO:P2 Get actual formula
   """Simple function to calculate payment amount from task effectiveness.
   
   Args:
@@ -53,19 +53,19 @@ def assigned(start, end, f=None):
     f (list, optional): List of elasticsearch_dsl Q objects additional filters.
 
   Returns:
-    DataFrame: Pandas DataFrame with index = tipo de tarea and columns = [
+    DataFrame: Pandas DataFrame with index = agent_id and columns = [
       'asignadas', 'visitadas', '% visitadas', 'efectivas', '% efectivas']
   """
   f = [] if f is None else f
   
-  df_assigned = assigned_tasks.df(start=start, end=end, f=f)
+  df_assigned = assigned_tasks__agents.df(start=start, end=end, f=f)
 
-  df_visited = assigned_tasks.df(start=start, end=end, f=f+VISITED_F)
+  df_visited = assigned_tasks__agents.df(start=start, end=end, f=f+VISITED_F)
   df_visited = df_visited.rename(columns={'asignadas': 'visitadas'})
-  df_effective = effective_tasks.df(start=start, end=end, f=f+VISITED_F)
+  df_effective = effective_tasks__agents.df(start=start, end=end, f=f+VISITED_F)
 
-  df = df_assigned.merge(df_visited, on='tipo de tarea', how='left')
-  df = df.merge(df_effective, on='tipo de tarea', how='left')
+  df = df_assigned.merge(df_visited, on='agent_id', how='left')
+  df = df.merge(df_effective, on='agent_id', how='left')
   df = df.fillna(0).astype('int64')
 
   df['% visitadas'] = df['visitadas'].div(df['asignadas'])
@@ -77,8 +77,7 @@ def assigned(start, end, f=None):
 
   return df
 
-
-def data(start, end, agent_id, f=None):
+def data(start, end, coordinator_id, f=None):
   """Combines assigned tasks, additional_tasks, additional variable pay tasks, 
   and task variable pay information
 
@@ -93,32 +92,32 @@ def data(start, end, agent_id, f=None):
     dict: Dictionary object with keys = ['assigned', 'additional', 
       'additional_vp', 'task_vp']
   """
+  info = hierarchy.employee_info(coordinator_id)
+  if info is None:
+    return DataFrame()
+
+  agent_list = info['agent_id']
+  if agent_list==[]:
+    return DataFrame()
+
   g = [] if f is None else deepcopy(f)
 
-  g += [Q('term', agent_id=agent_id)]
+  g += [Q('terms', agent_id = agent_list)]
 
   df_assigned = assigned(start=start, end=end, f=g)
-  df_additional = additional_tasks.df(start=start, end=end, f=g)
-  df_additional_vp = additional_tasks.df_vp(start=start, end=end, f=g)
+  df_additional = additional_tasks__agents.df(start=start, end=end, f=g)
+  df_additional_vp = additional_tasks__agents.df_vp(start=start, end=end, f=g)
 
-  vp_assigned = df_assigned.at['total', 'asignadas'] \
-  + df_additional_vp.at['instalación adicional', 'conteo'] if 'instalación adicional' \
-  in df_additional_vp.index else df_assigned.at['total', 'asignadas']
-  vp_effective = df_assigned.at['total', 'efectivas'] \
-  + df_additional_vp.at['instalación adicional', 'conteo'] if 'instalación adicional' \
-  in df_additional_vp.index else df_assigned.at['total', 'asignadas']
-
-  vp_effective_perc = 0 if vp_assigned == 0 else vp_effective/vp_assigned
-  vp_payment = task_vp_structure(vp_effective_perc)
-
-  obj = {
-    'asignadas': vp_assigned,
-    'efectivas': vp_effective,
-    '% efectivas': vp_effective_perc,
-    'pago': vp_payment
-  }
-
-  df_task_vp = DataFrame(obj, index=[0])
+  df_task_vp = df_assigned[['asignadas', 'efectivas']].merge(
+    DataFrame(df_additional_vp['instalación adicional']), on='agent_id',
+    how='outer')
+  df_task_vp = df_task_vp.fillna(0).astype('int64')
+  df_task_vp['asignadas'] = df_task_vp['asignadas'] + df_task_vp['instalación adicional']
+  df_task_vp['efectivas'] = df_task_vp['efectivas'] + df_task_vp['instalación adicional']
+  df_task_vp = df_task_vp.drop('instalación adicional', axis=1)
+  df_task_vp['% efectivas'] = df_task_vp['efectivas']/df_task_vp['asignadas']
+  df_task_vp = df_task_vp.fillna(0).replace((np.inf, -np.inf), (0,0))
+  df_task_vp['pago'] = df_task_vp['% efectivas'].apply(task_vp_structure)
 
   return {
     'assigned': df_assigned,
@@ -126,4 +125,3 @@ def data(start, end, agent_id, f=None):
     'additional_vp': df_additional_vp,
     'task_vp': df_task_vp
   }
-

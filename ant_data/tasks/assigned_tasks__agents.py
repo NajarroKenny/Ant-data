@@ -13,6 +13,7 @@ Notes:
 - v1.0: Initial version based on assigned_tasks
 """
 import configparser
+from copy import deepcopy
 
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
@@ -65,7 +66,7 @@ def df(start=None, end=None, f=None, workflow=None, all=False):
   Returns:
     DataFrame: Pandas DataFrame with index = agent_id and columns = ['asignadas']
   """
-  g = [] if f is None else f[:]
+  g = [] if f is None else deepcopy(f)
 
   if workflow is not None:
     g.append(Q('has_child', type='history', query=Q('terms', workflow=workflow)))

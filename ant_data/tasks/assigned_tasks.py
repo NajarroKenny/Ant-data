@@ -15,6 +15,7 @@ Notes:
 - v1.2: Elasticsearch index names as parameters in config.ini
 """
 import configparser
+from copy import deepcopy
 
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
@@ -57,7 +58,7 @@ def search(start=None, end=None, f=None):
 
 def df(start=None, end=None, f=None, workflow=None, all=False):
     """Assigned tasks, by type"""
-    g = [] if f is None else f[:]
+    g = [] if f is None else deepcopy(f)
 
     if workflow is not None:
         g.append(Q('has_child', type='history', query=Q('terms', workflow=workflow)))

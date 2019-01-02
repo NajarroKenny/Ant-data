@@ -16,6 +16,7 @@ Notes:
 - v1.3: Revised task types on df_effective_sale
 """
 import configparser
+from copy import deepcopy
 
 from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
@@ -36,7 +37,7 @@ WORKFLOW_LIST=[
 
 def search_sale_values(start=None, end=None, f=None):
   """Searches all history docs with workflow==sale to calculate its sale value"""
-  g = [] if f is None else f[:]
+  g = [] if f is None else deepcopy(f)
 
   if start is not None:
     g.append(Q('range', due={ 'gte': start }))
