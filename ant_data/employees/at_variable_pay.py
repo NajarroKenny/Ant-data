@@ -9,7 +9,7 @@ from ant_data.shared import helpers
 
 
 def df(start, end, communities=None, agent_id=None, hierarchy_id=None):
-  clients = hierarchy.client_docs(communities=communities, agent_id=agent_id, hierarchy_id=hierarchy_id, date=end)
+  clients = hierarchy.client_docs(communities=communities, employee_id=agent_id, hierarchy_id=hierarchy_id, date=end)
   client_ids = [ client['person_id'] for client in clients ]
   shopkeeper_days = hard_shopkeeper_days.df(client_ids, start, end)
   paid_days = hard_paid_days.df(client_ids, start, end)

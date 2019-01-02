@@ -47,7 +47,7 @@ def agent_sync_status(agent_id, date=None, threshold=0):
       boolean and sync_threshold the ISO8601 date that determines synced/not 
       synced.
   """
-  info = hierarchy.agent_info(agent_id)
+  info = hierarchy.employee_info(agent_id)
   country = info['country']
   agent_map = agent_mapping.df()
   
@@ -81,7 +81,7 @@ def coordinator_agent_sync_status(coordinator_id, date=None, threshold=0):
     dict: { 'coordinator_id', 'count', 'synced', 'perc_synced' } where
       perc_synced = synced/count.
   """
-  info = hierarchy.agent_info(coordinator_id)
+  info = hierarchy.employee_info(coordinator_id)
   country = info['country']
   agent_map = agent_mapping.df()
 
@@ -161,7 +161,7 @@ def coordinator_sk_sync_status(coordinator_id, date=None, threshold=0):
     dict: { 'coordinator_id', 'count', 'synced', 'perc_synced' } where
       perc_synced = synced/count.
   """
-  info = hierarchy.agent_info(coordinator_id)
+  info = hierarchy.employee_info(coordinator_id)
   country = info['country']
 
   if date is None:
