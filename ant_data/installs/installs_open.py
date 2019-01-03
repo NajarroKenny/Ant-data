@@ -44,6 +44,7 @@ def search_open_now(country, start=None, end=None, f=None):
   else:
     s = s.query(
       'bool', filter=[
+        Q('term', country=country),
         Q('range', opened={ 'lt': end }),
         Q('bool', should=[
           ~Q('exists', field='closed'),
