@@ -12,8 +12,12 @@ Notes:
 ==========================
 - v1.0: Initial version
 - v1.1: Elasticsearch index names as parameters in config.ini
-- v1.2: Add full roster information 
+<<<<<<< Updated upstream
+- v1.2: Add full roster information
 - v1.3: Rename 'agent' functions to 'employee'. Add docstrings. General clean up
+=======
+- v1.2: Add full roster information
+>>>>>>> Stashed changes
 """
 import configparser
 import datetime as dt
@@ -34,15 +38,15 @@ CONFIG.read(ROOT_DIR + '/config.ini')
 def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
   """Indexes a hierarchy in Elasticsearch assigning it a hierarchy_id based on
   the current date. The hierarcy is country-specific.
-  
+
   Args:
     hierarchy_id (str): ISO8601 date to serve as label for the hierarchy.
-    country (str): Guatemala or Colombia. 
+    country (str): Guatemala or Colombia.
     cm (DataFrame): Country-specific community master from Google Sheets
     agents (DataFrame): Country-specific agent list from ES roster
     coordinators (DataFrame): Country-specific coordinator list from ES roster.
     supervisors (DataFrame): Country-specific supervisor list from ES roster.
-  
+
   Returns:
     None.
   """
@@ -61,7 +65,7 @@ def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
       agent_ids = list(filter(None, set(agent_ids)))
       community_ids = cm[cm['agent_id'].isin(agent_ids)]['community_id'].tolist()
       community_ids = list(filter(None, set(community_ids)))
-  
+
     doc = {
         "_index": "hierarchy",
         "_type": "_doc",
@@ -83,7 +87,7 @@ def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
         "community_id": community_ids
       }
     docs.append(doc)
-  
+
   for row in coordinators.iterrows():
     (key, coordinator) = row
     agent_ids = agents[agents['coordinator_id']==key].index.tolist()
@@ -146,10 +150,10 @@ def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
 
 def hierarchy_list(country):
   """Returns the last 100 hierarchy_ids from the hierarchy index.
-  
+
   Args:
     country (str): Guatemala or Colombia.
-    
+
   Returns:
     list: List of string hierarchy_ids.
   """
@@ -168,12 +172,12 @@ def hierarchy_list(country):
 
 
 def latest_hierarchy(date=None):
-  """Returns the latest hierarchy indexed in Elasticsearch. 
-    
+  """Returns the latest hierarchy indexed in Elasticsearch.
+
   Args:
     date (str, optional): ISO8601 date string to serve as end date. Defaults
       to None, in which case it searches all hierarchies.
-    
+
   Returns:
     str: Latest hierarchy. If not found, returns a blank string.
   """
@@ -195,17 +199,17 @@ def latest_hierarchy(date=None):
 
 def employee_info(employee_id, hierarchy_id=None, date=None):
   """Returns sthe employee information from a specified hierarchy
-  
-  Args: 
+
+  Args:
     employee_id (str): Agent, Coordinantor, or Supervisor ID.
-    hierarchy_id (str, optional): ID of the hierarchy to use. Defaults to None, 
+    hierarchy_id (str, optional): ID of the hierarchy to use. Defaults to None,
       in which case the latest hierarchy is used.
-    date (str, optional): Date to use for the latest hierarchy if the 
-      hierarchy_id is not passed. Defaults to None, in which case the latest 
+    date (str, optional): Date to use for the latest hierarchy if the
+      hierarchy_id is not passed. Defaults to None, in which case the latest
       hierarchy is used.
 
   Returns:
-    dict: Employee information dictionary with keys = ['hierarchy_id', 'country', 
+    dict: Employee information dictionary with keys = ['hierarchy_id', 'country',
       'doctype', 'agent_id', 'coordinator_id', 'supervisor_id', 'community_id'].
       Defaults to None if no information is found.
   """
@@ -227,15 +231,15 @@ def employee_communities(employee_id, hierarchy_id=None, date=None):
 
   Args:
     employee_id (str): Agent, Coordinantor, or Supervisor ID.
-    hierarchy_id (str, optional): ID of the hierarchy to use. Defaults to None, 
+    hierarchy_id (str, optional): ID of the hierarchy to use. Defaults to None,
       in which case the latest hierarchy is used.
-    date (str, optional): Date to use for the latest hierarchy if the 
-      hierarchy_id is not passed. Defaults to None, in which case the latest 
+    date (str, optional): Date to use for the latest hierarchy if the
+      hierarchy_id is not passed. Defaults to None, in which case the latest
       hierarchy is used.
-  
+
   Returns:
-    list: Employee's community list.  
-  """  
+    list: Employee's community list.
+  """
   if hierarchy_id == None:
     hierarchy_id = latest_hierarchy(date)
 
@@ -257,7 +261,7 @@ def agent_installs(agent_id, start, end, pos=False):
     start (str): ISO8601 date interval start.
     end (str): ISO8601 date interval end.
     pos (bool, optional): Flag to only search for Shopkeepers. Defaults to False.
-  
+
   Returns:
     list: List with install docs as stored in Elasticsearch. Each install doc is
       a dictionary with the same fields as the original doc in Elasticsearch.
@@ -271,19 +275,19 @@ def agent_installs(agent_id, start, end, pos=False):
     s = s.query('term', system_type='pos')
 
   installs = [x.to_dict() for x in s.scan()]
-  
+
   return installs
 
 
 def agent_install_count(agent_id, start, end, pos=False):
   """Agent installation count.
-  
+
   Args:
     agent_id (str): Agent ID.
     start (str): ISO8601 date interval start.
     end (str): ISO8601 date interval end.
     pos (bool, optional): Flag to only search for Shopkeepers. Defaults to False.
-  
+
   Returns:
     int: Agent install count.
   """
@@ -305,26 +309,26 @@ def client_docs(
   country/date, or an employee_id must be provided.
 
   Args:
-    communities (list, optional): Community list to retrieve the client docs. 
+    communities (list, optional): Community list to retrieve the client docs.
       Defaults to None.
-    country (str, optional): Guatemala or Colombia. Mandatory if a community 
+    country (str, optional): Guatemala or Colombia. Mandatory if a community
       list is passed with NO date. Defaults to None.
     date (str, optional): ISO8601 date. Mandatory if a community list
       is passed with NO country. Defaults to None, in which case the country
       is used to determine its local date.
-    employee_id (str, optional): Employee ID used to retrieve the community 
-      list. Defaults to None. 
-    hierarchy_id (str, optional): ID of the hiearchy to use to retrieve the 
+    employee_id (str, optional): Employee ID used to retrieve the community
+      list. Defaults to None.
+    hierarchy_id (str, optional): ID of the hiearchy to use to retrieve the
       community list. Defaults to None.
 
   Returns:
-    list: Dictionary list of all client docs for the given employee. The 
+    list: Dictionary list of all client docs for the given employee. The
       dictionary keys match the fields in the Elasticsearch client docs.
   """
   if communities is None:
     country = employee_info(employee_id)['country']
     communities = employee_communities(employee_id, hierarchy_id, date)
-  
+
   else:
     communities = communities if isinstance(communities, list) else [communities]
 
@@ -335,15 +339,15 @@ def client_docs(
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
-      Q('range', kingo_opened={ 'lte': date }), #TODO:P2 check this makes sense
-      Q('bool', should=[ 
+      Q('range', kingo_opened={ 'lte': date }),
+      Q('bool', should=[ # TODO:P2 double check Peter didn't fuck this up!
         Q('term', kingo_open=True),
         Q('range', kingo_closed={ 'gt': date })
       ])
     ])
 
   clients = [x.to_dict() for x in s.scan()]
-  
+
   return clients
 
 
@@ -354,16 +358,16 @@ def client_ids(
   country/date, or an employee_id must be provided.
 
   Args:
-    communities (list, optional): Community list to retrieve the client docs. 
+    communities (list, optional): Community list to retrieve the client docs.
       Defaults to None.
-    country (str, optional): Guatemala or Colombia. Mandatory if a community 
+    country (str, optional): Guatemala or Colombia. Mandatory if a community
       list is passed with NO date. Defaults to None.
     date (str, optional): ISO8601 date. Mandatory if a community list
       is passed with NO country. Defaults to None, in which case the country
       is used to determine its local date.
-    employee_id (str, optional): Employee ID used to retrieve the community 
-      list. Defaults to None. 
-    hierarchy_id (str, optional): ID of the hiearchy to use to retrieve the 
+    employee_id (str, optional): Employee ID used to retrieve the community
+      list. Defaults to None.
+    hierarchy_id (str, optional): ID of the hiearchy to use to retrieve the
       community list. Defaults to None.
 
   Returns:
@@ -372,7 +376,7 @@ def client_ids(
   if communities == None:
     country = employee_info(employee_id)['country']
     communities = employee_communities(employee_id, hierarchy_id, date)
-  
+
   else:
     communities = communities if isinstance(communities, list) else [communities]
 
@@ -383,8 +387,8 @@ def client_ids(
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
-      Q('range', kingo_opened={ 'lte': date }), #TODO:P2 check this makes sense
-      Q('bool', should=[
+      Q('range', kingo_opened={ 'lte': date }),
+      Q('bool', should=[ # TODO:P2 double check Peter didn't fuck this up!
         Q('term', kingo_open=True),
         Q('range', kingo_closed={ 'gt': date })
       ])
@@ -392,7 +396,7 @@ def client_ids(
     .source([ 'person_id' ])
 
   client_ids = [x.person_id for x in s.scan()]
-  
+
   return client_ids
 
 
@@ -403,16 +407,16 @@ def shopkeeper_ids(
   country/date, or an employee_id must be provided.
 
   Args:
-    communities (list, optional): Community list to retrieve the client docs. 
+    communities (list, optional): Community list to retrieve the client docs.
       Defaults to None.
-    country (str, optional): Guatemala or Colombia. Mandatory if a community 
+    country (str, optional): Guatemala or Colombia. Mandatory if a community
       list is passed with NO date. Defaults to None.
     date (str, optional): ISO8601 date. Mandatory if a community list
       is passed with NO country. Defaults to None, in which case the country
       is used to determine its local date.
-    employee_id (str, optional): Employee ID used to retrieve the community 
-      list. Defaults to None. 
-    hierarchy_id (str, optional): ID of the hiearchy to use to retrieve the 
+    employee_id (str, optional): Employee ID used to retrieve the community
+      list. Defaults to None.
+    hierarchy_id (str, optional): ID of the hiearchy to use to retrieve the
       community list. Defaults to None.
 
   Returns:
@@ -421,7 +425,7 @@ def shopkeeper_ids(
   if communities == None:
     country = employee_info(employee_id)['country']
     communities = employee_communities(employee_id, hierarchy_id, date)
-  
+
   else:
     communities = communities if isinstance(communities, list) else [communities]
 
@@ -432,8 +436,8 @@ def shopkeeper_ids(
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
-      Q('range', pos_opened={ 'lte': date }), #TODO:P2 check this makes sense
-      Q('bool', should=[
+      Q('range', pos_opened={ 'lte': date }),
+      Q('bool', should=[ # TODO:P2 double check Peter didn't fuck this up!
         Q('term', pos_open=True),
         Q('range', pos_closed={ 'gt': date })
       ])
@@ -452,26 +456,26 @@ def shopkeeper_docs(
   country/date, or an employee_id must be provided.
 
   Args:
-    communities (list, optional): Community list to retrieve the client docs. 
+    communities (list, optional): Community list to retrieve the client docs.
       Defaults to None.
-    country (str, optional): Guatemala or Colombia. Mandatory if a community 
+    country (str, optional): Guatemala or Colombia. Mandatory if a community
       list is passed with NO date. Defaults to None.
     date (str, optional): ISO8601 date. Mandatory if a community list
       is passed with NO country. Defaults to None, in which case the country
       is used to determine its local date.
-    employee_id (str, optional): Employee ID used to retrieve the community 
-      list. Defaults to None. 
-    hierarchy_id (str, optional): ID of the hiearchy to use to retrieve the 
+    employee_id (str, optional): Employee ID used to retrieve the community
+      list. Defaults to None.
+    hierarchy_id (str, optional): ID of the hiearchy to use to retrieve the
       community list. Defaults to None.
 
   Returns:
-    list: Dictionary list of all shopkeeper docs for the given employee. The 
+    list: Dictionary list of all shopkeeper docs for the given employee. The
       dictionary keys match the fields in the Elasticsearch shopkeeper docs.
   """
   if communities is None:
     country = employee_info(employee_id)['country']
     communities = employee_communities(employee_id, hierarchy_id, date)
-  
+
   else:
     communities = communities if isinstance(communities, list) else [communities]
 
@@ -482,15 +486,15 @@ def shopkeeper_docs(
     .query('term', doctype='client') \
     .query('terms', community__community_id=communities) \
     .query('bool', must=[
-      Q('range', pos_opened={ 'lte': date }), #TODO:P2 check this makes sense
-      Q('bool', should=[
+      Q('range', pos_opened={ 'lte': date }),
+      Q('bool', should=[ # TODO:P2 double check Peter didn't fuck this up!
         Q('term', pos_open=True),
         Q('range', pos_closed={ 'gt': date })
       ])
     ])
 
   shopkeepers = [x.to_dict() for x in s.scan()]
-  
+
   return shopkeepers
 
 
@@ -500,21 +504,21 @@ def codes(start, end, communities=None, employee_id=None, hierarchy_id=None,):
   Args:
     start (str): ISO8601 date interval start date.
     end (str): ISO8601 date interval end date.
-    communities (list, optional): Community list to retrieve the client docs. 
+    communities (list, optional): Community list to retrieve the client docs.
       Defaults to None.
-    employee_id (str, optional): Employee ID used to retrieve the community 
-      list. Defaults to None. 
-    hierarchy_id (str, optional): ID of the hiearchy to use to retrieve the 
+    employee_id (str, optional): Employee ID used to retrieve the community
+      list. Defaults to None.
+    hierarchy_id (str, optional): ID of the hiearchy to use to retrieve the
       community list. Defaults to None.
-  
+
   Returns:
-    list: Dictionary list of all code docs for the given employee. The 
+    list: Dictionary list of all code docs for the given employee. The
       dictionary keys match the fields in the Elasticsearch codes docs.
   """
 
   if communities is None:
     communities = employee_communities(employee_id, hierarchy_id)
-  
+
   else:
     communities = communities if isinstance(communities, list) else [communities]
 
@@ -527,5 +531,5 @@ def codes(start, end, communities=None, employee_id=None, hierarchy_id=None,):
     })
 
   codes = [x.to_dict() for x in s.scan()]
-  
+
   return codes
