@@ -32,19 +32,19 @@ CONFIG.read(ROOT_DIR + '/config.ini')
 
 
 def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
-  """Indexes a hierarchy in Elasticsearch assigning it a datetime hierarchy_id.
-  The hierarcy is country-specific.
+  """Indexes a hierarchy in Elasticsearch assigning it a hierarchy_id based on
+  the current date. The hierarcy is country-specific.
   
   Args:
     hierarchy_id (str): ISO8601 date to serve as label for the hierarchy.
     country (str): Guatemala or Colombia. 
     cm (DataFrame): Country-specific community master from Google Sheets
     agents (DataFrame): Country-specific agent list from ES roster
-    coordinators (DataFrame): Country-specific coordinator list from ES roster
-    supervisors (DataFrame): Country-specific supervisor list from ES roster
+    coordinators (DataFrame): Country-specific coordinator list from ES roster.
+    supervisors (DataFrame): Country-specific supervisor list from ES roster.
   
   Returns:
-    None
+    None.
   """
   if country not in COUNTRY_LIST:
     raise Exception(f'{country} is not a valid country')
@@ -145,10 +145,10 @@ def index(hierarchy_id, country, cm, agents, coordinators, supervisors):
 
 
 def hierarchy_list(country):
-  """Last 100 hierarchy_ids from the hierarchy index.
+  """Returns the last 100 hierarchy_ids from the hierarchy index.
   
   Args:
-    country (str): Guatemala or Colombia
+    country (str): Guatemala or Colombia.
     
   Returns:
     list: List of string hierarchy_ids.
@@ -168,14 +168,14 @@ def hierarchy_list(country):
 
 
 def latest_hierarchy(date=None):
-  """Return the latest hierarchy indexed in Elasticsearch. 
+  """Returns the latest hierarchy indexed in Elasticsearch. 
     
-    Args:
-      date (str, optional): ISO8601 date string to serve as end-date. Defaults
-      to none
+  Args:
+    date (str, optional): ISO8601 date string to serve as end date. Defaults
+      to None, in which case it searches all hierarchies.
     
-    Returns:
-      str: Latest hierarchy. If not found, returns a blank string.
+  Returns:
+    str: Latest hierarchy. If not found, returns a blank string.
   """
 
   s = Search(using=elastic, index=CONFIG['ES']['HIERARCHY'])
@@ -194,14 +194,15 @@ def latest_hierarchy(date=None):
 
 
 def employee_info(employee_id, hierarchy_id=None, date=None):
-  """Employee information from a hierarchy
+  """Returns sthe employee information from a specified hierarchy
   
   Args: 
     employee_id (str): Agent, Coordinantor, or Supervisor ID.
-    hierarchy_id (str, optional): ID of the hierarchy to use. Defaults to None
-      and using the latest hierarchy of the given date,
-    date (str, optional): Date to use for the latest hierarchy if the hierarchy_id
-      is not passed. Defaults to None and fetching the latest hierarchy.
+    hierarchy_id (str, optional): ID of the hierarchy to use. Defaults to None, 
+      in which case the latest hierarchy is used.
+    date (str, optional): Date to use for the latest hierarchy if the 
+      hierarchy_id is not passed. Defaults to None, in which case the latest 
+      hierarchy is used.
 
   Returns:
     dict: Employee information dictionary with keys = ['hierarchy_id', 'country', 
@@ -226,14 +227,15 @@ def employee_communities(employee_id, hierarchy_id=None, date=None):
 
   Args:
     employee_id (str): Agent, Coordinantor, or Supervisor ID.
-    hierarchy_id (str, optional): ID of the hierarchy to use. Defaults to None
-      and using the latest hierarchy of the given date,
-    date (str, optional): Date to use for the latest hierarchy if the hierarchy_id
-      is not passed. Defaults to None and fetching the latest hierarchy.
+    hierarchy_id (str, optional): ID of the hierarchy to use. Defaults to None, 
+      in which case the latest hierarchy is used.
+    date (str, optional): Date to use for the latest hierarchy if the 
+      hierarchy_id is not passed. Defaults to None, in which case the latest 
+      hierarchy is used.
   
   Returns:
-    list: Employee community list.  
-  """
+    list: Employee's community list.  
+  """  
   if hierarchy_id == None:
     hierarchy_id = latest_hierarchy(date)
 
@@ -252,8 +254,8 @@ def agent_installs(agent_id, start, end, pos=False):
 
   Args:
     agent_id (str): Agent ID.
-    start (str): ISO8601 date interval start. Inclusive.
-    end (str): ISO8601 date interval end. Exclusive.
+    start (str): ISO8601 date interval start.
+    end (str): ISO8601 date interval end.
     pos (bool, optional): Flag to only search for Shopkeepers. Defaults to False.
   
   Returns:
@@ -278,8 +280,8 @@ def agent_install_count(agent_id, start, end, pos=False):
   
   Args:
     agent_id (str): Agent ID.
-    start (str): ISO8601 date interval start. Inclusive.
-    end (str): ISO8601 date interval end. Exclusive.
+    start (str): ISO8601 date interval start.
+    end (str): ISO8601 date interval end.
     pos (bool, optional): Flag to only search for Shopkeepers. Defaults to False.
   
   Returns:
@@ -305,9 +307,9 @@ def client_docs(
   Args:
     communities (list, optional): Community list to retrieve the client docs. 
       Defaults to None.
-    country (str, optional): Guatemala or Colombia. Mandatory if a community list
-      is passed with NO date. Defaults to None.
-    date (str, optional): ISO8601 date. Mandatory Mandatory if a community list
+    country (str, optional): Guatemala or Colombia. Mandatory if a community 
+      list is passed with NO date. Defaults to None.
+    date (str, optional): ISO8601 date. Mandatory if a community list
       is passed with NO country. Defaults to None, in which case the country
       is used to determine its local date.
     employee_id (str, optional): Employee ID used to retrieve the community 
@@ -354,9 +356,9 @@ def client_ids(
   Args:
     communities (list, optional): Community list to retrieve the client docs. 
       Defaults to None.
-    country (str, optional): Guatemala or Colombia. Mandatory if a community list
-      is passed with NO date. Defaults to None.
-    date (str, optional): ISO8601 date. Mandatory Mandatory if a community list
+    country (str, optional): Guatemala or Colombia. Mandatory if a community 
+      list is passed with NO date. Defaults to None.
+    date (str, optional): ISO8601 date. Mandatory if a community list
       is passed with NO country. Defaults to None, in which case the country
       is used to determine its local date.
     employee_id (str, optional): Employee ID used to retrieve the community 
@@ -403,9 +405,9 @@ def shopkeeper_ids(
   Args:
     communities (list, optional): Community list to retrieve the client docs. 
       Defaults to None.
-    country (str, optional): Guatemala or Colombia. Mandatory if a community list
-      is passed with NO date. Defaults to None.
-    date (str, optional): ISO8601 date. Mandatory Mandatory if a community list
+    country (str, optional): Guatemala or Colombia. Mandatory if a community 
+      list is passed with NO date. Defaults to None.
+    date (str, optional): ISO8601 date. Mandatory if a community list
       is passed with NO country. Defaults to None, in which case the country
       is used to determine its local date.
     employee_id (str, optional): Employee ID used to retrieve the community 
@@ -452,9 +454,9 @@ def shopkeeper_docs(
   Args:
     communities (list, optional): Community list to retrieve the client docs. 
       Defaults to None.
-    country (str, optional): Guatemala or Colombia. Mandatory if a community list
-      is passed with NO date. Defaults to None.
-    date (str, optional): ISO8601 date. Mandatory Mandatory if a community list
+    country (str, optional): Guatemala or Colombia. Mandatory if a community 
+      list is passed with NO date. Defaults to None.
+    date (str, optional): ISO8601 date. Mandatory if a community list
       is passed with NO country. Defaults to None, in which case the country
       is used to determine its local date.
     employee_id (str, optional): Employee ID used to retrieve the community 

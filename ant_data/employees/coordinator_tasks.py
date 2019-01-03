@@ -1,8 +1,8 @@
 """
-Coodrinator
+Coordinator Tasks
 ==========================
 Provides functions to fetch and parse data from Kingo's ElasticSearch Data
-Warehouse to generate a report on Coordinator tasks.
+Warehouse to generate a report on coordinator tasks.
 
 - Create date:  2018-12-18
 - Update date:  2019-01-02
@@ -79,7 +79,7 @@ def assigned(start, end, f=None):
 
 def data(start, end, coordinator_id, f=None):
   """Combines assigned tasks, additional_tasks, additional variable pay tasks, 
-  and task variable pay information
+  and task variable pay information into a single dictionary.
 
   Args:
     start (str): ISO8601 date interval start.
