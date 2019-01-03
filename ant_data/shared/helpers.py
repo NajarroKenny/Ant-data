@@ -5,12 +5,13 @@ Helpers
 Commonly used generic data functions
 
 - Create date:  2018-12-16
-- Update date:  2018-12-16
-- Version:      !.0
+- Update date:  2019-01-03
+- Version:      1.1
 
 Notes:
 ==========================
 - v1.0: Initial version
+- v1.1: Add join helper function
 """
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -131,3 +132,39 @@ def end_interval_dt(date, interval):
 # TODO:P2
 def convert_timestamp_local(timestamp):
     pass
+
+
+def join_df(index, join_type, *args):
+  """Helper function to join multiple DataFrames or columns from multiple
+  DataFrames
+
+  Args:
+    index (str): Index name on which to perform the join. Must be the SAME
+      across all DataFrames.
+    join_type (str): Join type, options are 'left', 'right, 'inner', 'outer'
+    *args: Variable length argument list. List is composed of DataFrames or
+      DataFrame columns.
+  
+  Returns:
+    DataFrame: Joined DataFrame.
+  """
+  arg_types = { type(x) for x in args }
+
+  if not arg_types.issubset({pd.core.frame.DataFrame, pd.core.frame.Series}):
+    raise Exception('Invalid arg type to merge')
+
+  if len(args) < 2:
+    raise Exception('At least two arguments must be passed to join')
+
+  def to_df(obj):
+    """Simple function to convert an object to a DataFrame"""
+    return obj if isinstance(obj, pd.core.frame.DataFrame) else pd.DataFrame(obj)
+
+  obj = [to_df(x) for x in args]
+
+  df = obj[0]
+
+  for i in range(1, len(obj)):
+    df = df.merge(obj[i], on=index, how=join_type)
+
+  return df
