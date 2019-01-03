@@ -38,17 +38,17 @@ def open_now(country, start=None, end=None, f=None):
     s = s.query(
       'bool', filter=[
         Q('term', country=country),
-        Q('term', open=True) # FIXME: clients, shopkeepers, etc
+        Q('term', kingo_open=True) # FIXME: EMPLOYEES, clients, shopkeepers, etc
       ]
     )
   else:
     s = s.query(
       'bool', filter=[
         Q('term', country=country),
-        Q('range', opened={ 'lt': end }),
+        Q('range', kingo_opened={ 'lt': end }), # FIXME: EMPLOYEES, clients, shopkeepers, etc
         Q('bool', should=[
-          ~Q('exists', field='closed'),
-          Q('range', closed={ 'gte': end })
+          ~Q('exists', field='kingo_closed'),
+          Q('range', kingo_closed={ 'gte': end }) # FIXME: EMPLOYEES, clients, shopkeepers, etc
         ])
       ]
     )

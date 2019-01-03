@@ -33,13 +33,13 @@ def search(country, start=None, end=None, f=None, interval='month'):
     .query('term', country=country)
 
   if start is not None:
-    s = s.query('bool', filter=Q('range', opened={ 'gte': start }))
+    s = s.query('bool', filter=Q('range', kingo_opened={ 'gte': start })) # FIXME: EMPLOYEES, clients, shopkeepers, etc
   if end is not None:
-    s = s.query('bool', filter=Q('range', opened={ 'lt': end }))
+    s = s.query('bool', filter=Q('range', kingo_opened={ 'lt': end })) # FIXME: EMPLOYEES, clients, shopkeepers, etc
   if f is not None:
     s = s.query('bool', filter=f)
 
-  s.aggs.bucket('dates', 'date_histogram', field='opened', interval=interval, min_doc_count=1)
+  s.aggs.bucket('dates', 'date_histogram', field='kingo_opened', interval=interval, min_doc_count=1) # FIXME: EMPLOYEES, clients, shopkeepers, etc
 
   return s[:0].execute()
 
