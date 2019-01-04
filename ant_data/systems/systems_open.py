@@ -32,10 +32,10 @@ CONFIG = configparser.ConfigParser()
 CONFIG.read(ROOT_DIR + '/config.ini')
 
 
-def search_open_now(country, start=None, end=None, f=None):
+def search_open_now(country, end=None, f=None):
   s = Search(using=elastic, index=CONFIG['ES']['SYSTEMS'])
 
-  if start is None and end is None:
+  if end is None:
     s = s.query(
       'bool', filter=[
         Q('term', country=country),
@@ -62,8 +62,8 @@ def search_open_now(country, start=None, end=None, f=None):
   return s[:0].execute()
 
 
-def df_open_now(country, start=None, end=None, f=None, interval='month'):
-  response = search_open_now(country, start=start, end=end, f=f)
+def df_open_now(country, end=None, f=None, interval='month'):
+  response = search_open_now(country, end=end, f=f)
 
   models = [x.key for x in response.aggs.models.buckets]
 
@@ -87,7 +87,7 @@ def df_open_now(country, start=None, end=None, f=None, interval='month'):
 
 
 def df_start(country, start=None, end=None, f=None, interval='month'):
-  open_now = df_open_now(country, start=start, end=end, f=f, interval=interval)
+  open_now = df_open_now(country, end=end, f=f, interval=interval)
   opened = systems_opened.df(country, start=start, end=end, f=f, interval=interval)
   closed = systems_closed.df(country, start=start, end=end, f=f, interval=interval)
   df = open_df.open_df(opened, closed, open_now, interval, 'start')
@@ -95,7 +95,7 @@ def df_start(country, start=None, end=None, f=None, interval='month'):
 
 
 def df_end(country, start=None, end=None, f=None, interval='month'):
-  open_now = df_open_now(country, start=start, end=end, f=f, interval=interval)
+  open_now = df_open_now(country, end=end, f=f, interval=interval)
   opened = systems_opened.df(country, start=start, end=end, f=f, interval=interval)
   closed = systems_closed.df(country, start=start, end=end, f=f, interval=interval)
   df = open_df.open_df(opened, closed, open_now, interval, 'end')

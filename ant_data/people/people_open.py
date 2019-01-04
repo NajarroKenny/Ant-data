@@ -31,10 +31,10 @@ CONFIG = configparser.ConfigParser()
 CONFIG.read(ROOT_DIR + '/config.ini')
 
 
-def open_now(country, start=None, end=None, f=None):
+def open_now(country, end=None, f=None):
   s = Search(using=elastic, index=CONFIG['ES']['PEOPLE'])
 
-  if start is None and end is None:
+  if end is None:
     s = s.query(
       'bool', filter=[
         Q('term', country=country),
@@ -96,7 +96,7 @@ def df_start(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
 
-  open = open_now(country, f=f)
+  open = open_now(country, end=end, f=f)
   opened = people_opened.df(country, start=start, end=end, f=f, interval=interval)
   closed = people_closed.df(country, start=start, end=end, f=f, interval=interval)
 
@@ -134,7 +134,7 @@ def df_end(country, start=None, end=None, f=None, interval='month'):
   if f is None:
     f = []
 
-  open = open_now(country, f=f)
+  open = open_now(country, end=end, f=f)
   opened = people_opened.df(country, start=start, end=end, f=f, interval=interval)
   closed = people_closed.df(country, start=start, end=end, f=f, interval=interval)
 

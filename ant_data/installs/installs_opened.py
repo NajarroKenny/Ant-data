@@ -48,7 +48,7 @@ def search(country, start=None, end=None, f=None, interval='month'):
 
 
 def df(country, start=None, end=None, f=None, interval='month'):
-  response = search(country,start=start, end=end,  f=f, interval=interval)
+  response = search(country, start=start, end=end, f=f, interval=interval)
 
   obj = {}
   for date in response.aggs.dates.buckets:
