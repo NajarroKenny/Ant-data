@@ -8,12 +8,11 @@ from ant_data import elastic, ROOT_DIR
 CONFIG = configparser.ConfigParser()
 CONFIG.read(ROOT_DIR + '/config.ini')
 
-START = '2016-01-01'
-END = '2019-01-01'
-BUCKETS = date_range(START, END, freq='MS')
 
-def df(country):
-  df = DataFrame(index=BUCKETS[:-1], columns=['open'])
+def df(country, start, end):
+  BUCKETS = date_range(start, end, freq='MS')
+  df = DataFrame(index=BUCKETS[:-1], columns=['end'])
+  df.index.name = 'date'
 
   for i in range(len(BUCKETS)-1):
     s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
@@ -23,8 +22,8 @@ def df(country):
       .query('bool', should=[
         ~Q('exists', field='kingo_closed'),
         Q('range', kingo_closed={'gte': BUCKETS[i+1]})
-      ]) 
-    
+      ])
+
     df.loc[BUCKETS[i]] = s.execute().hits.total
 
   return df
