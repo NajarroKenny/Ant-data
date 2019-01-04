@@ -10,7 +10,7 @@ from ant_data.codes import codes as c
 
 def df(country, start=None, end=None, f=None, interval='month'):
   col1 = dev_clients_open.df(country, start, end)
-  col2 = p.clients_open(country, method='weighted', start=start, end=end, f=f, interval=interval)
+  col2 = p.people_open(country, method='weighted', start=start, end=end, f=f, interval=interval)
   col3 = asd.df(country, start=start, end=end, paid=False, f=f, interval=interval)
   col4 = asd.df(country, start=start, end=end, paid=True, f=f, interval=interval)
   col5 = i.kingos_open(country, start=start, end=end, f=f, interval=interval)['total']
