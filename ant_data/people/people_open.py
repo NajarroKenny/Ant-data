@@ -25,7 +25,9 @@ from pandas import concat, DataFrame, offsets, Series, Timestamp
 
 from ant_data import elastic, ROOT_DIR
 from ant_data.people import people_closed, people_opened
+from ant_data.shared.helpers import date_dt, local_date_dt
 
+# FIXME:P1 split into shopkepeers, employees, clients, etc
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(ROOT_DIR + '/config.ini')
@@ -86,7 +88,9 @@ def search_weighted(country, start=None, end=None, f=None, interval='month'):
       .bucket('date_filter', 'filter', Q('range', date={'lt': 'now/d'}))
 
   s.aggs['stats']['date_filter'] \
+    .bucket('kingo', 'filter', ~Q('term', model='Kingo Shopkeeper')) \
     .bucket('dates', 'date_histogram', field='date', interval=interval, min_doc_count=1)
+    #FIXME: .bucket('kingo', 'filter', ~Q('term', model='Kingo Shopkeeper'))  hacky
 
   return s[:0].execute()
 
@@ -174,10 +178,10 @@ def df_average(country, start=None, end=None, f=None, interval='month'):
 def df_weighted(country, start=None, end=None, f=None, interval='month'):
   response = search_weighted(country, start=start, end=end, f=f, interval=interval)
 
-  dates = [x.key_as_string for x in response.aggs.stats.date_filter.dates.buckets]
+  dates = [x.key_as_string for x in response.aggs.stats.date_filter.kingo.dates.buckets]
   obj = {x: { 0 } for x in dates}
 
-  for date in response.aggs.stats.date_filter.dates.buckets:
+  for date in response.aggs.stats.date_filter.kingo.dates.buckets:
     obj[date.key_as_string] = { date.doc_count }
 
   df = DataFrame.from_dict(
@@ -190,7 +194,11 @@ def df_weighted(country, start=None, end=None, f=None, interval='month'):
   df.index.name = 'date'
   df = df.reindex(df.index.astype('datetime64')).sort_index()
   bucket_len = [x.days for x in diff(df.index.tolist())]
-  bucket_len.append((Timestamp.now()-df.index[-1]).days)
+
+  if end is not None:
+    bucket_len.append((date_dt(end) - df.index[-1].date()).days)
+  else:
+    bucket_len.append((local_date_dt(country) - df.index[-1].date()).days)
 
   df = df.div(bucket_len, axis='index')
 

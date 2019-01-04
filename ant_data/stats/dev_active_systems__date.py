@@ -28,10 +28,14 @@ CONFIG = configparser.ConfigParser()
 CONFIG.read(ROOT_DIR + '/config.ini')
 
 
-def search(country, start=None, end=None, f=None, paid=True, interval='month'):
+def search(country, start=None, end=None, f=None, paid=False, interval='month'):
   s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
     .query('term', country=country) \
-    .query('term', doctype='stat')
+    .query('term', doctype='stat') \
+    .query('bool', must_not=[Q('term', model='Kingo Shopkeeper')]) \
+    .query('has_parent', parent_type='person', query=Q('term', doctype='client')) \
+
+    #FIXME: hacky
     # FIXME: system type = 'kingo'
 
   if paid:
@@ -50,7 +54,7 @@ def search(country, start=None, end=None, f=None, paid=True, interval='month'):
     'dates', 'date_histogram', field='date', interval=interval,
     min_doc_count=1
   ) \
-    .metric('count', 'cardinality', field='numbered_id')
+    .metric('count', 'cardinality', field='system_id', precision_threshold=40000)
 
   return s[:0].execute()
 

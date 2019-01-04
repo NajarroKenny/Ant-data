@@ -19,10 +19,10 @@ def df(country, start, end):
     s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
       .query('term', country=country) \
       .query('term', doctype='client') \
-      .query('range', kingo_opened={'lt': BUCKETS[i+1]}) \
+      .query('range', opened={'lt': BUCKETS[i+1]}) \
       .query('bool', should=[
-        ~Q('exists', field='kingo_closed'),
-        Q('range', kingo_closed={'gte': BUCKETS[i+1]})
+        ~Q('exists', field='closed'),
+        Q('range', closed={'gte': BUCKETS[i+1]})
       ])
 
     df.loc[BUCKETS[i]] = s.execute().hits.total

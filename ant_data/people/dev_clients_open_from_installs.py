@@ -16,15 +16,16 @@ def df(country, start, end):
 
   for i in range(len(BUCKETS)-1):
     # print(i, BUCKETS[i], BUCKETS[i+1])
-    s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
+    s = Search(using=elastic, index=CONFIG['ES']['INSTALLS']) \
       .query('term', country=country) \
-      .query('term', doctype='client') \
-      .query('range', kingo_opened={'lt': BUCKETS[i+1]}) \
+      .query('term', system_type='kingo') \
+      .query('range', opened={'lt': BUCKETS[i+1]}) \
       .query('bool', should=[
-        ~Q('exists', field='kingo_closed'),
-        Q('range', kingo_closed={'gte': BUCKETS[i+1]})
+        ~Q('exists', field='closed'),
+        Q('range', closed={'gte': BUCKETS[i+1]})
       ])
+    s.aggs.metric('people', 'cardinality', field='person_id')
 
-    df.loc[BUCKETS[i]] = s.execute().hits.total
+    df.loc[BUCKETS[i]] = s.execute().aggs.people.value
 
   return df
