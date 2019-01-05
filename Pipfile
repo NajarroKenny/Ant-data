@@ -7,15 +7,8 @@ name = "pypi"
 elasticsearch-dsl = "*"
 pandas = "*"
 numpy = "*"
-"bs4" = "*"
-requests = "*"
-"psycopg2" = "*"
-sqlalchemy = "*"
-google-api-python-client = "*"
-"oauth2client" = "*"
 
 [dev-packages]
-pylint = "*"
 
 [requires]
 python_version = "3.7"

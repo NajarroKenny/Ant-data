@@ -33,7 +33,7 @@ def search(country, start=None, end=None, f=None, paid=False, interval='month'):
     .query('term', country=country) \
     .query('term', doctype='stat') \
     .query('bool', must_not=[Q('term', model='Kingo Shopkeeper')]) \
-    .query('has_parent', parent_type='person', query=Q('term', doctype='client')) \
+    # .query('has_parent', parent_type='person', query=Q('term', doctype='client')) \
 
     #FIXME: hacky
     # FIXME: system type = 'kingo'
@@ -59,7 +59,7 @@ def search(country, start=None, end=None, f=None, paid=False, interval='month'):
   return s[:0].execute()
 
 
-def df(country, start=None, end=None, f=None, paid=True, interval='month'):
+def df(country, start=None, end=None, f=None, paid=False, interval='month'):
   response = search(country, start=start, end=end, paid=paid, f=f, interval=interval)
 
   obj = {}
