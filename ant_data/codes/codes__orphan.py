@@ -101,8 +101,8 @@ def df(
       c += sale.commission.value
 
     # IVA
-    i = IVA[country] * p
-    p = (1 - IVA[country]) * p
+    i = p * IVA[country]/(1 + IVA[country])
+    p = p / (1 + IVA[country])
 
     value = 0
     value += p if paid else 0
@@ -129,8 +129,8 @@ def df(
       c += sale.commission.value
 
     # IVA
-    i = IVA[country] * p
-    p = (1 - IVA[country]) * p
+    i = p * IVA[country]/(1 + IVA[country])
+    p = p / (1 + IVA[country])
 
     value = 0
     value += p if paid else 0
@@ -157,8 +157,8 @@ def df(
       c += sale.commission.value
 
     # IVA
-    i = IVA[country] * p
-    p = (1 - IVA[country]) * p
+    i = p * IVA[country]/(1 + IVA[country])
+    p = p / (1 + IVA[country])
 
     value = 0
     value += p if paid else 0

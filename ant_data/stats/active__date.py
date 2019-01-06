@@ -21,7 +21,6 @@ from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 
 from ant_data import elastic, ROOT_DIR
-from ..static.FINANCE import IVA
 
 
 CONFIG = configparser.ConfigParser()

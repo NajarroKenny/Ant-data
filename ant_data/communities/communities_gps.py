@@ -3,7 +3,6 @@ from elasticsearch_dsl import Search, Q
 from pandas import DataFrame, Series
 from pandas.io.json import json_normalize
 import pandas as pd
-from ..static.FINANCE import IVA
 
 
 def search(country, f=None):

@@ -89,8 +89,8 @@ def df(
   df = df.reindex(df.index.astype('datetime64')).sort_index()
 
   df['paid'] = df['paid'] - df['commission']
-  df['iva'] = IVA[country] * df['paid']
-  df['paid'] = (1-IVA[country]) * df['paid']
+  df['iva'] = df['paid'] * IVA[country]/(1 + IVA[country])
+  df['paid'] = df['paid']/(1 + IVA[country])
   df['total'] = df.sum(axis=1)
 
   if not paid:

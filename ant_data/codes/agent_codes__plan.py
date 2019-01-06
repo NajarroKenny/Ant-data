@@ -21,7 +21,6 @@ from pandas import DataFrame, Series
 
 from ant_data import elastic
 from ant_data.codes import codes__plan
-from ..static.FINANCE import IVA
 
 
 def df(
@@ -29,7 +28,7 @@ def df(
   commission=True
 ):
   g = [] if f is None else deepcopy(f)
-  
+
   if not isinstance(agents, list):
     agents = [agents]
   g.append(Q('terms', agent_id=agents))
