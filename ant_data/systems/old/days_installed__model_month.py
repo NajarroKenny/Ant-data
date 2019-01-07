@@ -1,7 +1,6 @@
 from ant_data import elastic
-from elasticsearch_dsl import Search, Q
-from elasticsearch_dsl.aggs import Terms, Nested
-from pandas import DataFrame, Series
+from elasticsearch_dsl import Search
+from pandas import DataFrame
 
 def search(q = None):
     s = Search(using=elastic, index='systems') \

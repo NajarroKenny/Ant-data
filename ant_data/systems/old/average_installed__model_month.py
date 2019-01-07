@@ -1,7 +1,4 @@
 from ant_data import elastic
-from elasticsearch_dsl import Search, Q
-from elasticsearch_dsl.aggs import Terms, Nested
-from pandas import DataFrame, Series
 
 from .days_installed_month import df as _df
 

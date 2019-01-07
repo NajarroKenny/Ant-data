@@ -31,10 +31,13 @@ def search(country, start=None, end=None, f=None, paid=False, interval='month', 
 
   mv = []
   if model is not None and model != []:
+    model = model if isinstance(model, list) else [ model ]
     mv.append(Q('terms', model=model))
   if version is not None and version != []:
+    version = version if isinstance(version, list) else [ version ]
     mv.append(Q('terms', version=version))
   if model_version is not None and model_version != []:
+    model_version = model_version if isinstance(model_version, list) else [ model_version ]
     mv.append(Q('terms', model_version=model_version))
 
   s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \

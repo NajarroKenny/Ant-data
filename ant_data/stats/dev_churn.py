@@ -8,6 +8,7 @@ from pandas import DataFrame, date_range
 from ant_data import elastic, ROOT_DIR
 from ant_data.people import people_open
 from ant_data.stats import dev_active_systems__date, dev_cohort_installs
+from ant_data.codes import codes_to_kingos
 
 
 CONFIG = configparser.ConfigParser()
@@ -29,6 +30,8 @@ def df(country, start, end, f=None, paid=False, interval='month', model=None, ve
     open_systems = people_open.df_weighted(country, start=cohort, end=end, f=g+cohort_filter, interval=interval, model=model, version=version, model_version=model_version)
 
     active_systems = dev_active_systems__date.df(country, start=cohort, end=end, f=g+cohort_filter, interval=interval, model=model, version=version, model_version=model_version)
+
+    # c2k = codes_to_kingos.df(country, start=start, end=end, f=g, interval=interval)
 
     df_cohort = open_systems.merge(active_systems, on='date', how='inner')
 

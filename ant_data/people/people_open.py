@@ -70,10 +70,13 @@ def search_weighted(country, start=None, end=None, f=None, interval='month', mod
 
   mv = []
   if model is not None and model != []:
+    model = model if isinstance(model, list) else [ model ]
     mv.append(Q('terms', model=model))
   if version is not None and version != []:
+    version = version if isinstance(version, list) else [ version ]
     mv.append(Q('terms', version=version))
   if model_version is not None and model_version != []:
+    model_version = model_version if isinstance(model_version, list) else [ model_version ]
     mv.append(Q('terms', model_version=model_version))
 
   s.aggs.bucket('stats', 'children', type='stat') \
