@@ -27,11 +27,21 @@ CONFIG = configparser.ConfigParser()
 CONFIG.read(ROOT_DIR + '/config.ini')
 
 
-def search(country, start=None, end=None, f=None, paid=False, interval='month'):
+def search(country, start=None, end=None, f=None, paid=False, interval='month', model=None, version=None, model_version=None):
+
+  mv = []
+  if model is not None and model != []:
+    mv.append(Q('terms', model=model))
+  if version is not None and version != []:
+    mv.append(Q('terms', version=version))
+  if model_version is not None and model_version != []:
+    mv.append(Q('terms', model_version=model_version))
+
   s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
     .query('term', country=country) \
     .query('term', doctype='stat') \
     .query('bool', must_not=[Q('term', model='Kingo Shopkeeper')]) \
+    .query('bool', filter=mv)
     # .query('has_parent', parent_type='person', query=Q('term', doctype='client')) \
 
     #FIXME: hacky
@@ -58,8 +68,8 @@ def search(country, start=None, end=None, f=None, paid=False, interval='month'):
   return s[:0].execute()
 
 
-def df(country, start=None, end=None, f=None, paid=False, interval='month'):
-  response = search(country, start=start, end=end, paid=paid, f=f, interval=interval)
+def df(country, start=None, end=None, f=None, paid=False, interval='month', model=None, version=None, model_version=None):
+  response = search(country, start=start, end=end, paid=paid, f=f, interval=interval, model=model, version=version, model_version=model_version)
 
   obj = {}
   for date in response.aggs.dates.buckets:

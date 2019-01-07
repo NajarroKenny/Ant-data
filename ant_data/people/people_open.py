@@ -61,33 +61,42 @@ def open_now(country, end=None, f=None):
   return s[:0].execute().hits.total
 
 
-def search_weighted(country, start=None, end=None, f=None, interval='month'):
+def search_weighted(country, start=None, end=None, f=None, interval='month', model=None, version=None, model_version=None):
   s = Search(using=elastic, index=CONFIG['ES']['PEOPLE']) \
       .query('term', country=country)
 
   if f is not None:
       s = s.query('bool', filter=f)
 
-  s.aggs.bucket('stats', 'children', type='stat')
+  mv = []
+  if model is not None and model != []:
+    mv.append(Q('terms', model=model))
+  if version is not None and version != []:
+    mv.append(Q('terms', version=version))
+  if model_version is not None and model_version != []:
+    mv.append(Q('terms', model_version=model_version))
+
+  s.aggs.bucket('stats', 'children', type='stat') \
+    .bucket('mv', 'filter', filter=Q('bool', filter=mv))
 
   if start is not None and end is not None:
-    s.aggs['stats'] \
+    s.aggs['stats']['mv'] \
       .bucket('date_filter', 'filter', Q('range', date={
         'gte': start, 'lt': end
       }))
   elif start is not None:
-    s.aggs['stats'] \
+    s.aggs['stats']['mv'] \
       .bucket('date_filter', 'filter', Q('range', date={
         'gte': start, 'lt': 'now/d'
       }))
   elif end is not None:
-    s.aggs['stats'] \
+    s.aggs['stats']['mv'] \
       .bucket('date_filter', 'filter', Q('range', date={'lt': end}))
   else:
-    s.aggs['stats'] \
+    s.aggs['stats']['mv'] \
       .bucket('date_filter', 'filter', Q('range', date={'lt': 'now/d'}))
 
-  s.aggs['stats']['date_filter'] \
+  s.aggs['stats']['mv']['date_filter'] \
     .bucket('kingo', 'filter', ~Q('term', model='Kingo Shopkeeper')) \
     .bucket('dates', 'date_histogram', field='date', interval=interval, min_doc_count=1)
     #FIXME: .bucket('kingo', 'filter', ~Q('term', model='Kingo Shopkeeper'))  hacky
@@ -175,13 +184,13 @@ def df_average(country, start=None, end=None, f=None, interval='month'):
     axis=1).mean(axis=1)).astype('int64').rename(columns={0: 'average'})
 
 
-def df_weighted(country, start=None, end=None, f=None, interval='month'):
-  response = search_weighted(country, start=start, end=end, f=f, interval=interval)
+def df_weighted(country, start=None, end=None, f=None, interval='month', model=None, version=None, model_version=None):
+  response = search_weighted(country, start=start, end=end, f=f, interval=interval, model=model, version=version, model_version=model_version)
 
-  dates = [x.key_as_string for x in response.aggs.stats.date_filter.kingo.dates.buckets]
+  dates = [x.key_as_string for x in response.aggs.stats.mv.date_filter.kingo.dates.buckets]
   obj = {x: { 0 } for x in dates}
 
-  for date in response.aggs.stats.date_filter.kingo.dates.buckets:
+  for date in response.aggs.stats.mv.date_filter.kingo.dates.buckets:
     obj[date.key_as_string] = { date.doc_count }
 
   df = DataFrame.from_dict(

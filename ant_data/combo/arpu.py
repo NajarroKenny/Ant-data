@@ -1,27 +1,47 @@
+from copy import deepcopy
+
+from elasticsearch_dsl import Q
 import numpy as np
 from pandas import DataFrame, MultiIndex
 
 from ant_data.shared.helpers import join_df
 from ant_data.stats import active__date as ad
 from ant_data.stats import dev_active_systems__date as asd
-from ant_data.people import people as p, dev_clients_open_from_installs as dev_clients_open
+from ant_data.people import people_open
 from ant_data.installs import installs as i
 from ant_data.codes import codes_to_kingos, codes as c
 
-def df(country, start=None, end=None, f=None, interval='month'):
-  col1 = dev_clients_open.df(country, start, end)
-  col2 = p.people_open(country, method='weighted', start=start, end=end, f=f, interval=interval)
-  col3 = asd.df(country, start=start, end=end, f=f, interval=interval)
-  col4 = i.kingos_open(country, start=start, end=end, f=f, interval=interval)['total']
-  col5 = c.df(country, doctype='code', start=start, end=end, f=f, interval=interval)['paid']
-  col6 = codes_to_kingos.df(country, start=start, end=end, f=f, interval=interval)
-  col6['buying_kingos'] = col6['parents.paid'] + col6['orphan.paid']
-  col6 = col6[['buying_kingos']]
+def df(country, start=None, end=None, f=None, interval='month', model=None, version=None, model_version=None):
 
-  df = join_df('date', 'outer', col1, col2, col3, col4, col5, col6)
+  col1 = people_open.df_weighted(country, start=start, end=end, f=f, interval=interval, model=model, version=version, model_version=model_version)
+  col2 = asd.df(country, start=start, end=end, f=f, interval=interval, model=model, version=version, model_version=model_version)
+
+  g = [] if f is None else deepcopy(f)
+  if model is not None and model != []:
+    g.append(Q('terms', model=model))
+  if version is not None and version != []:
+    g.append(Q('terms', version=version))
+  if model_version is not None and model_version != []:
+    g.append(Q('terms', model_version=model_version))
+
+  col3 = i.kingos_open(country, start=start, end=end, f=g, interval=interval)['total']
+
+  g = [] if f is None else deepcopy(f)
+  if model is not None and model != []:
+    g.append(Q('terms', to__model=model))
+  if version is not None and version != []:
+    g.append(Q('terms', to__version=version))
+  if model_version is not None and model_version != []:
+    g.append(Q('terms', to__model_version=model_version))
+
+  col4 = c.df(country, doctype='code', start=start, end=end, f=g, interval=interval)['paid']
+  col5 = codes_to_kingos.df(country, start=start, end=end, f=g, interval=interval)
+  col5['buying_kingos'] = col5['parents.paid'] + col5['orphan.paid']
+  col5 = col5[['buying_kingos']]
+
+  df = join_df('date', 'outer', col1, col2, col3, col4, col5)
   df = df.sort_index().fillna(0)
   df = df.rename(columns={
-    'end': 'clientes',
     'total': 'kingos',
     'weighted': 'kingos (ponderado)',
     'active_systems': 'kingos activos',
@@ -38,7 +58,6 @@ def df(country, start=None, end=None, f=None, interval='month'):
   df = df.replace((-np.inf, np.inf, np.nan), (0,0,0))
 
   df = df.astype({
-    'clientes': 'int64',
     'kingos': 'int64',
     'kingos (ponderado)': 'int64',
     'kingos activos': 'int64',
@@ -57,7 +76,6 @@ def df(country, start=None, end=None, f=None, interval='month'):
   })
 
   df = df[[
-    'clientes',
     'kingos',
     'kingos (ponderado)',
     'kingos activos',
